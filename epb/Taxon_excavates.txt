@@ -1,0 +1,7 @@
+GiardiaLamblia	Excavate	Diplomonad
+LeishmaniaMajor	Excavate	Euglenozoa
+LeishmaniaBraziliensis	Excavate	Euglenozoa
+TrypanosomaCruzi	Excavate	Euglenozoa
+TrypanozomaBrucei	Excavate	Euglenozoa
+NaegleriaGruberi	Excavate	Heterolobosea
+TrichomonasVaginalis	Excavate	Parabasilidea

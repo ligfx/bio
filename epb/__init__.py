@@ -17,8 +17,11 @@ class BlastError(Exception):
 class Blaster:
 	@classmethod
 	def blast(klass, **kwargs):
-		db = kwargs['db']
-		seq = kwargs['seq']
+		try: db = kwargs['db']
+		except KeyError: raise TypeError("blast() takes 'db' keyword argument")
+		try: seq = kwargs['seq']
+		except KeyError: raise TypeError("blast() takes 'seq' keyword argument")
+		
 		p = subprocess.Popen(
 			("blastall -p blastp -d %s -F F -m7 -e 1e-5" % db).split(),
 			stdin=PIPE, stdout=PIPE, stderr=PIPE)

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+bin/unit2 discover -s test

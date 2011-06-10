@@ -15,9 +15,10 @@ class BlastError(Exception):
 
 class Fasta:
 	class Sequence:
-		def __init__(self, header, body):
+		def __init__(self, s):
+			header, body = s.split("\n", 1)
 			self.name = header.replace('>', '').strip()
-			self.body = body
+			self.body = re.sub(r"[\n\s*]", '', body).strip()
 		def __repr__(self):
 			return "Sequence('>%s')" % (self.name + "\n" + self.body)
 	
@@ -28,12 +29,7 @@ class Fasta:
 	@classmethod
 	def each(klass, seq):
 		seqs = []
-		for s in seq.split("\n>"):
-			if s.strip() == '': continue
-			header, body = map(lambda k: k.strip(), s.split("\n", 1))
-			body = re.sub(r"[\n\s*]", '', body)
-			seqs.append(Fasta.Sequence(header, body))
-		return seqs
+		return map(Fasta.Sequence, filter(lambda s: s != '', seq.split("\n>")))
 
 class Blaster:
 	@classmethod

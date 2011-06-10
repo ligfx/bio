@@ -3,10 +3,10 @@ import unittest2
 
 class TestFastaSequence(unittest2.TestCase):
 	def test_init(self):
-		s = Fasta.Sequence("> Bob", "Robinson")
+		s = Fasta.Sequence("> Bob\nBob\n  Robinson")
 		
 		self.assertEqual(s.name, "Bob")
-		self.assertEqual(s.body, "Robinson")
+		self.assertEqual(s.body, "BobRobinson")
 
 class TestFasta(unittest2.TestCase):
 	def test_normalize(self):

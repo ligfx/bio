@@ -1,6 +1,13 @@
 from epb import Fasta
 import unittest2
 
+class TestFastaSequence(unittest2.TestCase):
+	def test_init(self):
+		s = Fasta.Sequence("> Bob", "Robinson")
+		
+		self.assertEqual(s.name, "Bob")
+		self.assertEqual(s.body, "Robinson")
+
 class TestFasta(unittest2.TestCase):
 	def test_normalize(self):
 		sequences = """
@@ -34,4 +41,3 @@ George Harrison
 		
 		self.assertEqual(each[1].name, "George")
 		self.assertEqual(each[1].body, "GeorgeHarrison")
-	

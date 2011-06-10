@@ -16,7 +16,7 @@ class BlastError(Exception):
 class Fasta:
 	class Sequence:
 		def __init__(self, header, body):
-			self.name = header.replace('>', '')
+			self.name = header.replace('>', '').strip()
 			self.body = body
 		def __repr__(self):
 			return "Sequence('>%s')" % (self.name + "\n" + self.body)

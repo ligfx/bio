@@ -10,4 +10,5 @@ class Fasta:
 	@classmethod
 	def each(klass, seq):
 		s = StringIO(seq)
-		return list(SeqIO.parse(s, 'fasta'))
+		for r in SeqIO.parse(s, 'fasta'):
+			yield r

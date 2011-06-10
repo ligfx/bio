@@ -26,7 +26,7 @@ Bob Robinson
 George Harrison
 		"""
 		
-		each = Fasta.each(sequences)
+		each = list(Fasta.each(sequences))
 		self.assertEqual(len(each), 2, "incorrect length")
 		
 		self.assertEqual(each[0].id, "Bob")

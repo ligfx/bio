@@ -2,34 +2,17 @@ from Bio.Blast import NCBIXML
 from collections import namedtuple
 import jinja2
 from os import path
-import re
 from StringIO import StringIO
 import subprocess
 from subprocess import PIPE
+
+from epb.fasta import *
 
 EPB_MODULEDIR = path.dirname(__file__)
 
 class BlastError(Exception):
 	def __init__(self, value): self.value = value
 	def __str__(self): return self.value
-
-class Fasta:
-	class Sequence:
-		def __init__(self, s):
-			header, body = s.split("\n", 1)
-			self.name = header.replace('>', '').strip()
-			self.body = re.sub(r"[\n\s*]", '', body).strip()
-		def __repr__(self):
-			return "Sequence('>%s')" % (self.name + "\n" + self.body)
-	
-	@classmethod
-	def normalize(klass, seq):
-		return "".join(map(lambda s: s.body, klass.each(seq)))
-		
-	@classmethod
-	def each(klass, seq):
-		seqs = []
-		return map(Fasta.Sequence, filter(lambda s: s != '', seq.split("\n>")))
 
 class Blaster:
 	@classmethod

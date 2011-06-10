@@ -1,0 +1,169 @@
+<html>
+
+<head>
+	<style type="text/css">
+		body { width: 900px; font-size: 8px; font-family: Arial,sans; }
+		body * { font-size: 10px; font-weight: bold;}
+		.match { border-bottom: 3px solid black; }
+		.match .stats { border-bottom: 4px solid; }
+		
+		.match.great .stats { border-color: red; }
+		.match.good .stats { border-color: fuchsia; }
+		.match.okay .stats { border-color: lime; }
+		.match.fair .stats { border-color: blue; }
+		.match.poor .stats { border-color: black; }
+		
+		figure { margin: 0; }
+		
+		#colorkey {
+			text-align: center;
+			width: 500px;
+			margin-left: 50px;
+			float: left;
+		}
+		#colorkey figcaption {
+			font-size: 20px;
+		}
+		
+		#colorkey .great { background-color: red; }
+		#colorkey .good { background-color: fuchsia; }
+		#colorkey .okay { background-color: lime; }
+		#colorkey .fair { background-color: blue; }
+		#colorkey .poor { background-color: black; }
+		#colorkey div { float: left; color: white; font-size: 15px; width: 100px; font-weight: normal;}
+		
+		#taxonkey {
+			float: left;
+		}
+		
+		#taxonkey div {
+			width: 150px;
+			font-size: 15px;
+			font-weight: bold;
+			color: black;
+			padding: 5px;
+		}
+		#taxonkey #plantae {
+			background: green;
+			background: rgba(0, 128, 0, 0.2);
+		}
+		#taxonkey #chromalveolate {
+			background: orange;
+			background: rgba(255, 165, 0, 0.2);
+		}
+		#taxonkey #excavate {
+			background: yellow;
+			background: rgba(255, 255, 0, 0.2);
+		}
+		#taxonkey #amoebozoa {
+			background: purple;
+			background: rgba(128, 0, 128, 0.2);
+		}
+		#taxonkey #rhizaria {
+			background: blue;
+			background: rgba(0, 0, 255, 0.2);
+		}
+		#taxonkey #opisthokonta {
+			background: orchid;
+			background: rgba(218, 112, 214, 0.2);
+		}
+		
+		table { width: 100%; }
+		table, table * { padding: 0; margin: 0; border-spacing: 0; border-collapse: collapse;}
+		thead th {
+			text-align: left;
+		}
+		tbody tr {
+			margin-bottom: 1em;
+		}
+		.sequence, .nt {
+			padding: 2px;
+		}
+		
+		.sequence {
+			border-left: 1px solid black;
+		}
+		.organism { background: #e5f2e5; border: 1px solid black; width: 200px; padding-left: 5px; margin-bottom: 1em; border-radius: 5px; -webkit-border-radius: 5px;}
+		.matches { background: #b7c4e5; width: 700px; border: 1px solid black; padding-top: 2px; padding-bottom: 8px; margin-bottom: 1em;}
+		.nt {
+			background: red;
+			border: 1px solid black;
+			color: white;
+			font-size: 14px;
+		}
+	</style>
+</head>
+
+<body>
+
+<figure id="taxonkey">
+	<div id="plantae">Plantae</div>
+	<div id="chromalveolate">Chromalveolate</div>
+	<div id="excavate">Excavate</div>
+	<div id="amoebozoa">Amoebozoa</div>
+	<div id="rhizaria">Rhizaria</div>
+	<div id="opisthokonta">Opisthokonta</div>
+</figure>
+
+<figure id="colorkey">
+	
+	<figcaption>Color key for alignment scores</figcaption>
+	
+	<div class="poor">&lt; 40</div>
+	<div class="fair">40 &ndash; 50</div>
+	<div class="okay">50 &ndash; 80</div>
+	<div class="good">80 &ndash; 200</div>
+	<div class="great">200 &le;</div>
+</figure>
+
+<div style="clear: both"></div>
+
+<table>
+	<thead>
+		{% for seq in sequences %}
+			<tr>
+				<th></th>
+				<th class="sequence">{{ seq.name }}</th>
+			</tr>
+			<tr>
+				<th>
+				</th>
+				<th class="nt">
+					{{ seq.size }}
+				</th>
+			</tr>
+		{% endfor %}
+		
+		<tr class="separator">
+			<td>
+			</td>
+			<td class="matches"></td>
+		</tr>
+	</thead>
+	<tbody>
+		{% for organism in organisms %}
+		<tr>
+			<td class="organism">
+				{{ organism.name.database }}<br/>
+				{{ organism.name.taxon }}<br/>
+				{{ organism.name.extra }}
+			</td>
+			<td class="matches">
+				{% for match in organism.matches %}
+					<div class="match {{ match.strength }}" style="margin-left: {{ match.start }}; width: {{ match.width }}">
+						<div class="stats">{{ match.evalue }}{{ match.name }}</div>
+					</div>
+				{% endfor %}
+			</td>
+		</tr>
+		<tr class="separator">
+			<td>
+			</td>
+			<td class="matches"></td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+</body>
+
+</html> 

@@ -1,13 +1,6 @@
 from epb import Fasta
 import unittest2
 
-class TestFastaSequence(unittest2.TestCase):
-	def test_init(self):
-		s = Fasta.Sequence("> Bob\nBob\n  Robinson")
-		
-		self.assertEqual(s.name, "Bob")
-		self.assertEqual(s.body, "BobRobinson")
-
 class TestFasta(unittest2.TestCase):
 	def test_normalize(self):
 		sequences = """
@@ -36,8 +29,8 @@ George Harrison
 		each = Fasta.each(sequences)
 		self.assertEqual(len(each), 2, "incorrect length")
 		
-		self.assertEqual(each[0].name, "Bob")
-		self.assertEqual(each[0].body, "BobRobinson")
+		self.assertEqual(each[0].id, "Bob")
+		self.assertEqual(str(each[0].seq), "BobRobinson")
 		
-		self.assertEqual(each[1].name, "George")
-		self.assertEqual(each[1].body, "GeorgeHarrison")
+		self.assertEqual(each[1].id, "George")
+		self.assertEqual(str(each[1].seq), "GeorgeHarrison")

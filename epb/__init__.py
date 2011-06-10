@@ -6,7 +6,6 @@ import re
 from StringIO import StringIO
 import subprocess
 from subprocess import PIPE
-import xmlfoo
 
 EPB_MODULEDIR = path.dirname(__file__)
 
@@ -30,7 +29,8 @@ class Fasta:
 	def each(klass, seq):
 		seqs = []
 		for s in seq.split("\n>"):
-			header, body = s.strip().split("\n", 1)
+			if s.strip() == '': continue
+			header, body = map(lambda k: k.strip(), s.split("\n", 1))
 			body = re.sub(r"[\n\s*]", '', body)
 			seqs.append(Fasta.Sequence(header, body))
 		return seqs
@@ -204,7 +204,7 @@ class Figure:
 		)
 		return "\n".join(self.header + [svg])
 
-Organism = collections.namedtuple("Organism", "name matches")
+Organism = namedtuple("Organism", "name matches")
 
 class OrganismMatch:
 	def __init__(self, name, hsp):
@@ -250,8 +250,6 @@ class DatabaseCollection:
 	def find(self, name):
 		return path.join(self.dir, name)
 
-OrganismMatch = collections.namedtuple("Match", "name evalue strength start width")
-
 import sys
 if __file__ == sys.argv[0]:
 	taxon = sys.argv.pop()
@@ -269,7 +267,6 @@ if __file__ == sys.argv[0]:
 			organisms.append(Organism(organism_name, matches))
 		except BlastError as e:
 			print "[Blaster] Error: %s" % e
-		finally:
 	
 	env = jinja2.Environment(loader = jinja2.PackageLoader('epb', 'templates'))
 	template = env.get_template('results.html.jinja2')

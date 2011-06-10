@@ -7,6 +7,7 @@ import subprocess
 from subprocess import PIPE
 
 from epb.fasta import *
+from epb.utils import *
 
 EPB_MODULEDIR = path.dirname(__file__)
 
@@ -17,10 +18,8 @@ class BlastError(Exception):
 class Blaster:
 	@classmethod
 	def blast(klass, **kwargs):
-		try: db = kwargs['db']
-		except KeyError: raise TypeError("blast() takes 'db' keyword argument")
-		try: seq = kwargs['seq']
-		except KeyError: raise TypeError("blast() takes 'seq' keyword argument")
+		db = require_kw(kwargs, 'db')
+		seq = require_kw(kwargs, 'seq')
 		
 		p = subprocess.Popen(
 			("blastall -p blastp -d %s -F F -m7 -e 1e-5" % db).split(),

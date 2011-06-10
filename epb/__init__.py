@@ -11,8 +11,8 @@ EPB_MODULEDIR = path.dirname(__file__)
 class TaxonFileParser:
 	@classmethod
 	def parse(klass, stream):
-		return map(lambda s: s.strip().split("\t", 2),
-		           stream.readlines())
+		for line in stream:
+			yield line.strip().split("\t", 2)
 
 class TaxonFileError(Exception):
 	def __init__(self, value): self.value = value

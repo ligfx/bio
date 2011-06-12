@@ -8,10 +8,6 @@ from epb.taxon import *
 from epb.utils import *
 
 EPB_MODULEDIR = path.dirname(__file__)
-
-class TaxonFileError(Exception):
-	def __init__(self, value): self.value = value
-	def __str__(self): return self.value
 	
 class Figure:
 	def __init__(self):

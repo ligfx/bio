@@ -23,8 +23,14 @@ class TestOrganismMatch(unittest2.TestCase):
 			getattr(m, prop)
 	
 class TestOrganismName(unittest2.TestCase):
-	def test_init(self):
+	def test_init_with_extra(self):
 		n = OrganismName("database", "taxon", "extra")
 		self.assertEqual(n.database, "database")
 		self.assertEqual(n.taxon, "taxon")
 		self.assertEqual(n.extra, "extra")
+		
+	def test_init_wo_extra(self):
+		n = OrganismName("db", "t")
+		self.assertEqual(n.database, "db")
+		self.assertEqual(n.taxon, "t")
+		self.assertEqual(n.extra, "")

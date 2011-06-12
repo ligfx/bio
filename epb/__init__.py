@@ -173,7 +173,7 @@ class OrganismMatch:
 		self.evalue = hsp.expect
 
 class OrganismName:
-	def __init__(self, database, taxon, extra):
+	def __init__(self, database, taxon, extra=""):
 		self.database = database
 		self.taxon = taxon
 		self.extra = extra

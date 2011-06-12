@@ -1,4 +1,4 @@
-from epb import Organism, OrganismMatch
+from epb import Organism, OrganismMatch, OrganismName
 import unittest2
 
 class TestOrganism(unittest2.TestCase):
@@ -15,9 +15,16 @@ class TestOrganismMatch(unittest2.TestCase):
 			self.query_end = 6
 			self.expect = 0
 	
-	def test_takes_hsp(self):
+	def test_has_properties(self):
 		hsp = TestOrganismMatch.HSPMock()
 		m = OrganismMatch("name", "ABA", hsp)
 		
 		for prop in ("name", "strength", "start", "width", "evalue"):
 			getattr(m, prop)
+	
+class TestOrganismName(unittest2.TestCase):
+	def test_init(self):
+		n = OrganismName("database", "taxon", "extra")
+		self.assertEqual(n.database, "database")
+		self.assertEqual(n.taxon, "taxon")
+		self.assertEqual(n.extra, "extra")

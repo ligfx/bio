@@ -1,6 +1,7 @@
-from collections import namedtuple
-
-Organism = namedtuple("Organism", "name matches")
+class Organism:
+	def __init__(self, name, matches):
+		self.name = name
+		self.matches = matches
 
 class OrganismMatch:
 	def __init__(self, name, seq, hsp):

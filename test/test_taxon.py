@@ -1,6 +1,16 @@
-from epb import TaxonFileParser
+from epb import TaxonFileCollection, TaxonFileParser
+from os import path
 from StringIO import StringIO
 import unittest2
+
+class TestTaxonFileCollection(unittest2.TestCase):
+	def setUp(self):
+		self.assets = path.dirname(__file__)
+		self.t = TaxonFileCollection(self.assets)
+	
+	def test_open(self):
+		taxon = self.t.find("test")
+		self.assertEqual(taxon, path.join(self.assets, "Taxon_test.txt"))
 
 class TestTaxonFileParser(unittest2.TestCase):
 	def test_parse(self):

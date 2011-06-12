@@ -155,7 +155,7 @@ class Figure:
 Organism = namedtuple("Organism", "name matches")
 
 class OrganismMatch:
-	def __init__(self, name, hsp):
+	def __init__(self, name, seq, hsp):
 		self.name = name
 		
 		if hsp.score < 40:
@@ -171,8 +171,8 @@ class OrganismMatch:
 		else:
 			self.strength = ""
 		
-		self.start = "%s%" % (hsp.query_start / len(seq) * 100)
-		self.width = "%s%" % ((hsp.query_end - hsp.query_start) / len(seq) * 100)
+		self.start = "%s%%" % (hsp.query_start / len(seq) * 100)
+		self.width = "%s%%" % ((hsp.query_end - hsp.query_start) / len(seq) * 100)
 		
 		self.evalue = hsp.expect
 
@@ -211,7 +211,7 @@ if __file__ == sys.argv[0]:
 			for record in Blaster.blast(db=db.find(organism_name.database), seq=seq):
 				for a in record.alignments:
 					for hsp in a.hsps:
-						matches.append(OrganismMatch(a.title, hsp))
+						matches.append(OrganismMatch(a.title, seq, hsp))
 			organisms.append(Organism(organism_name, matches))
 		except BlastError as e:
 			print "[Blaster] Error: %s" % e

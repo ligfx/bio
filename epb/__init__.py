@@ -4,15 +4,10 @@ from os import path
 
 from epb.blast import *
 from epb.fasta import *
+from epb.taxon import *
 from epb.utils import *
 
 EPB_MODULEDIR = path.dirname(__file__)
-
-class TaxonFileParser:
-	@classmethod
-	def parse(klass, stream):
-		for line in stream:
-			yield line.strip().split("\t", 2)
 
 class TaxonFileError(Exception):
 	def __init__(self, value): self.value = value

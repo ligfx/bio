@@ -20,3 +20,8 @@ class TaxonFileCollection:
 			return expanded
 		else:
 			raise TaxonFileError("couldn't find Taxon_%s.txt in %s" % (name, self.dir))
+	
+	def parse(self, name):
+		with open(self.find(name)) as f:
+			for t in TaxonFileParser.parse(f):
+				yield t

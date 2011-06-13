@@ -18,9 +18,10 @@ class EPB:
 		return (OrganismName(*k) for k in t.parse(taxon))
 	
 	@classmethod
-	def blast(klass, seq, db_dir, names):
+	def blast(klass, seq, db_dir, names, cb=None):
 		organisms = []
 		for name in names:
+			if cb: cb()
 			try:
 				matches = []
 				for record in Blaster.blast(db=path.join(db_dir, organism_name.database), seq=seq):
@@ -40,14 +41,14 @@ class EPB:
 		return template.render(organisms = organisms)
 		
 	@classmethod
-	def go(klass, seq, taxon, db_dir):
+	def go(klass, seq, taxon, db_dir, cb=None):
 		log = logging.getLogger("epb.go")
 		log.debug("seq=%s" % seq)
 		log.debug("taxon=%s" % taxon)
 		
 		seq = Fasta.normalize(seq)
 		names = klass.organism_names(taxon)
-		results = klass.blast(seq, db_bir, names)
+		results = klass.blast(seq, db_dir, names, cb)
 		return klass.render(results)
 
 import sys

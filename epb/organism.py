@@ -30,13 +30,3 @@ class OrganismName:
 		self.database = database
 		self.taxon = taxon
 		self.extra = extra
-	
-	@classmethod
-	def find_all_by_taxonomy(klass, taxon):
-		fname = path.join(EPB_MODULEDIR, "Taxon_%s.txt" % taxon)
-		if path.exists(fname):
-			with open(fname) as f:
-				return map(lambda s: path.join(self.dir, s),
-				           TaxonFileParser.parse(f))
-		else:
-			raise TaxonFileError("couldn't find Taxon_%s.txt in module directory" % taxon)

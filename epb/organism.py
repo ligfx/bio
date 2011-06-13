@@ -1,7 +1,23 @@
+from epb.blast import *
+from epb.utils import *
+
 class Organism:
 	def __init__(self, name, matches):
 		self.name = name
 		self.matches = matches
+	
+	@classmethod
+	def blast(klass, blaster=Blaster, **kwargs):
+		name = require_kw(kwargs, "name")
+		db = require_kw(kwargs, "db")
+		seq = require_kw(kwargs, "seq")
+		
+		matches = []
+		for record in blaster.blast(db=db, seq=seq):
+			for a in record.alignments:
+				for hsp in a.hsps:
+					matches.append(OrganismMatch(a.hit_def, seq, hsp))
+		return klass(name, matches)
 
 class OrganismMatch:
 	def __init__(self, name, seq, hsp):

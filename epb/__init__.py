@@ -33,13 +33,8 @@ class EPB:
 		for name in names:
 			if cb: cb()
 			try:
-				matches = []
-				for record in Blaster.blast(db=path.join(self.dbdir, name.database), seq=seq):
-					assert len(record.alignments) == len(record.descriptions)
-					for a in record.alignments:
-						for hsp in a.hsps:
-							matches.append(OrganismMatch(a.hit_def, seq, hsp))
-				organisms.append(Organism(name, matches))
+				o = Organism.blast(name=name, db=path.join(self.dbdir, name.database), seq=seq)
+				organisms.append(o)
 			except BlastError as e:
 				logging.getLogger("blastall").warning("Error: %s" % e)
 		return organisms

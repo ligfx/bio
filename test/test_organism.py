@@ -1,4 +1,5 @@
 from epb import Organism, OrganismMatch, OrganismName
+from epb.utils import *
 import unittest2
 
 class TestOrganism(unittest2.TestCase):
@@ -6,6 +7,24 @@ class TestOrganism(unittest2.TestCase):
 		o = Organism("name", ["matches"])
 		self.assertEqual(o.name, "name")
 		self.assertEqual(o.matches, ["matches"])
+	
+	class BlasterMock:
+		def __enter__(self):
+			return self
+		def __exit__(self, type, value, traceback):
+			return
+			
+		def blast(self, **kwargs):
+			self.seq = require_kw(kwargs, "seq")
+			self.db = require_kw(kwargs, "db")
+			return ()
+	
+	def test_blast(self):
+		with TestOrganism.BlasterMock() as blaster:
+			o = Organism.blast(blaster, name="name", db="database", seq="seq")
+			self.assertEqual(blaster.seq, "seq")
+			self.assertEqual(blaster.db, "database")
+			self.assertEqual(o.name, "name")
 
 class TestOrganismMatch(unittest2.TestCase):
 	class HSPMock:

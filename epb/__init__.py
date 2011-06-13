@@ -1,6 +1,7 @@
 import jinja2
 import logging
 from os import path
+import yaml
 
 from epb.blast import *
 from epb.fasta import *
@@ -55,7 +56,10 @@ if __file__ == sys.argv[0]:
 	
 	taxon = sys.argv[1]
 	seq = sys.stdin.read()
+	
+	with open(path.join(MODULEDIR, 'config.yaml')) as f:
+		config = yaml.load(f)
 
-	db_dir = "databases"
+	db_dir = config['db_dir']
 	print EPB.go(seq, taxon, db_dir)
 	

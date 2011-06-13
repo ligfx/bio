@@ -20,7 +20,7 @@ oB
 		
 	def test_each(self):
 		sequences = """
-> Bob
+> Bob the [Builder]
 Bob Robinson
 > George
 George Harrison
@@ -29,7 +29,7 @@ George Harrison
 		each = list(Fasta.each(sequences))
 		self.assertEqual(len(each), 2, "incorrect length")
 		
-		self.assertEqual(each[0].name, "Bob")
+		self.assertEqual(each[0].name, "Bob the [Builder]")
 		self.assertEqual(each[0].seq, "BobRobinson")
 		self.assertEqual(each[0].size, 11)
 		

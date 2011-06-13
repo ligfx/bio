@@ -20,4 +20,4 @@ class Fasta:
 	def each(klass, seq):
 		s = StringIO(seq)
 		for r in SeqIO.parse(s, 'fasta'):
-			yield Fasta.Sequence(r.id.strip(), str(r.seq))
+			yield Fasta.Sequence(r.description.strip(), str(r.seq))

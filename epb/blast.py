@@ -1,4 +1,5 @@
 from Bio.Blast import NCBIXML
+from epb.utils import require_kw
 from StringIO import StringIO
 import subprocess
 from subprocess import PIPE

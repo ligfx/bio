@@ -4,63 +4,68 @@ from os import path
 import yaml
 
 from epb.blast import *
+from epb.cgi import *
 from epb.fasta import *
 from epb.organism import *
 from epb.taxon import *
-from epb.utils import *
 
 MODULEDIR = path.dirname(__file__)
 
 class EPB:
-	@classmethod
-	def organism_names(klass, taxon):
+	def __init__(self):
+		logging.basicConfig(format = "%(asctime)s %(name)s: %(message)s", level=logging.DEBUG)
+		self.log = logging.getLogger("epb[EPB]")
+		
+		configfile = path.join(MODULEDIR, 'config.yaml')
+		self.log.debug("configuration: %s" % configfile)
+		with open(configfile) as f:
+			self.config = yaml.load(f)
+
+		self.dbdir = self.config['dbdir']
+		self.log.debug("config['dbdir']: %s" % self.dbdir)
+	
+	def organism_names(self, taxon):
 		t = TaxonFileCollection(MODULEDIR)
 		return (OrganismName(*k) for k in t.parse(taxon))
 	
-	@classmethod
-	def blast(klass, seq, db_dir, names, cb=None):
+	def blast(self, seq, names, cb=None):
 		organisms = []
 		for name in names:
 			if cb: cb()
 			try:
 				matches = []
-				for record in Blaster.blast(db=path.join(db_dir, organism_name.database), seq=seq):
+				for record in Blaster.blast(db=path.join(self.dbdir, name.database), seq=seq):
+					assert len(record.alignments) == len(record.descriptions)
 					for a in record.alignments:
 						for hsp in a.hsps:
-							matches.append(OrganismMatch(a.title, seq, hsp))
+							matches.append(OrganismMatch(a.hit_def, seq, hsp))
 				organisms.append(Organism(name, matches))
 			except BlastError as e:
-				print "[Blaster] Error: %s" % e
+				logging.getLogger("blastall").warning("Error: %s" % e)
 		return organisms
 	
-	@classmethod
-	def render(klass, organisms):
+	def render(self, sequences, organisms):
 		env = jinja2.Environment(loader = jinja2.PackageLoader('epb', 'templates'))
 		template = env.get_template('results.html.jinja2')
 		
-		return template.render(organisms = organisms)
+		return template.render(organisms = organisms, sequences = sequences)
 		
-	@classmethod
-	def go(klass, seq, taxon, db_dir, cb=None):
-		log = logging.getLogger("epb.go")
-		log.debug("seq=%s" % seq)
-		log.debug("taxon=%s" % taxon)
+	def go(self, seq, taxon, cb=None):
+		self.log.debug("seq: %s" % seq)
+		self.log.debug("taxon: %s" % taxon)
 		
-		seq = Fasta.normalize(seq)
-		names = klass.organism_names(taxon)
-		results = klass.blast(seq, db_dir, names, cb)
-		return klass.render(results)
+		nseq = Fasta.normalize(seq)
+		self.log.debug("normalized sequence: %s" % nseq)
+		
+		names = self.organism_names(taxon)
+		results = self.blast(nseq, names, cb)
+		return self.render(list(Fasta.each(seq)), results)
 
 import sys
-if __file__ == sys.argv[0]:
-	logging.basicConfig(format = "%(asctime)s %(name)s: %(message)s", level=logging.DEBUG)
-	
+if __file__ == sys.argv[0]:	
 	taxon = sys.argv[1]
 	seq = sys.stdin.read()
 	
-	with open(path.join(MODULEDIR, 'config.yaml')) as f:
-		config = yaml.load(f)
-
-	db_dir = config['db_dir']
-	print EPB.go(seq, taxon, db_dir)
+	e = EPB()
+	print e.go(seq, taxon)
 	

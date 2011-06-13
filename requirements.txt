@@ -4,3 +4,4 @@ numpy
 biopython
 wsgiref
 pyyaml
+unittest2

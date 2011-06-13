@@ -29,8 +29,10 @@ George Harrison
 		each = list(Fasta.each(sequences))
 		self.assertEqual(len(each), 2, "incorrect length")
 		
-		self.assertEqual(each[0].id, "Bob")
-		self.assertEqual(str(each[0].seq), "BobRobinson")
+		self.assertEqual(each[0].name, "Bob")
+		self.assertEqual(each[0].seq, "BobRobinson")
+		self.assertEqual(each[0].size, 11)
 		
-		self.assertEqual(each[1].id, "George")
-		self.assertEqual(str(each[1].seq), "GeorgeHarrison")
+		self.assertEqual(each[1].name, "George")
+		self.assertEqual(each[1].seq, "GeorgeHarrison")
+		self.assertEqual(each[1].size, 14)

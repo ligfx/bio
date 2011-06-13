@@ -20,8 +20,8 @@ class OrganismMatch:
 		else:
 			self.strength = ""
 		
-		self.start = "%s%%" % (hsp.query_start / len(seq) * 100)
-		self.width = "%s%%" % ((hsp.query_end - hsp.query_start) / len(seq) * 100)
+		self.start = "%d%%" % (hsp.query_start * 100.0 / len(seq))
+		self.width = "%d%%" % ((hsp.query_end - hsp.query_start) * 100.0 / len(seq))
 		
 		self.evalue = hsp.expect
 

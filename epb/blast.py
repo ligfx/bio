@@ -15,7 +15,7 @@ class Blaster:
 		seq = require_kw(kwargs, 'seq')
 		
 		p = subprocess.Popen(
-			("blastall -p blastp -d %s -F F -m7 -e 1e-5" % db).split(),
+			("blastall -p blastp -d %s -m7 -e 1e-5 -a 8" % db).split(),
 			stdin=PIPE, stdout=PIPE, stderr=PIPE)
 		try:
 			p.stdin.write(seq + "\n")

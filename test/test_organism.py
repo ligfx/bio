@@ -1,12 +1,12 @@
-from epb import Organism, OrganismMatch, OrganismName
+from epb import Organism, OrganismHit, OrganismHSP, OrganismName
 from epb.utils import *
 import unittest2
 
 class TestOrganism(unittest2.TestCase):
 	def test_has_properties(self):
-		o = Organism("name", ["matches"])
+		o = Organism("name", ["hits"])
 		self.assertEqual(o.name, "name")
-		self.assertEqual(o.matches, ["matches"])
+		self.assertEqual(o.hits, ["hits"])
 	
 	class BlasterMock:
 		def __enter__(self):
@@ -26,7 +26,8 @@ class TestOrganism(unittest2.TestCase):
 			self.assertEqual(blaster.db, "database")
 			self.assertEqual(o.name, "name")
 
-class TestOrganismMatch(unittest2.TestCase):
+"""
+class TestOrganismHit(unittest2.TestCase):
 	class HSPMock:
 		def __init__(self):
 			self.score = 0
@@ -38,9 +39,25 @@ class TestOrganismMatch(unittest2.TestCase):
 		hsp = TestOrganismMatch.HSPMock()
 		m = OrganismMatch("name", "ABA", hsp)
 		
-		for prop in ("name", "strength", "start", "width", "evalue"):
+		for prop in ("name", "start", "width", "evalue"):
 			getattr(m, prop)
+"""
+
+class TestOrganismHSP(unittest2.TestCase):
+	class HSPMock:
+		def __init__(self):
+			self.score = 0
+			self.query_start = 5
+			self.query_end = 6
+			self.expect = 0
 	
+	def test_has_properties(self):
+		hsp = TestOrganismHSP.HSPMock()
+		h = OrganismHSP(hsp, "seq")
+		
+		for prop in ("strength", "start", "width", "evalue"):
+			getattr(h, prop)
+
 class TestOrganismName(unittest2.TestCase):
 	def test_init_with_extra(self):
 		n = OrganismName("database", "taxon", "extra")

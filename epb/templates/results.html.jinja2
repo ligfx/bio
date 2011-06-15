@@ -4,14 +4,22 @@
 	<style type="text/css">
 		body { width: 900px; font-size: 8px; font-family: Arial,sans; }
 		body * { font-size: 10px; font-weight: bold;}
-		.match { border-bottom: 3px solid black; }
-		.match .stats { border-bottom: 4px solid; }
+		.hit_border { border-bottom: 3px solid black;}
+		.hit .stats { font-weight: strong; }
+		.hit { padding-bottom: 1em;}
+		.hsp_border { border-bottom: 4px solid; }
 		
-		.match.great .stats { border-color: red; }
-		.match.good .stats { border-color: fuchsia; }
-		.match.okay .stats { border-color: lime; }
-		.match.fair .stats { border-color: blue; }
-		.match.poor .stats { border-color: black; }
+		.hsp_stat { font-weight: normal; display: none;}
+		
+		.hsp_border.great { border-color: red; }
+		.hsp_border.good { border-color: fuchsia; }
+		.hsp_border.okay { border-color: lime; }
+		.hsp_border.fair { border-color: blue; }
+		.hsp_border.poor { border-color: black; }
+		
+		.sequences > div > div {
+			float: left;
+		}
 		
 		figure { margin: 0; }
 		
@@ -43,27 +51,27 @@
 			color: black;
 			padding: 5px;
 		}
-		#taxonkey #plantae {
+		.plantae {
 			background: green;
 			background: rgba(0, 128, 0, 0.2);
 		}
-		#taxonkey #chromalveolate {
+		.chromalveolate {
 			background: orange;
 			background: rgba(255, 165, 0, 0.2);
 		}
-		#taxonkey #excavate {
+		.excavate {
 			background: yellow;
 			background: rgba(255, 255, 0, 0.2);
 		}
-		#taxonkey #amoebozoa {
+		.amoebozoa {
 			background: purple;
 			background: rgba(128, 0, 128, 0.2);
 		}
-		#taxonkey #rhizaria {
+		.rhizaria {
 			background: blue;
 			background: rgba(0, 0, 255, 0.2);
 		}
-		#taxonkey #opisthokonta {
+		.opisthokonta {
 			background: orchid;
 			background: rgba(218, 112, 214, 0.2);
 		}
@@ -84,12 +92,33 @@
 			border-left: 1px solid black;
 		}
 		.organism { background: #e5f2e5; border: 1px solid black; width: 200px; padding-left: 5px; margin-bottom: 1em; border-radius: 5px; -webkit-border-radius: 5px;}
-		.matches { background: #b7c4e5; width: 700px; border: 1px solid black; padding-top: 2px; padding-bottom: 8px; margin-bottom: 1em;}
+		.hits { background: #b7c4e5; width: 700px; border: 1px solid black; padding-top: 2px; padding-bottom: 8px; margin-bottom: 1em;}
 		.nt {
 			background: red;
 			border: 1px solid black;
 			color: white;
 			font-size: 14px;
+			height: 1.5em;
+			padding: 0;
+			width: 100%;
+		}
+		.nt > div {
+			font-size: 14px;
+			font-weight: bold;
+			border-left: 1px solid black;
+			margin-left: -1px;
+		}
+		
+		.divider {
+			float: left;
+			width: 100%;
+			position: relative;
+			border-left: 1px dashed #aaa;
+			margin-left: -1px;
+		}
+		.hit_container {
+			width: 100%;
+			position: relative;
 		}
 	</style>
 </head>
@@ -97,12 +126,12 @@
 <body>
 
 <figure id="taxonkey">
-	<div id="plantae">Plantae</div>
-	<div id="chromalveolate">Chromalveolate</div>
-	<div id="excavate">Excavate</div>
-	<div id="amoebozoa">Amoebozoa</div>
-	<div id="rhizaria">Rhizaria</div>
-	<div id="opisthokonta">Opisthokonta</div>
+	<div class="plantae">Plantae</div>
+	<div class="chromalveolate">Chromalveolate</div>
+	<div class="excavate">Excavate</div>
+	<div class="amoebozoa">Amoebozoa</div>
+	<div class="rhizaria">Rhizaria</div>
+	<div class="opisthokonta">Opisthokonta</div>
 </figure>
 
 <figure id="colorkey">
@@ -120,46 +149,66 @@
 
 <table>
 	<thead>
-		{% for seq in sequences %}
-			<tr>
-				<th></th>
-				<th class="sequence">{{ seq.name }}</th>
-			</tr>
-			<tr>
-				<th>
-				</th>
-				<th class="nt">
-					{{ seq.size }} nt
-				</th>
-			</tr>
-		{% endfor %}
-		
+		<tr>
+			<th></th>
+			<th class="sequences">
+				<div class="name">
+					{% for seq in sequences %}
+						<div style="width: {{ seq.width }}">{{ seq.name }}</div>
+					{% endfor %}
+				</div>
+				<div style="clear: both"></div>
+				<div class="nt">
+					{% for seq in sequences %}
+						<div style="width: {{ seq.width}}">{{ seq.size}} nt</div>
+					{% endfor %}
+					<div style="clear: both"></div>
+				</div>
+			</th>
+		</tr>
 		<tr class="separator">
 			<td>
 			</td>
-			<td class="matches"></td>
+			<td class="hits"></td>
 		</tr>
 	</thead>
 	<tbody>
 		{% for organism in organisms %}
 		<tr>
-			<td class="organism">
+			<td class="organism {{ organism.name.taxon|lower }}">
 				{{ organism.name.database }}<br/>
 				{{ organism.name.taxon }}<br/>
 				{{ organism.name.extra }}
 			</td>
-			<td class="matches">
-				{% for match in organism.matches %}
-					<div class="match {{ match.strength }}" style="margin-left: {{ match.start }}; width: {{ match.width }}">
-						<div class="stats">{{ match.evalue }} {{ match.name }}</div>
+			<td class="hits">
+					{% for seq in sequences %}
+						<div class="divider" {% if seq.previous %} style="left: {{ seq.previous.width }}" {% endif %}>
+					{% endfor %}
+				<div class="hit_container" style="right: {{ total_sequence_width }}">
+					{% for hit in organism.hits %}
+						<div class="hit">
+							<div class="stats" style="text-align: left">{{ hit.evalue }} {{ hit.name }}</div>
+							{% for hsp in hit.hsps %}
+								<div class="hsp_stat" style="margin-left: {{ hsp.start }};">
+									{{ hsp.evalue }}
+								</div>
+							{% endfor %}
+							{% for hsp in hit.hsps %}
+								<div class="hsp_border {{ hsp.strength }}" style="margin-left: {{ hsp.start }}; width: {{ hsp.width }}"></div>
+							{% endfor %}
+							<div class="hit_border" style="margin-left: {{ hit.start }}; width: {{ hit.width }}"></div>
+						</div>
+					{% endfor %}
+				</div>
+				
+				{% for seq in sequences %}
 					</div>
 				{% endfor %}
 			</td>
 		</tr>
 		<tr class="separator">
-			<td>
-			</td>
-			<td class="matches"></td>
+			<td></td>
+			<td class="hits"></td>
 		</tr>
 		{% endfor %}
 	</tbody>

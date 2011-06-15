@@ -32,6 +32,7 @@ class EPB:
 		organisms = []
 		for name in names:
 			if cb: cb()
+			self.log.debug("blasting %s" % name.database)
 			try:
 				o = Organism.blast(name=name, db=path.join(self.dbdir, name.database), seq=seq)
 				organisms.append(o)
@@ -43,7 +44,8 @@ class EPB:
 		env = jinja2.Environment(loader = jinja2.PackageLoader('epb', 'templates'))
 		template = env.get_template('results.html.jinja2')
 		
-		return template.render(organisms = organisms, sequences = sequences)
+		total_sequence_width = "%f%%" % sum(float(s.width.replace('%', '')) for s in sequences[:-1])
+		return template.render(organisms = organisms, sequences = sequences, total_sequence_width=total_sequence_width)
 		
 	def go(self, seq, taxon, cb=None):
 		self.log.debug("seq: %s" % seq)
@@ -54,7 +56,16 @@ class EPB:
 		
 		names = self.organism_names(taxon)
 		results = self.blast(nseq, names, cb)
-		return self.render(list(Fasta.each(seq)), results)
+		
+		seqs = list(Fasta.each(seq))
+		total = len(nseq)
+		p = None
+		for s in seqs:
+			s.width = "%f%%" % (s.size * 100.0 / total)
+			s.previous, p = p, s
+		
+		
+		return self.render(seqs, results)
 
 import sys
 if __file__ == sys.argv[0]:	

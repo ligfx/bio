@@ -7,6 +7,7 @@ from epb.blast import *
 from epb.cgi import *
 from epb.fasta import *
 from epb.organism import *
+from epb.presenter import *
 from epb.taxon import *
 
 MODULEDIR = path.dirname(__file__)

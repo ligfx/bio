@@ -1,3 +1,15 @@
+class OrganismPresenter:
+	def __init__(self, opts={}):
+		self.name = opts.get("name")
+		self.alignments = opts.get("alignments")
+		
+	@classmethod
+	def from_name_and_record(klass, name, record):
+		return klass({
+			"name": name,
+			"alignments": [AlignmentPresenter.from_alignment(a) for a in record.alignments]
+		})
+
 class AlignmentPresenter:
 	def __init__(self, opts={}):
 		self.name = opts.get("name")

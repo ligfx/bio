@@ -1,5 +1,9 @@
-from epb import AlignmentPresenter, HSPPresenter
+from epb import AlignmentPresenter, HSPPresenter, OrganismPresenter
 import unittest2
+
+class RecordMock:
+	def __init__(self):
+		self.alignments = (AlignmentMock(),)
 
 class AlignmentMock:
 	def __init__(self):
@@ -20,6 +24,14 @@ class HSPMock:
 		self.query_end = 8
 		self.expect = 0
 		return self
+
+class TestOrganismPresenter(unittest2.TestCase):
+	def test_from_name_and_records(self):
+		r = RecordMock()
+		o = OrganismPresenter.from_name_and_record("name", r)
+		
+		self.assertEqual(o.name, "name")
+		self.assertEqual(len(o.alignments), 1)
 
 class TestAlignmentPresenter(unittest2.TestCase):
 	def test_from_hit(self):

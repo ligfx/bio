@@ -1,3 +1,22 @@
+class AlignmentPresenter:
+	def __init__(self, opts={}):
+		self.name = opts.get("name")
+		self.evalue = opts.get("evalue")
+		self.start = opts.get("start")
+		self.end = opts.get("end")
+		self.hsps = opts.get("hsps")
+
+	@classmethod
+	def from_alignment(klass, align):
+		hsps = [HSPPresenter.from_hsp(h) for h in align.hsps]
+		return klass({
+			"name": align.title,
+			"evalue": hsps[0].evalue,
+			"start": min(h.start for h in hsps),
+			"end": max(h.end for h in hsps),
+			"hsps": hsps
+		})
+
 class HSPPresenter:
 	def __init__(self, opts={}):
 		self.score = opts.get("score")

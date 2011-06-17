@@ -181,8 +181,10 @@
 				{{ organism.name.extra }}
 			</td>
 			<td class="hits">
-					{% for seq in sequences %}
-						<div class="divider" {% if seq.previous %} style="left: {{ seq.previous.width }}" {% endif %}>
+					<div class="divider">
+				
+					{% for seq in sequences[0:-1] %}
+						<div class="divider" style="left: {{ seq.width }}">
 					{% endfor %}
 				<div class="hit_container" style="right: {{ total_sequence_width }}">
 					{% for hit in organism.hits %}
@@ -201,9 +203,10 @@
 					{% endfor %}
 				</div>
 				
-				{% for seq in sequences %}
+				{% for seq in sequences[0:-1] %}
 					</div>
 				{% endfor %}
+				</div>
 			</td>
 		</tr>
 		<tr class="separator">

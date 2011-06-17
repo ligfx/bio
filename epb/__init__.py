@@ -63,8 +63,6 @@ class EPB:
 		p = None
 		for s in seqs:
 			s.width = "%f%%" % (s.size * 100.0 / total)
-			s.previous, p = p, s
-		
 		
 		return self.render(seqs, results)
 

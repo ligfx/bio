@@ -1,4 +1,4 @@
-from epb import AlignmentPresenter, HSPPresenter, OrganismPresenter
+from epb import AlignmentPresenter, HSPPresenter, OrganismPresenter, RecordPresenter
 import unittest2
 
 class RecordMock:
@@ -26,12 +26,19 @@ class HSPMock:
 		return self
 
 class TestOrganismPresenter(unittest2.TestCase):
-	def test_from_name_and_records(self):
-		r = RecordMock()
-		o = OrganismPresenter.from_name_and_record("name", r)
+	def test_from_name_and_records_single(self):
+		r = [RecordMock()]
+		o = OrganismPresenter.from_name_and_records("name", r)
 		
 		self.assertEqual(o.name, "name")
-		self.assertEqual(len(o.alignments), 1)
+		self.assertEqual(len(o.records), 1)
+
+class TestRecordPresenter(unittest2.TestCase):
+	def test_from_record(self):
+		r = RecordMock()
+		p = RecordPresenter.from_record(r)
+		
+		self.assertEqual(len(p.alignments), 1)
 
 class TestAlignmentPresenter(unittest2.TestCase):
 	def test_from_hit(self):

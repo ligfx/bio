@@ -1,13 +1,25 @@
 class OrganismPresenter:
 	def __init__(self, opts={}):
 		self.name = opts.get("name")
+		self.records = opts.get("records")
+		
+	@classmethod
+	def from_name_and_records(klass, name, _records):
+		records = map(RecordPresenter.from_record, _records)
+		return klass({
+			"name": name,
+			"records": records
+		})
+
+class RecordPresenter:
+	def __init__(self, opts={}):
 		self.alignments = opts.get("alignments")
 		
 	@classmethod
-	def from_name_and_record(klass, name, record):
+	def from_record(klass, record):
+		alignments = map(AlignmentPresenter.from_alignment, record.alignments)
 		return klass({
-			"name": name,
-			"alignments": [AlignmentPresenter.from_alignment(a) for a in record.alignments]
+			"alignments" : alignments
 		})
 
 class AlignmentPresenter:
@@ -20,7 +32,7 @@ class AlignmentPresenter:
 
 	@classmethod
 	def from_alignment(klass, align):
-		hsps = [HSPPresenter.from_hsp(h) for h in align.hsps]
+		hsps = map(HSPPresenter.from_hsp, align.hsps)
 		return klass({
 			"name": align.title,
 			"evalue": hsps[0].evalue,

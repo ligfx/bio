@@ -58,6 +58,7 @@ class TestHSPPresenter(unittest2.TestCase):
 		h = HSPPresenter.from_hsp(m)
 		
 		self.assertEqual(h.score, 0)
+		self.assertEqual(h.strength, "poor")
 		self.assertEqual(h.start, 5)
 		self.assertEqual(h.end, 6)
 		self.assertEqual(h.width, 1)

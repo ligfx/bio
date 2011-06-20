@@ -48,17 +48,35 @@ class AlignmentPresenter:
 class HSPPresenter:
 	def __init__(self, opts={}):
 		self.score = opts.get("score")
+		self.strength = opts.get("strength")
 		self.start = opts.get("start")
 		self.end = opts.get("end")
 		self.width = opts.get("width")
 		self.evalue = opts.get("evalue")
-		
+	
+	@classmethod
+	def _score_to_strength(klass, score):
+		if score < 40:
+			strength = "poor"
+		elif score < 50:
+			strength = "fair"
+		elif score < 80:
+			strength = "okay"
+		elif score < 200:
+			strength = "good"
+		elif score >= 200:
+			strength = "great"
+		else:
+			strength = ""
+		return strength
+	
 	@classmethod
 	def from_hsp(klass, hsp):
 		start = hsp.query_start
 		end = hsp.query_end
 		return klass({
 			"score": hsp.score,
+			"strength": klass._score_to_strength(hsp.score),
 			"start": hsp.query_start,
 			"end": hsp.query_end,
 			"width": end - start,

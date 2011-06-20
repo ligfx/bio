@@ -6,7 +6,6 @@ import yaml
 from epb.blast import *
 from epb.cgi import *
 from epb.fasta import *
-from epb.organism import *
 from epb.presenter import *
 from epb.taxon import *
 
@@ -88,7 +87,7 @@ class EPB:
 	
 	def dispatch(self, params={}):
 		taxon = params['taxon']
-		params['names'] = [OrganismName(*k) for k in self.taxons.parse(params['taxon'])]
+		params['names'] = [NamePresenter(*k) for k in self.taxons.parse(params['taxon'])]
 		params['dbdir'] = self.dbdir
 		c = Controller(params)
 		return c.results()

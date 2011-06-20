@@ -1,5 +1,18 @@
-from epb import AlignmentPresenter, HSPPresenter, OrganismPresenter, RecordPresenter
+from epb import AlignmentPresenter, HSPPresenter, NamePresenter, OrganismPresenter, RecordPresenter
 import unittest2
+
+class TestNamePresenter(unittest2.TestCase):
+	def test_init_with_extra(self):
+		n = NamePresenter("database", "taxon", "extra")
+		self.assertEqual(n.database, "database")
+		self.assertEqual(n.taxon, "taxon")
+		self.assertEqual(n.extra, "extra")
+		
+	def test_init_wo_extra(self):
+		n = NamePresenter("db", "t")
+		self.assertEqual(n.database, "db")
+		self.assertEqual(n.taxon, "t")
+		self.assertEqual(n.extra, "")
 
 class RecordMock:
 	def __init__(self):

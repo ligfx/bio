@@ -1,3 +1,9 @@
+class NamePresenter:
+	def __init__(self, database, taxon="", extra=""):
+		self.database = database
+		self.taxon = taxon
+		self.extra = extra
+
 class OrganismPresenter:
 	def __init__(self, opts={}):
 		self.name = opts.get("name")

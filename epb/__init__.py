@@ -50,10 +50,6 @@ class Controller:
 				logging.getLogger("blastall").warning("Error: %s" % e)
 		
 		sequences = list(Fasta.each(fasta))
-		total = len(seq)
-		p = None
-		for s in sequences:
-			s.width = "%f%%" % (s.size * 100.0 / total)
 		
 		return self.render("results", {
 			"organisms": organisms,
@@ -63,10 +59,17 @@ class Controller:
 	def render(self, action, context):
 		env = jinja2.Environment(loader = jinja2.PackageLoader('epb', 'templates'))
 		env.filters['as_percent'] = lambda value, total: "{0}%".format(value * 100.0 / total)
+		env.filters['sum_attr'] = lambda enum, attr: sum(getattr(e, attr) for e in enum)
 		
 		template = env.get_template("%s.html.jinja2" % action)
 
-		context['total_sequence_percent_width'] = "%f%%" % sum(float(s.width.replace('%', '')) for s in context['sequences'][:-1])
+		context['input_width'] = sum(s.size for s in context['sequences'])
+		
+		for o in context['organisms']:
+			offset = 0
+			for r in o.records:
+				r.offset = offset
+				offset += r.width
 
 		return template.render(context)
 

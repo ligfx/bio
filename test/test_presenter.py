@@ -4,6 +4,7 @@ import unittest2
 class RecordMock:
 	def __init__(self):
 		self.alignments = (AlignmentMock(),)
+		self.query_length = 5
 
 class AlignmentMock:
 	def __init__(self):
@@ -39,6 +40,7 @@ class TestRecordPresenter(unittest2.TestCase):
 		p = RecordPresenter.from_record(r)
 		
 		self.assertEqual(len(p.alignments), 1)
+		self.assertEqual(p.width, 5)
 
 class TestAlignmentPresenter(unittest2.TestCase):
 	def test_from_hit(self):

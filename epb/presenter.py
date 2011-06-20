@@ -14,12 +14,14 @@ class OrganismPresenter:
 class RecordPresenter:
 	def __init__(self, opts={}):
 		self.alignments = opts.get("alignments")
+		self.width = opts.get("width")
 		
 	@classmethod
 	def from_record(klass, record):
 		alignments = map(AlignmentPresenter.from_alignment, record.alignments)
 		return klass({
-			"alignments" : alignments
+			"alignments" : alignments,
+			"width" : record.query_length
 		})
 
 class AlignmentPresenter:

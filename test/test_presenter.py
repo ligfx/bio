@@ -49,6 +49,7 @@ class TestAlignmentPresenter(unittest2.TestCase):
 		self.assertEqual(h.evalue, 0)
 		self.assertEqual(h.start, 5)
 		self.assertEqual(h.end, 8)
+		self.assertEqual(h.width, 3)
 		self.assertEqual(len(h.hsps), 2)
 
 class TestHSPPresenter(unittest2.TestCase):
@@ -59,4 +60,5 @@ class TestHSPPresenter(unittest2.TestCase):
 		self.assertEqual(h.score, 0)
 		self.assertEqual(h.start, 5)
 		self.assertEqual(h.end, 6)
+		self.assertEqual(h.width, 1)
 		self.assertEqual(h.evalue, 0)

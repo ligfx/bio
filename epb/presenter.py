@@ -28,16 +28,20 @@ class AlignmentPresenter:
 		self.evalue = opts.get("evalue")
 		self.start = opts.get("start")
 		self.end = opts.get("end")
+		self.width = opts.get("width")
 		self.hsps = opts.get("hsps")
 
 	@classmethod
 	def from_alignment(klass, align):
 		hsps = map(HSPPresenter.from_hsp, align.hsps)
+		start = min(h.start for h in hsps)
+		end = max(h.end for h in hsps)
 		return klass({
 			"name": align.title,
 			"evalue": hsps[0].evalue,
-			"start": min(h.start for h in hsps),
-			"end": max(h.end for h in hsps),
+			"start": start,
+			"end": end,
+			"width": end - start,
 			"hsps": hsps
 		})
 
@@ -46,13 +50,17 @@ class HSPPresenter:
 		self.score = opts.get("score")
 		self.start = opts.get("start")
 		self.end = opts.get("end")
+		self.width = opts.get("width")
 		self.evalue = opts.get("evalue")
 		
 	@classmethod
 	def from_hsp(klass, hsp):
+		start = hsp.query_start
+		end = hsp.query_end
 		return klass({
 			"score": hsp.score,
 			"start": hsp.query_start,
 			"end": hsp.query_end,
+			"width": end - start,
 			"evalue": hsp.expect
 		})

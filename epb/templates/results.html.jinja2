@@ -186,20 +186,24 @@
 					{% for seq in sequences[0:-1] %}
 						<div class="divider" style="left: {{ seq.width }}">
 					{% endfor %}
-				<div class="hit_container" style="right: {{ total_sequence_width }}">
-					{% for hit in organism.hits %}
+				<div class="hit_container" style="right: {{ total_sequence_percent_width }}">
+					{% for record in organism.records %}
+					<div class="record">
+					{% for hit in record.alignments %}
 						<div class="hit">
 							<div class="stats" style="text-align: left">{{ hit.evalue }} {{ hit.name }}</div>
 							{% for hsp in hit.hsps %}
-								<div class="hsp_stat" style="margin-left: {{ hsp.start }};">
+								<div class="hsp_stat" style="margin-left: {{ hsp.start | as_percent(record.width) }};">
 									{{ hsp.evalue }}
 								</div>
 							{% endfor %}
 							{% for hsp in hit.hsps %}
-								<div class="hsp_border {{ hsp.strength }}" style="margin-left: {{ hsp.start }}; width: {{ hsp.width }}"></div>
+								<div class="hsp_border {{ hsp.strength }}" style="margin-left: {{ hsp.start | as_percent(record.width) }}; width: {{ hsp.width | as_percent(record.width) }}"></div>
 							{% endfor %}
-							<div class="hit_border" style="margin-left: {{ hit.start }}; width: {{ hit.width }}"></div>
+							<div class="hit_border" style="margin-left: {{ hit.start | as_percent(record.width) }}; width: {{ hit.width | as_percent(record.width) }}"></div>
 						</div>
+					{% endfor %}
+					</div>
 					{% endfor %}
 				</div>
 				

@@ -173,12 +173,12 @@
 		</tr>
 	</thead>
 	<tbody>
-		{% for organism in organisms %}
+		{% for organism, results in results | group('organism') %}
 		<tr>
-			<td class="organism {{ organism.name.taxon|lower }}">
-				{{ organism.name.database }}<br/>
-				{{ organism.name.taxon }}<br/>
-				{{ organism.name.extra }}
+			<td class="organism {{ organism.taxon | lower }}">
+				{{ organism.database }}<br/>
+				{{ organism.taxon }}<br/>
+				{{ organism.extra }}
 			</td>
 			<td class="hits">
 					<div class="divider">
@@ -187,20 +187,19 @@
 						<div class="divider" style="left: {{ seq.size | as_percent(input_width) }}">
 					{% endfor %}
 				<div class="hit_container" style="right: {{ sequences[:-1] | sum_attr('size') | as_percent(input_width) }}">
-					{% for record in organism.records %}
-					<div class="record">
-					{% for hit in record.alignments %}
+					{% for alignment, results in results | group('alignment') %}
 						<div class="hit">
-							<div class="stats" style="text-align: left">{{ hit.evalue }} {{ hit.name }}</div>
-							<div class="graphic" style="width: {{ record.width | as_percent(input_width) }}; margin-left: {{ record.offset | as_percent(input_width) }}">
-							{% for hsp in hit.hsps %}
-								<div class="hsp_border {{ hsp.strength }}" style="margin-left: {{ hsp.start | as_percent(record.width) }}; width: {{ hsp.width | as_percent(record.width) }}"></div>
+							<div class="stats" style="text-align: left">{{ alignment.evalue }} {{ alignment.name }}</div>
+							{% for result in results %}
+								<div class="graphic" style="width: {{ result['record'].width | as_percent(input_width) }}; margin-left: {{ result['record'].offset | as_percent(input_width) }}">
+								{% for hsp in result['hsps'] %}
+									<div class="hsp_border {{ hsp.strength }}" style="margin-left: {{ hsp.start | as_percent(result['record'].width) }};
+									width: {{ hsp.width | as_percent(result['record'].width) }}"></div>
+								{% endfor %}
+								<div class="hit_border" style="margin-left: {{ alignment.start | as_percent(result['record'].width) }}; width: {{ alignment.width | as_percent(result['record'].width) }}"></div>
 							{% endfor %}
-							<div class="hit_border" style="margin-left: {{ hit.start | as_percent(record.width) }}; width: {{ hit.width | as_percent(record.width) }}"></div>
 							</div>
 						</div>
-					{% endfor %}
-					</div>
 					{% endfor %}
 				</div>
 				

@@ -1,3 +1,4 @@
+from itertools import groupby
 import jinja2
 import logging
 from os import path
@@ -14,7 +15,7 @@ MODULEDIR = path.dirname(__file__)
 class Controller:
 	def __init__(self, params={}):
 		self.params = params
-		self.dbdir = self.params['dbdir']
+		self.blast = Blast({"database_path": params['dbdir']})
 		self.logger = logging.getLogger("epb[Controller]")
 
 	def log(self, msg):
@@ -40,19 +41,11 @@ class Controller:
 		else:
 			raise Exception, "method must be one of 'concat' or 'multiple'"
 		
-		organisms = []
-		for name in names:
-			self.log("blasting %s" % name.database)
-			try:
-				records = Blaster.blast(seq=seq, db=path.join(self.dbdir, name.database))
-				organisms.append(OrganismPresenter.from_name_and_records(name, records))
-			except BlastError as e:
-				logging.getLogger("blastall").warning("Error: %s" % e)
-		
+		results = self.blast.find_all(seq, names)
 		sequences = list(Fasta.each(fasta))
 		
 		return self.render("results", {
-			"organisms": organisms,
+			"results": results,
 			"sequences": sequences
 		})
 		
@@ -60,16 +53,11 @@ class Controller:
 		env = jinja2.Environment(loader = jinja2.PackageLoader('epb', 'templates'))
 		env.filters['as_percent'] = lambda value, total: "{0}%".format(value * 100.0 / total)
 		env.filters['sum_attr'] = lambda enum, attr: sum(getattr(e, attr) for e in enum)
+		env.filters['group'] = lambda enum, key: groupby(sorted(enum, key = lambda e: e.get(key)), lambda e: e.get(key))
 		
 		template = env.get_template("%s.html.jinja2" % action)
 
 		context['input_width'] = sum(s.size for s in context['sequences'])
-		
-		for o in context['organisms']:
-			offset = 0
-			for r in o.records:
-				r.offset = offset
-				offset += r.width
 
 		return template.render(context)
 

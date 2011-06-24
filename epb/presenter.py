@@ -27,6 +27,12 @@ class AlignmentPresenter:
 	 	self.end = end
 		self.width = end - start
 	
+	def __lt__(self, other):
+		return self.name < other.name
+	
+	def __eq__(self, other):
+		return self.name == other.name
+	
 	def __repr__(self):
 		"<AlignmentPresenter @name=\"{0}\">".format(self.name)
 

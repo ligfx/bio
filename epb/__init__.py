@@ -41,11 +41,11 @@ class Controller:
 		else:
 			raise Exception, "method must be one of 'concat' or 'multiple'"
 		
-		results = self.blast.find_all(seq, names)
+		data = self.blast.find_all(seq, names)
 		sequences = list(Fasta.each(fasta))
 		
 		return self.render("results", {
-			"results": results,
+			"data": data,
 			"sequences": sequences
 		})
 		

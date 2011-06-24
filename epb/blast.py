@@ -1,6 +1,7 @@
 from Bio.Blast import NCBIXML
 from epb.presenter import *
 from epb.utils import require_kw
+from itertools import groupby
 import logging
 import os
 from os import path
@@ -8,6 +9,28 @@ import shlex
 from StringIO import StringIO
 import subprocess
 from subprocess import PIPE
+
+class DataSet:
+	def __init__(self, data):
+		self.data = data
+		
+	def by_organism(self):
+		return self._group(lambda _: _['organism'])
+		
+	def by_alignment(self):		
+		data = self._group(lambda _: _['alignment'])
+		
+		for a, d in data:
+			a.evalue = min(row['hsps'][0].evalue for row in d.items())
+		
+		data = sorted(data, key = lambda _: _[0].evalue)
+		return data
+		
+	def items(self):
+		return self.data
+		
+	def _group(self, key):
+		return [(k, DataSet(list(v))) for (k, v) in groupby(sorted(self.data, key = key), key)]
 
 class BlastError(Exception):
 	def __init__(self, value): self.value = value
@@ -53,4 +76,4 @@ class Blast:
 					h = map(HSPPresenter, alignment.hsps)
 					all.append({"organism": o, "record": r, "alignment": a, "hsps": h})
 					
-		return all
+		return DataSet(all)

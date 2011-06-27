@@ -78,7 +78,7 @@ class EPB:
 	
 	def dispatch(self, params={}):
 		taxon = params['taxon']
-		params['names'] = [NamePresenter(*k) for k in self.taxons.parse(params['taxon'])]
+		params['names'] = (NamePresenter(*k) for k in self.taxons.parse(params['taxon']))
 		params['dbdir'] = self.dbdir
 		c = Controller(params)
 		return c.results()

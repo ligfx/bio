@@ -58,16 +58,10 @@ class HSPPresenter:
 	
 	@classmethod
 	def _score_to_strength(klass, score):
-		if score < 40:
-			strength = "poor"
-		elif score < 50:
-			strength = "fair"
-		elif score < 80:
-			strength = "okay"
-		elif score < 200:
-			strength = "good"
-		elif score >= 200:
-			strength = "great"
-		else:
-			strength = ""
+		if score < 40:     strength = "poor"
+		elif score < 50:   strength = "fair"
+		elif score < 80:   strength = "okay"
+		elif score < 200:  strength = "good"
+		elif score >= 200: strength = "great"
+		else:              strength = ""
 		return strength

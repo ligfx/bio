@@ -86,13 +86,19 @@
 			<th class="sequences">
 				<div class="name">
 					{% for seq in sequences %}
-						<div style="width: {{ seq.size | as_percent(input_width) }}">{{ seq.name }}</div>
+						<div style="
+							width: {{ seq.size | as_percent(input_width) }}">
+							{{ seq.name }}
+						</div>
 					{% endfor %}
 				</div>
 				<div style="clear: both"></div>
 				<div class="nt">
 					{% for seq in sequences %}
-						<div style="width: {{ seq.size | as_percent(input_width) }}">{{ seq.size }} nt</div>
+						<div style="
+							width: {{ seq.size | as_percent(input_width) }}">
+							{{ seq.size }} nt
+						</div>
 					{% endfor %}
 					<div style="clear: both"></div>
 				</div>
@@ -113,23 +119,36 @@
 				{{ organism.extra }}
 			</td>
 			<td class="hits">
-					<div class="divider">
+				<div class="divider">
+			
+				{% for seq in sequences[0:-1] %}
+					<div class="divider" style="
+						left: {{ seq.size | as_percent(input_width) }}"
+					>
+				{% endfor %}
 				
-					{% for seq in sequences[0:-1] %}
-						<div class="divider" style="left: {{ seq.size | as_percent(input_width) }}">
-					{% endfor %}
-				<div class="hit_container" style="right: {{ sequences[:-1] | sum_attr('size') | as_percent(input_width) }}">
+				<div class="hit_container" style="
+					right: {{ sequences[:-1] | sum_attr('size') | as_percent(input_width) }}"
+				>
 					{% for alignment, data in data.by_alignment() %}
 						<a id="alignment-{{ alignment.digest }}" href="#alignment-{{ alignment.digest }}">
 						<div class="hit">
 							<div class="stats" style="text-align: left">{{ alignment.evalue }} {{ alignment.name }}</div>
 							{% for datum in data.items() %}
-								<div class="graphic" style="width: {{ datum.record.width | as_percent(input_width) }}; margin-left: {{ datum.record.offset | as_percent(input_width) }}">
-								{% for hsp in datum.hsps %}
-									<div class="hsp_border {{ hsp.strength }}" style="margin-left: {{ hsp.start | as_percent(datum.record.width) }};
-									width: {{ hsp.width | as_percent(datum.record.width) }}"></div>
-								{% endfor %}
-								<div class="hit_border" style="margin-left: {{ alignment.start | as_percent(datum.record.width) }}; width: {{ alignment.width | as_percent(datum.record.width) }}"></div>
+								<div class="graphic" style="
+									width: {{ datum.record.width | as_percent(input_width) }};
+									margin-left: {{ datum.record.offset | as_percent(input_width) }}"
+								>
+									{% for hsp in datum.hsps %}
+										<div class="hsp_border {{ hsp.strength }}" style="
+											margin-left: {{ hsp.start | as_percent(datum.record.width) }};
+											width: {{ hsp.width | as_percent(datum.record.width) }}">
+										</div>
+									{% endfor %}
+									<div class="hit_border" style="
+										margin-left: {{ alignment.start | as_percent(datum.record.width) }};
+										width: {{ alignment.width | as_percent(datum.record.width) }}">
+									</div>
 								</div>
 							{% endfor %}
 						</div>

@@ -4,9 +4,9 @@ from Bio import SeqIO
 
 class Fasta:
 	class Sequence:
-		def __init__(self, name, seq):
-			self.name = name
-			self.seq = seq
+		def __init__(self, opts={}):
+			self.name = opts['name']
+			self.seq = opts['seq']
 			
 		@property
 		def size(self):
@@ -20,4 +20,7 @@ class Fasta:
 	def each(klass, seq):
 		s = StringIO(seq)
 		for r in SeqIO.parse(s, 'fasta'):
-			yield Fasta.Sequence(r.description.strip(), str(r.seq))
+			yield Fasta.Sequence({
+				"name": r.description.strip(),
+				"seq": str(r.seq)
+			})

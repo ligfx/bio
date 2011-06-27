@@ -1,6 +1,5 @@
 from Bio.Blast import NCBIXML
 from epb.presenter import *
-from epb.utils import require_kw
 from itertools import groupby
 import logging
 import os
@@ -15,27 +14,45 @@ class DataSet:
 		self.data = data
 		
 	def by_organism(self):
-		return self._group(lambda _: _['organism'])
+		return self._group('organism')
 		
 	def by_alignment(self):		
-		data = self._group(lambda _: _['alignment'])
-		
+		data = self._group('alignment')
 		for a, d in data:
 			a.evalue = min(row['hsps'][0].evalue for row in d.items())
 		
-		data = sorted(data, key = lambda _: _[0].evalue)
+		data = sorted(data, key = lambda (a, d): a.evalue)
 		return data
 		
 	def items(self):
 		return self.data
 		
 	def _group(self, key):
-		return [(k, DataSet(list(v))) for (k, v) in groupby(sorted(self.data, key = key), key)]
+		f = lambda _: _[key]
+		return [(k, DataSet(list(v))) for (k, v) in groupby(sorted(self.data, key = f), f)]
 
-class BlastError(Exception):
-	def __init__(self, value): self.value = value
-	def __str__(self): return self.value
+class ProcessError(Exception): pass
+class Process:
+	@classmethod
+	def run(klass, command, input):
+		klass.which(shlex.split(command)[0])
+		
+		p = subprocess.Popen(
+			shlex.split(command),
+			stdin=PIPE, stdout=PIPE, stderr=PIPE
+		)
+		
+		out, err = p.communicate(input)
+		if p.returncode != 0:
+			raise ProcessError, "Return code %i from '%s'\n%s" % (p.returncode, command, err)
+		return out
+	
+	@classmethod
+	def which(klass, command):
+		which = reduce(lambda x, y: x or (os.path.exists(os.path.join(y, command))), os.environ['PATH'].split(os.pathsep), False)
+		if not which: raise Exception, "can't find '%s' executable in PATH" % command
 
+class BlastError(Exception): pass
 class Blast:
 	def __init__(self, opts):
 		self.database_path = opts["database_path"]
@@ -48,25 +65,12 @@ class Blast:
 		
 		all = []
 		
-		which = reduce(lambda x, y: x or (os.path.exists(os.path.join(y, "blastall"))), os.environ['PATH'].split(os.pathsep), False)
-		if not which: raise Exception, "can't find 'blastall' executable in PATH"
-		
 		for name in names:
 			db = path.join(self.database_path, name.database)
-			p = subprocess.Popen(
-				shlex.split("blastall -p blastp -d %s -m7 -e 1e-5 -a 8" % db),
-				stdin=PIPE, stdout=PIPE, stderr=PIPE
-			)
-			
-			out, err = p.communicate(seq + "\n")
-			if p.returncode != 0:
-				warn("return code of %i when blasting %s\n%s" % (p.returncode, db, err.strip()))
-				p.kill()
-				continue
-			xml = StringIO(out)
-			
+			xml = Process.run("blastall -p blastp -d %s -m7 -e 1e-5 -a 8" % db, "%s\n" % seq)
+	
 			record_offset = 0
-			for record in NCBIXML.parse(xml):
+			for record in NCBIXML.parse(StringIO(xml)):
 				# {"organism": ..., "record": ..., "alignment": ..., "hsps": ...}
 				o = name
 				r = RecordPresenter(record, {"offset": record_offset})

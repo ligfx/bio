@@ -1,3 +1,6 @@
 [submodule "vendor/bonzo"]
 	path = vendor/bonzo
 	url = https://github.com/ded/bonzo
+[submodule "vendor/domready"]
+	path = vendor/domready
+	url = https://github.com/ded/domready

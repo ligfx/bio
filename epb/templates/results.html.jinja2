@@ -9,31 +9,24 @@
 		{{ render("app.js.jinja2") }}
 	</script>
 	<script type="text/javascript">
-		function $(selector) {
-			return bonzo(document.getElementById(selector));
-		}
-		bonzo.aug({
-			click: function(callback) {
-				return bean.add(this[0], 'click', callback);
-			},
-			showAsBlock: function() {
-				return this.each(function(e) { e.style.display = "block"; });
-			}
-		})
+		var alignments = [
+			{% for alignment, data in data.by_alignment() %}
+				"{{ alignment.digest }}",
+			{% endfor %}
+		];
 	
 		domReady(function() {
-			
-			{% for alignment, data in data.by_alignment() %}
-				$("alignment-{{ alignment.digest }}").click(function(){
-					$('overlays').showAsBlock();
-					$("alignment-overlay-{{ alignment.digest }}").showAsBlock();
-				})
-				$("alignment-overlay-close-{{ alignment.digest }}").click(function(){
+			$.each(alignments, function(d) {
+				$("alignment-" + d).click(function() {
+					$('overlays').show();
+					$('alignment-overlay-' + d).show();
+				});
+				$("alignment-overlay-close-" + d).click(function() {
 					$('overlays').hide();
-					$("alignment-overlay-{{ alignment.digest }}").hide();
-				})
-			{% endfor %}
-		})
+					$('alignment-overlay-' + d).hide();
+				});
+			});
+		});
 	</script>
 </head>
 

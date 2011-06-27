@@ -1,3 +1,50 @@
-{{ render("bean.min.js") }}
-{{ render("bonzo.min.js") }}
-{{ render("ready.min.js") }}
+{{ render('bean.min.js') }}
+{{ render('ready.min.js') }}
+
+var $ = (function() {
+
+	var E = function(elements) {
+		this.elements = elements;
+	};
+	
+	var $ = function(selector) {
+		var e = document.getElementById(selector);
+		return new E(e ? [e] : []);
+	};
+	
+	E.prototype = {
+		click: function(callback) {
+			this.each(function (e) {
+				bean.add(e, 'click', callback);
+			});
+		},
+		each: function(callback) {
+			$.each(this.elements, callback);
+		},
+		hide: function() {
+			this.each(function (e) {
+				e.style.display = "none";
+			});
+		},
+		show: function(display_type) {
+			display_type = display_type || "block";
+			this.each(function (e) {
+				e.style.display = display_type;
+			});
+		},
+	};
+	
+	if (Array.prototype.forEach) {
+		$.each = function(list, callback) {
+			list.forEach(callback);
+		}
+	} else {			
+		$.each = function(list, callback) {
+			for (var i=0, length=list.length; i < length; i++) {
+				callback(list[i]);
+			}
+		}
+	}
+	
+	return $;
+})();

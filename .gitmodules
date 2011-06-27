@@ -4,3 +4,6 @@
 [submodule "vendor/domready"]
 	path = vendor/domready
 	url = https://github.com/ded/domready
+[submodule "vendor/bean"]
+	path = vendor/bean
+	url = https://github.com/fat/bean

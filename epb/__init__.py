@@ -54,7 +54,6 @@ class Controller:
 		env.filters['as_percent'] = lambda value, total: "{0}%".format(value * 100.0 / total)
 		env.filters['sum_attr'] = lambda enum, attr: sum(getattr(e, attr) for e in enum)
 		
-		
 		template = env.get_template("%s.html.jinja2" % action)
 
 		context['input_width'] = sum(s.size for s in context['sequences'])
@@ -74,7 +73,7 @@ class EPB:
 		self.dbdir = self.config['dbdir']
 		self.log.debug("config['dbdir']: %s" % self.dbdir)
 		
-		self.taxons = TaxonFileCollection(MODULEDIR)
+		self.taxons = TaxonFileCollection(path.join(MODULEDIR, 'taxons'))
 		self.log.debug("taxons: %s" % self.taxons)
 	
 	def dispatch(self, params={}):

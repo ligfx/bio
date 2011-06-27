@@ -120,10 +120,86 @@
 			width: 100%;
 			position: relative;
 		}
+		
+		#overlays {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: 10;
+			display: none;
+			background: rgba(0, 0, 0, 0.5);
+			
+			font-size: 16px;
+		}
+		
+		#overlays > div {
+			height: 500px;
+			display: none;
+			background: white;
+			margin: 20px;
+			padding: 10px;
+		}
+		
+		td.hits {
+			overflow: hidden;
+		}
+		
+		#overlays .actions {
+			text-align: right;
+		}
+		
 	</style>
+	
+	<script type="text/javascript">
+		{{ render("jquery.js") }}
+	</script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			
+			{% for alignment, data in data.by_alignment() %}
+				$("#alignment-{{ alignment.digest }}").click(function(){
+					$('#overlays').show();
+					$("#alignment-overlay-{{ alignment.digest }}").show();
+				})
+				$("#alignment-overlay-close-{{ alignment.digest }}").click(function(){
+					$('#overlays').hide();
+					$("#alignment-overlay-{{ alignment.digest }}").hide();
+				})
+			{% endfor %}
+		})
+	</script>
 </head>
 
 <body>
+
+<div id="overlays">
+	{% for organism, data in data.by_organism() %}
+	{% for alignment, data in data.by_alignment() %}
+		<div id="alignment-overlay-{{ alignment.digest }}">
+			<div class="actions">
+				<a id="alignment-overlay-close-{{ alignment.digest }}" href="#close">Close popup</a>
+			</div>
+			
+			<h1>{{ organism.database }} {{ organism.taxon }} {{ organism.extra }}</h1>
+			<h1>{{ alignment.name }}</h1>
+				
+			{% for datum in data.items() %}
+				{% for hsp in datum.hsps %}
+					<div class="hsp">
+						<h1>{{ datum.record.query }}</h1>
+						<h2>{{ hsp.evalue }}</h2>
+						<h2>{{ hsp.score }}</h2>
+						<pre>{{ hsp.subject }}<br/>{{ hsp.match }}<br/>{{ hsp.query }}</pre>
+						<p></p>
+					</div>
+				{% endfor %}
+			{% endfor %}
+		</div>
+	{% endfor %}
+	{% endfor %}
+</div>
 
 <figure id="taxonkey">
 	<div class="plantae">Plantae</div>
@@ -135,9 +211,7 @@
 </figure>
 
 <figure id="colorkey">
-	
 	<figcaption>Color key for alignment scores</figcaption>
-	
 	<div class="poor">&lt; 40</div>
 	<div class="fair">40 &ndash; 50</div>
 	<div class="okay">50 &ndash; 80</div>
@@ -188,6 +262,7 @@
 					{% endfor %}
 				<div class="hit_container" style="right: {{ sequences[:-1] | sum_attr('size') | as_percent(input_width) }}">
 					{% for alignment, data in data.by_alignment() %}
+						<a id="alignment-{{ alignment.digest }}" href="#alignment-{{ alignment.digest }}">
 						<div class="hit">
 							<div class="stats" style="text-align: left">{{ alignment.evalue }} {{ alignment.name }}</div>
 							{% for datum in data.items() %}
@@ -200,6 +275,7 @@
 								</div>
 							{% endfor %}
 						</div>
+						</a>
 					{% endfor %}
 				</div>
 				

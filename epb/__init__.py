@@ -53,11 +53,12 @@ class Controller:
 		env = jinja2.Environment(loader = jinja2.PackageLoader('epb', 'templates'))
 		env.filters['as_percent'] = lambda value, total: "{0}%".format(value * 100.0 / total)
 		env.filters['sum_attr'] = lambda enum, attr: sum(getattr(e, attr) for e in enum)
-		env.filters['group'] = lambda enum, key: groupby(sorted(enum, key = lambda e: e.get(key)), lambda e: e.get(key))
+		
 		
 		template = env.get_template("%s.html.jinja2" % action)
 
 		context['input_width'] = sum(s.size for s in context['sequences'])
+		context['render'] = lambda r: env.get_template("%s" % r).render(context)
 
 		return template.render(context)
 

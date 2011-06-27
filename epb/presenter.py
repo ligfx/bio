@@ -1,3 +1,5 @@
+import hashlib
+
 class NamePresenter:
 	def __init__(self, database, taxon="", extra=""):
 		self.database = database
@@ -11,6 +13,7 @@ class RecordPresenter:
 	def __init__(self, record, opts={}):
 		self.offset = opts["offset"]
 		self.width = record.query_length
+		self.query = record.query
 		
 	def __repr__(self):
 		"<RecordPresenter @width={0}, @offset={1}>".format(self.width, self.offset)
@@ -22,6 +25,7 @@ class AlignmentPresenter:
 		end = max(h.end for h in hsps)
 		
 		self.name = align.title
+		self.digest = hashlib.md5(self.name).hexdigest()
 		self.evalue = hsps[0].evalue
 		self.start = start
 	 	self.end = end
@@ -47,6 +51,10 @@ class HSPPresenter:
 		self.end = hsp.query_end
 		self.width = end - start
 		self.evalue = hsp.expect
+		
+		self.query = hsp.query
+		self.subject = hsp.sbjct
+		self.match = hsp.match
 	
 	@classmethod
 	def _score_to_strength(klass, score):

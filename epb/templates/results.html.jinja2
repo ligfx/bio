@@ -1,10 +1,12 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
 	<style type="text/css">
 		{{ render("results.css") }}
 	</style>
 	
+	<script type="text/javascript" src="raphael-min.js"></script>
 	<script type="text/javascript">
 		{{ render("app.js.jinja2") }}
 	</script>
@@ -42,15 +44,30 @@
 			
 			<h1>{{ organism.database }} {{ organism.taxon }} {{ organism.extra }}</h1>
 			<h1>{{ alignment.name }}</h1>
-				
+			
 			{% for datum in data.items() %}
 				{% for hsp in datum.hsps %}
-					<div class="hsp">
-						<h1>{{ datum.record.query }}</h1>
-						<h2>{{ hsp.evalue }}</h2>
-						<h2>{{ hsp.score }}</h2>
-						<pre>{{ hsp.subject }}<br/>{{ hsp.match }}<br/>{{ hsp.query }}</pre>
+					<div class="hsp" style="border: 1px solid #333; padding: 5px">
+						<h1>Query sequence: {{ datum.record.query }}</h1>
+						<h2>E-value: {{ hsp.evalue }}</h2>
+						<h2>Score: {{ hsp.score }}</h2>
+						<pre>Sbjct: {{ hsp.subject }}<br/>Match: {{ hsp.match }}<br/>Query: {{ hsp.query }}</pre>
 						<p></p>
+						<p>Query {{ datum.record.width }} nt: {{ hsp.start }} &ndash; {{ hsp.end }}</p>
+						<div class="hsp_border {{ hsp.strength }}" style="
+							width: {{ hsp.width | as_percent(datum.record.width) }};
+							margin-left: {{ hsp.start | as_percent(datum.record.width) }};">
+						</div>
+						<div style="height: 5px; background-color: black"></div>
+						
+						<p>Subject {# alignment.length #} nt: {{ hsp.subject_start }} &ndash; {{ hsp.subject_end }}</p>
+						<div class="hsp_border {{ hsp.strength }}" style="
+							width: {# hsp.subject_width | as_percent(alignment.length) #};
+							margin-left: {# hsp.subject_start | as_percent(alignment.length) #}">
+						</div>
+						<div style="height: 5px; background-color: black"></div>
+						
+						<div id="paper-{{alignment.digest}}-{{ datum.record.query }}"></div>
 					</div>
 				{% endfor %}
 			{% endfor %}
@@ -169,6 +186,36 @@
 		{% endfor %}
 	</tbody>
 </table>
+
+<script type="text/javascript">
+	var paper = Raphael("paper-102620776a20dc866709038f2ade720e-test", 120, 200);
+	
+	paper.path("M71 0L120 0").attr({
+		"stroke": "red",
+		"stroke-width": 5
+	});
+	paper.path("M0 151L0 199").attr({
+		"stroke": "red",
+		"stroke-width": 5
+	});
+	paper.path("M71 0L71 200").attr({
+		"stroke": "#ddd",
+		"stroke-width": 2,
+		"stroke-dasharray": "-"
+	});
+	paper.path("M0 151L120 151").attr({
+		"stroke": "#ddd",
+		"stroke-width": 2,
+		"stroke-dasharray": "-"
+	});
+	paper.path("M71 151L120 199").attr({
+		"stroke": "red",
+		"stroke-width": 8
+	});
+	
+	
+</script>
+
 </body>
 
 </html> 

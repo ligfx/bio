@@ -12,8 +12,10 @@
 	</script>
 	<script type="text/javascript">
 		var alignments = [
-			{% for alignment, data in data.by_alignment() %}
-				"{{ alignment.digest }}",
+			{% for organism, data in data.by_organism() %}
+				{% for alignment, data in data.by_alignment() %}
+					"{{ alignment.digest }}-{{ organism.id }}",
+				{% endfor %}
 			{% endfor %}
 		];
 	
@@ -37,9 +39,10 @@
 <div id="overlays">
 	{% for organism, data in data.by_organism() %}
 	{% for alignment, data in data.by_alignment() %}
-		<div id="alignment-overlay-{{ alignment.digest }}">
+		<div id="alignment-overlay-{{ alignment.digest }}-{{ organism.id }}">
 			<div class="actions">
-				<a id="alignment-overlay-close-{{ alignment.digest }}" href="#close">Close popup</a>
+				<a id="alignment-overlay-close-{{ alignment.digest }}-{{ organism.id }}"
+				   href="#close">Close popup</a>
 			</div>
 			
 			<h1>{{ organism.database }} {{ organism.taxon }} {{ organism.extra }}</h1>
@@ -67,7 +70,7 @@
 						</div>
 						<div style="height: 5px; background-color: black"></div>
 						
-						<div id="paper-{{alignment.digest}}-{{ datum.record.query }}"></div>
+						<div id="paper-{{alignment.digest}}-{{ organism.id }}-{{ datum.record.query }}"></div>
 					</div>
 				{% endfor %}
 			{% endfor %}
@@ -96,96 +99,80 @@
 
 <div style="clear: both"></div>
 
-<table>
-	<thead>
-		<tr>
-			<th></th>
-			<th class="sequences">
-				<div class="name">
-					{% for seq in sequences %}
-						<div style="
-							width: {{ seq.size | as_percent(input_width) }}">
-							{{ seq.name }}
-						</div>
-					{% endfor %}
+<div class="organisms">
+
+{% for organism, data in data.by_organism() %}
+<section class="organism">
+	<header>
+		<div class="organismName">
+			{{ organism.database }}<br/>
+			{{ organism.taxon }}<br/>
+			{{ organism.extra }}
+		</div>
+		<div class="sequences">
+			{% for seq in sequences %}
+				<div class="sequence" style="
+					width: {{ seq.size | as_percent(input_width) }}">
+					<div class="sequenceName">{{ seq.name }}</div>
+					<div class="sequenceLength">{{ seq.size }} nt</div>
 				</div>
-				<div style="clear: both"></div>
-				<div class="nt">
-					{% for seq in sequences %}
-						<div style="
-							width: {{ seq.size | as_percent(input_width) }}">
-							{{ seq.size }} nt
-						</div>
-					{% endfor %}
+			{% endfor %}
+			<div style="clear: both"></div>
+		</div>
+	</header>
+
+	<div class="divider">
+
+		{% for seq in sequences[0:-1] %}
+			<div class="divider" style="
+				left: {{ seq.size | as_percent(input_width) }}"
+			>
+		{% endfor %}
+	
+		<div class="alignmentContainer" style="
+			right: {{ sequences[:-1] | sum_attr('size') | as_percent(input_width) }}"
+		>
+			{% for alignment, data in data.by_alignment() %}
+				<a id="alignment-{{ alignment.digest }}-{{ organism.id }}"
+				   href="#alignment-{{ alignment.digest }}-{{ organism.id }}">
+				<div class="alignment {{loop.cycle('odd', 'even') }}">
+					
+					<div class="alignmentName">
+						<strong>{{ alignment.name }}</strong><br/>
+						<em>{{ alignment.evalue }}</em>
+					</div>
+					
+					<div class="alignmentGraphics">
+						{% for datum in data.items() %}
+							<div class="graphic" style="
+								width: {{ datum.record.width | as_percent(input_width) }};
+								margin-left: {{ datum.record.offset | as_percent(input_width) }}"
+							>
+								{% for hsp in datum.hsps %}
+									<div class="hsp_border {{ hsp.strength }}" style="
+										margin-left: {{ hsp.start | as_percent(datum.record.width) }};
+										width: {{ hsp.width | as_percent(datum.record.width) }}">
+									</div>
+								{% endfor %}
+							</div>
+						{% endfor %}
+					</div>
+						
 					<div style="clear: both"></div>
 				</div>
-			</th>
-		</tr>
-		<tr class="separator">
-			<td>
-			</td>
-			<td class="hits"></td>
-		</tr>
-	</thead>
-	<tbody>
-		{% for organism, data in data.by_organism() %}
-		<tr>
-			<td class="organism {{ organism.taxon | lower }}">
-				{{ organism.database }}<br/>
-				{{ organism.taxon }}<br/>
-				{{ organism.extra }}
-			</td>
-			<td class="hits">
-				<div class="divider">
-			
-				{% for seq in sequences[0:-1] %}
-					<div class="divider" style="
-						left: {{ seq.size | as_percent(input_width) }}"
-					>
-				{% endfor %}
-				
-				<div class="hit_container" style="
-					right: {{ sequences[:-1] | sum_attr('size') | as_percent(input_width) }}"
-				>
-					{% for alignment, data in data.by_alignment() %}
-						<a id="alignment-{{ alignment.digest }}" href="#alignment-{{ alignment.digest }}">
-						<div class="hit">
-							<div class="stats" style="text-align: left">{{ alignment.evalue }} {{ alignment.name }}</div>
-							{% for datum in data.items() %}
-								<div class="graphic" style="
-									width: {{ datum.record.width | as_percent(input_width) }};
-									margin-left: {{ datum.record.offset | as_percent(input_width) }}"
-								>
-									{% for hsp in datum.hsps %}
-										<div class="hsp_border {{ hsp.strength }}" style="
-											margin-left: {{ hsp.start | as_percent(datum.record.width) }};
-											width: {{ hsp.width | as_percent(datum.record.width) }}">
-										</div>
-									{% endfor %}
-									<div class="hit_border" style="
-										margin-left: {{ alignment.start | as_percent(datum.record.width) }};
-										width: {{ alignment.width | as_percent(datum.record.width) }}">
-									</div>
-								</div>
-							{% endfor %}
-						</div>
-						</a>
-					{% endfor %}
-				</div>
-				
-				{% for seq in sequences[0:-1] %}
-					</div>
-				{% endfor %}
-				</div>
-			</td>
-		</tr>
-		<tr class="separator">
-			<td></td>
-			<td class="hits"></td>
-		</tr>
+				</a>
+			{% endfor %}
+		</div>
+	
+		{% for seq in sequences[0:-1] %}
+			</div>
 		{% endfor %}
-	</tbody>
-</table>
+	</div>
+
+</section>
+{% endfor %}
+
+</div>
 
 <script type="text/javascript">
 	var paper = Raphael("paper-102620776a20dc866709038f2ade720e-test", 120, 200);

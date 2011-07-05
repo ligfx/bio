@@ -55,6 +55,10 @@ class HSPPresenter:
 		self.query = hsp.query
 		self.subject = hsp.sbjct
 		self.match = hsp.match
+		
+		self.subject_start = hsp.sbjct_start
+		self.subject_end = hsp.sbjct_end
+		self.subject_width = self.subject_end - self.subject_start
 	
 	@classmethod
 	def _score_to_strength(klass, score):

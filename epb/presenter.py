@@ -1,10 +1,16 @@
 import hashlib
 
+NAME_PRESENTER_COUNT = 0
+
 class NamePresenter:
 	def __init__(self, database, taxon="", extra=""):
 		self.database = database
 		self.taxon = taxon
 		self.extra = extra
+		
+		global NAME_PRESENTER_COUNT
+		self.id = NAME_PRESENTER_COUNT
+		NAME_PRESENTER_COUNT += 1
 		
 	def __repr__(self):
 		"<NamePresenter @name={0}".format(repr((self.database, self.taxon, self.extra)))

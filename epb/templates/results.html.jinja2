@@ -11,26 +11,51 @@
 		{{ render("app.js.jinja2") }}
 	</script>
 	<script type="text/javascript">
-		var alignments = [
-			{% for organism, data in data.by_organism() %}
-				{% for alignment, data in data.by_alignment() %}
-					"{{ alignment.digest }}-{{ organism.id }}",
-				{% endfor %}
-			{% endfor %}
-		];
 	
-		domReady(function() {
-			$.each(alignments, function(d) {
-				$("alignment-" + d).click(function() {
-					$('overlays').show();
-					$('alignment-overlay-' + d).show();
-				});
-				$("alignment-overlay-close-" + d).click(function() {
-					$('overlays').hide();
-					$('alignment-overlay-' + d).hide();
+		(function() {
+	
+			var alignments = [
+				{% for organism, data in data.by_organism() %}
+					{% for alignment, data in data.by_alignment() %}
+						"{{ alignment.digest }}-{{ organism.id }}",
+					{% endfor %}
+				{% endfor %}
+			];
+	
+			var scrolling = (function() {
+				var lastScroll = [0, 0];
+				return {
+					save: function() {
+						var hscroll = (document.all ? document.scrollLeft : window.pageXOffset);
+						var vscroll = (document.all ? document.scrollTop : window.pageYOffset);
+						lastScroll = [hscroll, vscroll];
+					},
+					restore: function() {
+						window.scrollTo(lastScroll[0], lastScroll[1]);
+					}
+				};
+			})();
+	
+			domReady(function() {
+				$.each(alignments, function(d) {
+					$("alignment-" + d).click(function() {
+						scrolling.save();
+						
+						$('overlays').show();
+						$('alignment-overlay-' + d).show();
+						$('baseLayer').hide();
+					});
+					$("alignment-overlay-close-" + d).click(function() {
+						$('overlays').hide();
+						$('alignment-overlay-' + d).hide();
+						$('baseLayer').show();
+						
+						scrolling.restore();
+					});
 				});
 			});
-		});
+			
+		}());
 	</script>
 </head>
 
@@ -77,102 +102,107 @@
 		</div>
 	{% endfor %}
 	{% endfor %}
+	<div style="clear: both"></div>
 </div>
 
-<figure id="taxonkey">
-	<div class="plantae">Plantae</div>
-	<div class="chromalveolate">Chromalveolate</div>
-	<div class="excavate">Excavate</div>
-	<div class="amoebozoa">Amoebozoa</div>
-	<div class="rhizaria">Rhizaria</div>
-	<div class="opisthokonta">Opisthokonta</div>
-</figure>
+<div id="baseLayer">
 
-<figure id="colorkey">
-	<figcaption>Color key for alignment scores</figcaption>
-	<div class="poor">&lt; 40</div>
-	<div class="fair">40 &ndash; 50</div>
-	<div class="okay">50 &ndash; 80</div>
-	<div class="good">80 &ndash; 200</div>
-	<div class="great">200 &le;</div>
-</figure>
+	<figure id="taxonkey">
+		<div class="plantae">Plantae</div>
+		<div class="chromalveolate">Chromalveolate</div>
+		<div class="excavate">Excavate</div>
+		<div class="amoebozoa">Amoebozoa</div>
+		<div class="rhizaria">Rhizaria</div>
+		<div class="opisthokonta">Opisthokonta</div>
+	</figure>
 
-<div style="clear: both"></div>
+	<figure id="colorkey">
+		<figcaption>Color key for alignment scores</figcaption>
+		<div class="poor">&lt; 40</div>
+		<div class="fair">40 &ndash; 50</div>
+		<div class="okay">50 &ndash; 80</div>
+		<div class="good">80 &ndash; 200</div>
+		<div class="great">200 &le;</div>
+	</figure>
 
-<div class="organisms">
+	<div style="clear: both"></div>
 
-{% for organism, data in data.by_organism() %}
-<section class="organism {{ organism.taxon | lower }}">
-	<header>
-		<div class="organismName">
-			{{ organism.database }}<br/>
-			{{ organism.taxon }}<br/>
-			{{ organism.extra }}
-		</div>
-		<div class="sequences">
-			{% for seq in sequences %}
-				<div class="sequence" style="
-					width: {{ seq.size | as_percent(input_width) }}">
-					<div class="sequenceName">{{ seq.name }}</div>
-					<div class="sequenceLength">{{ seq.size }} nt</div>
-				</div>
-			{% endfor %}
-			<div style="clear: both"></div>
-		</div>
-	</header>
+	<div class="organisms">
 
-	<div class="divider">
-
-		{% for seq in sequences[0:-1] %}
-			<div class="divider" style="
-				left: {{ seq.size | as_percent(input_width) }}"
-			>
-		{% endfor %}
-	
-		<div class="alignmentContainer" style="
-			right: {{ sequences[:-1] | sum_attr('size') | as_percent(input_width) }}"
-		>
-			{% for alignment, data in data.by_alignment() %}
-				<a id="alignment-{{ alignment.digest }}-{{ organism.id }}"
-				   href="#alignment-{{ alignment.digest }}-{{ organism.id }}">
-				<div class="alignment {{loop.cycle('odd', 'even') }}">
-					
-					<div class="alignmentName">
-						<strong>{{ alignment.name }}</strong><br/>
-						<em>{{ alignment.evalue }}</em>
-					</div>
-					
-					<div class="alignmentGraphics">
-						{% for datum in data.items() %}
-							<div class="graphic" style="
-								width: {{ datum.record.width | as_percent(input_width) }};
-								margin-left: {{ datum.record.offset | as_percent(input_width) }}"
-							>
-								{% for hsp in datum.hsps %}
-									<div class="hsp_border {{ hsp.strength }}" style="
-										margin-left: {{ hsp.start | as_percent(datum.record.width) }};
-										width: {{ hsp.width | as_percent(datum.record.width) }}">
-									</div>
-								{% endfor %}
-							</div>
-						{% endfor %}
-					</div>
-						
-					<div style="clear: both"></div>
-				</div>
-				</a>
-			{% endfor %}
-		</div>
-	
-		{% for seq in sequences[0:-1] %}
+	{% for organism, data in data.by_organism() %}
+	<section class="organism {{ organism.taxon | lower }}">
+		<header>
+			<div class="organismName">
+				{{ organism.database }}<br/>
+				{{ organism.taxon }}<br/>
+				{{ organism.extra }}
 			</div>
-		{% endfor %}
+			<div class="sequences">
+				{% for seq in sequences %}
+					<div class="sequence" style="
+						width: {{ seq.size | as_percent(input_width) }}">
+						<div class="sequenceName">{{ seq.name }}</div>
+						<div class="sequenceLength">{{ seq.size }} nt</div>
+					</div>
+				{% endfor %}
+				<div style="clear: both"></div>
+			</div>
+		</header>
+
+		<div class="divider">
+
+			{% for seq in sequences[0:-1] %}
+				<div class="divider" style="
+					left: {{ seq.size | as_percent(input_width) }}"
+				>
+			{% endfor %}
+
+			<div class="alignmentContainer" style="
+				right: {{ sequences[:-1] | sum_attr('size') | as_percent(input_width) }}"
+			>
+				{% for alignment, data in data.by_alignment() %}
+					<a id="alignment-{{ alignment.digest }}-{{ organism.id }}"
+					   href="#alignment-{{ alignment.digest }}-{{ organism.id }}">
+					<div class="alignment {{loop.cycle('odd', 'even') }}">
+				
+						<div class="alignmentName">
+							<strong>{{ alignment.name }}</strong><br/>
+							<em>{{ alignment.evalue }}</em>
+						</div>
+				
+						<div class="alignmentGraphics">
+							{% for datum in data.items() %}
+								<div class="graphic" style="
+									width: {{ datum.record.width | as_percent(input_width) }};
+									margin-left: {{ datum.record.offset | as_percent(input_width) }}"
+								>
+									{% for hsp in datum.hsps %}
+										<div class="hsp_border {{ hsp.strength }}" style="
+											margin-left: {{ hsp.start | as_percent(datum.record.width) }};
+											width: {{ hsp.width | as_percent(datum.record.width) }}">
+										</div>
+									{% endfor %}
+								</div>
+							{% endfor %}
+						</div>
+					
+						<div style="clear: both"></div>
+					</div>
+					</a>
+				{% endfor %}
+			</div>
+
+			{% for seq in sequences[0:-1] %}
+				</div>
+			{% endfor %}
+		</div>
+
+	</section>
+	{% endfor %}
+
 	</div>
 
-</section>
-{% endfor %}
-
-</div>
+</div><!-- #baseLayer -->
 
 <script type="text/javascript">
 	var paper = Raphael("paper-102620776a20dc866709038f2ade720e-test", 120, 200);

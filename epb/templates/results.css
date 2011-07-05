@@ -100,7 +100,7 @@ tbody tr {
 	float: left;
 	width: 100%;
 	position: relative;
-	border-left: 1px dashed #aaa;
+	border-left: 1px dashed black;
 	margin-left: -1px;
 }
 .alignmentContainer {
@@ -113,19 +113,15 @@ tbody tr {
 	top: 0;
 	left: 0;
 	width: 100%;
-	height: 100%;
 	z-index: 10;
 	display: none;
-	background: rgba(0, 0, 0, 0.5);
+	background: white;
 	
 	font-size: 16px;
 }
 
 #overlays > div {
-	height: 500px;
 	display: none;
-	background: white;
-	margin: 20px;
 	padding: 10px;
 	font-size: 10px;
 }
@@ -175,6 +171,7 @@ td.hits {
 	background-color: rgba(255, 255, 255, 0.5);
 }
 
+a:active .alignment,
 a:hover .alignment {
 	background-color: #ccc;
 	background-color: rgba(204, 204, 204, 0.5);

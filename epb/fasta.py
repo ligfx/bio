@@ -14,7 +14,7 @@ class Fasta:
 	
 	@classmethod
 	def normalize(klass, seq):
-		return "".join(s.seq for s in klass.each(seq))
+		return "> Concatenated input\n" + "".join(s.seq for s in klass.each(seq))
 		
 	@classmethod
 	def each(klass, seq):

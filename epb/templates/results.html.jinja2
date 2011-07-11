@@ -83,8 +83,8 @@
 						<p></p>
 						<p>Query {{ datum.record.width }} nt: {{ hsp.start }} &ndash; {{ hsp.end }}</p>
 						<div class="hsp_border {{ hsp.strength }}" style="
-							width: {{ hsp.width | as_percent(datum.record.width) }};
-							margin-left: {{ hsp.start | as_percent(datum.record.width) }};">
+							width: {{ hsp.query_width | as_percent(datum.record.width) }};
+							margin-left: {{ hsp.query_start | as_percent(datum.record.width) }};">
 						</div>
 						<div style="height: 5px; background-color: black"></div>
 						
@@ -140,9 +140,9 @@
 			<div class="sequences">
 				{% for seq in sequences %}
 					<div class="sequence" style="
-						width: {{ seq.size | as_percent(input_width) }}">
+						width: {{ seq | length | as_percent(input_width) }}">
 						<div class="sequenceName">{{ seq.name }}</div>
-						<div class="sequenceLength">{{ seq.size }} nt</div>
+						<div class="sequenceLength">{{ seq | length }} nt</div>
 					</div>
 				{% endfor %}
 				<div style="clear: both"></div>
@@ -153,12 +153,12 @@
 
 			{% for seq in sequences[0:-1] %}
 				<div class="divider" style="
-					left: {{ seq.size | as_percent(input_width) }}"
+					left: {{ seq | length | as_percent(input_width) }}"
 				>
 			{% endfor %}
 
 			<div class="alignmentContainer" style="
-				right: {{ sequences[:-1] | sum_attr('size') | as_percent(input_width) }}"
+				right: {{ sequences[:-1] | map_function('len') | sum | as_percent(input_width) }}"
 			>
 				{% for alignment, data in data.by_alignment() %}
 					<a id="alignment-{{ alignment.digest }}-{{ organism.id }}"
@@ -178,8 +178,8 @@
 								>
 									{% for hsp in datum.hsps %}
 										<div class="hsp_border {{ hsp.strength }}" style="
-											margin-left: {{ hsp.start | as_percent(datum.record.width) }};
-											width: {{ hsp.width | as_percent(datum.record.width) }}">
+											margin-left: {{ hsp.query_start | as_percent(datum.record.width) }};
+											width: {{ hsp.query_width | as_percent(datum.record.width) }}">
 										</div>
 									{% endfor %}
 								</div>

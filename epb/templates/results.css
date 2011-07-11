@@ -2,7 +2,12 @@ body { width: 900px; font-size: 8px; font-family: Arial,sans; }
 body { font-size: 10px; font-weight: bold;}
 .hit .stats { font-weight: strong; }
 .hit { padding-bottom: 1em;}
-.hsp_border { border-bottom: 5px solid; }
+.hsp_border {
+	border-bottom: 5px solid;
+	box-shadow: 0 1px 0 rgba(0, 0, 0, .5);
+	-moz-box-shadow: 0 1px 0 rgba(0, 0, 0, .5);
+	-webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, .5);
+}
 
 .hsp_stat { font-weight: normal; display: none;}
 
@@ -185,12 +190,44 @@ a:hover .alignment {
 	font-weight: bold;
 	color: #333;
 	font-size: 15px;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+	-moz-text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+	-webkit-text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+	
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0, rgba(150,150,150,0.3)),
+		color-stop(1, rgba(255,255,255, 0.2))
+	);
+	background-image: -moz-linear-gradient(
+		center bottom,
+		rgba(150,150,150,0.3) 0%,
+		rgba(255,255,255,0.2) 100%
+	);
 }
 
 .sequences {
-	background-color: red;
 	background-color: #C83232;
+	
+	background-image: -webkit-gradient(
+	    linear,
+	    left bottom,
+	    left top,
+	    color-stop(0, rgb(200,50,50)),
+	    color-stop(1, rgb(237,43,43))
+	);
+	background-image: -moz-linear-gradient(
+	    center bottom,
+	    rgb(200,50,50) 0%,
+	    rgb(237,43,43) 100%
+	);
+	
 	border-left: 1px solid black;
+	text-shadow: 0 1px 0 rgba(0, 0, 0, .5);
+	-moz-text-shadow: 0 1px 0 rgba(0, 0, 0, .5);
+	-webkit-text-shadow: 0 1px 0 rgba(0, 0, 0, .5);
 }
 
 .organism > header {

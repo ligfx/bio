@@ -6,7 +6,7 @@ import yaml
 
 from epb.blast import *
 from epb.cgi import *
-from epb.fasta import *
+import epb.fasta as Fasta
 from epb.presenter import *
 from epb.taxon import *
 
@@ -52,11 +52,11 @@ class Controller:
 	def render(self, action, context):
 		env = jinja2.Environment(loader = jinja2.PackageLoader('epb', 'templates'))
 		env.filters['as_percent'] = lambda value, total: "{0}%".format(value * 100.0 / total)
-		env.filters['sum_attr'] = lambda enum, attr: sum(getattr(e, attr) for e in enum)
+		env.filters['map_function'] = lambda enum, name: (eval(name)(e) for e in enum)
 		
 		template = env.get_template("%s.html.jinja2" % action)
 
-		context['input_width'] = sum(s.size for s in context['sequences'])
+		context['input_width'] = sum(len(s) for s in context['sequences'])
 		context['render'] = lambda r: env.get_template("%s" % r).render(context)
 
 		return template.render(context)

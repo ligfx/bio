@@ -1,4 +1,7 @@
+# [Back to docs.py](docs.html)
+
 from Bio.Blast import NCBIXML
+import epb.process as Process
 from epb.presenter import *
 from itertools import groupby
 import logging
@@ -9,21 +12,42 @@ from StringIO import StringIO
 import subprocess
 from subprocess import PIPE
 
+# === DataSet ===
+#
+# Interface for working with &ldquo;rows&rdquo; of data.
 class DataSet:
+	# Each item in `data` is assumed to be an object of the form
+	#
+	#     {
+	#       "organism": ...,
+	#       "record": ...,
+	#       "alignment": ...,
+	#       "hsps": [...]
+	#     }
 	def __init__(self, data):
 		self.data = data
-		
+	
+	# === DataSet.by_organism ===
+	#
+	# **Returns:** sequence of `(organism, DataSet)` tuples
 	def by_organism(self):
 		return self._group('organism')
-		
+	
+	# === DataSet.by_alignment ===
+	#
+	# **Returns:** sequence of `(alignment, DataSet)` tuples
 	def by_alignment(self):		
 		data = self._group('alignment')
 		for a, d in data:
-			a.evalue = min(row['alignment'].evalue for row in d.items())
+			# HSPs are guaranteed (?) to be sorted by e-value
+			a.evalue = min(row['hsps'][0].evalue for row in d.items())
 		
 		data = sorted(data, key = lambda (a, d): a.evalue)
 		return data
-		
+	
+	# === DataSet.items ===
+	#
+	# **Returns:** sequence of all items in `data`
 	def items(self):
 		return self.data
 		
@@ -31,50 +55,39 @@ class DataSet:
 		f = lambda _: _[key]
 		return [(k, DataSet(list(v))) for (k, v) in groupby(sorted(self.data, key = f), f)]
 
-def find(fun, seq):
-	# (i for i in seq if fun(i)).next(None)
-	for item in seq:
-		if fun(item):
-			return item
-
-class ProcessError(Exception): pass
-class Process:
-	@classmethod
-	def run(klass, command, input):
-		if not klass.which(shlex.split(command)[0]):
-			raise Exception, "can't find '%s' executable in PATH" % command
-		
-		p = subprocess.Popen(
-			shlex.split(command),
-			stdin=PIPE, stdout=PIPE, stderr=PIPE
-		)
-		
-		out, err = p.communicate(input)
-		if p.returncode != 0:
-			raise ProcessError, "Return code %i from '%s'\n%s" % (p.returncode, command, err)
-		return out
-	
-	@classmethod
-	def which(klass, command):
-		bin = os.environ['PATH'].split(os.pathsep)
-		return find(lambda p: path.exists(path.join(p, command)), bin)
-
-class BlastError(Exception): pass
+# === Blast ===
+#
+# Interface to the `blastall` program.
 class Blast:
+	# Represents a directory containing BLAST databases.
 	def __init__(self, opts):
 		self.database_path = opts["database_path"]
 		self.logger = logging.getLogger("epb[Blast]")
 	
-	def warn(self, s):
-		self.logger.warn(s)
+	# === Blast.find_all ===
+	#
+	# Blasts sequence `seq` against each database in `names`
+	#
+	# **Returns:** `DataSet` of `Presenter`s
+	def find_all(self, seq, names):
+
+		all = []
+
+		for name in names:
+			db = path.join(self.database_path, name.database)
+			xml = self._get_xml(db, seq)
+
+			for datum in self._parse_xml(xml, name):
+				all.append(datum)
+
+		return DataSet(all)
 	
-	def get_xml(self, db, seq):
+	def _get_xml(self, db, seq):
 		return Process.run("blastall -p blastp -d %s -m7 -e 1e-5 -a 8" % db, "%s\n" % seq)
 	
-	def parse_xml(self, xml, name):
+	def _parse_xml(self, xml, name):
 		record_offset = 0
 		for record in NCBIXML.parse(StringIO(xml)):
-			# {"organism": ..., "record": ..., "alignment": ..., "hsps": ...}
 			O = name
 			R = RecordPresenter(record, {"offset": record_offset})
 			record_offset += R.width
@@ -82,16 +95,3 @@ class Blast:
 				A = AlignmentPresenter(alignment)
 				H = map(HSPPresenter, alignment.hsps)
 				yield {"organism": O, "record": R, "alignment": A, "hsps": H}
-	
-	def find_all(self, seq, names, opts={}):
-		
-		all = []
-		
-		for name in names:
-			db = path.join(self.database_path, name.database)
-			xml = self.get_xml(db, seq)
-			
-			for datum in self.parse_xml(xml, name):
-				all.append(datum)
-					
-		return DataSet(all)

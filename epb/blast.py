@@ -31,11 +31,18 @@ class DataSet:
 		f = lambda _: _[key]
 		return [(k, DataSet(list(v))) for (k, v) in groupby(sorted(self.data, key = f), f)]
 
+def find(fun, seq):
+	# (i for i in seq if fun(i)).next(None)
+	for item in seq:
+		if fun(item):
+			return item
+
 class ProcessError(Exception): pass
 class Process:
 	@classmethod
 	def run(klass, command, input):
-		klass.which(shlex.split(command)[0])
+		if not klass.which(shlex.split(command)[0]):
+			raise Exception, "can't find '%s' executable in PATH" % command
 		
 		p = subprocess.Popen(
 			shlex.split(command),
@@ -49,8 +56,8 @@ class Process:
 	
 	@classmethod
 	def which(klass, command):
-		which = reduce(lambda x, y: x or (os.path.exists(os.path.join(y, command))), os.environ['PATH'].split(os.pathsep), False)
-		if not which: raise Exception, "can't find '%s' executable in PATH" % command
+		bin = os.environ['PATH'].split(os.pathsep)
+		return find(lambda p: path.exists(path.join(p, command)), bin)
 
 class BlastError(Exception): pass
 class Blast:

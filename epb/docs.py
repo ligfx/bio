@@ -11,6 +11,7 @@
 #
 # * [\_\_init__.py](__init__.html): The good stuff.
 # * [[blast.py]]: Interface with `blastall`
+# * [[controller.py]]: Takes params, does stuff, renders the result
 # * [[fasta.py]]: Shim on top of [BioPy's SeqIO](http://www.biopython.org/DIST/docs/api/Bio.SeqIO-module.html)
 # * [[presenter.py]]: Massaging results from [BioPy's NCBIXML](http://www.biopython.org/DIST/docs/api/Bio.Blast.Record-module.html) into more palatable forms
 # * [[process.py]]: Interface for running processes

@@ -19,7 +19,7 @@ class DataSet:
 	def by_alignment(self):		
 		data = self._group('alignment')
 		for a, d in data:
-			a.evalue = min(row['hsps'][0].evalue for row in d.items())
+			a.evalue = min(row['alignment'].evalue for row in d.items())
 		
 		data = sorted(data, key = lambda (a, d): a.evalue)
 		return data

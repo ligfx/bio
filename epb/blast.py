@@ -68,23 +68,30 @@ class Blast:
 	def warn(self, s):
 		self.logger.warn(s)
 	
+	def get_xml(self, db, seq):
+		return Process.run("blastall -p blastp -d %s -m7 -e 1e-5 -a 8" % db, "%s\n" % seq)
+	
+	def parse_xml(self, xml, name):
+		record_offset = 0
+		for record in NCBIXML.parse(StringIO(xml)):
+			# {"organism": ..., "record": ..., "alignment": ..., "hsps": ...}
+			O = name
+			R = RecordPresenter(record, {"offset": record_offset})
+			record_offset += R.width
+			for alignment in record.alignments:
+				A = AlignmentPresenter(alignment)
+				H = map(HSPPresenter, alignment.hsps)
+				yield {"organism": O, "record": R, "alignment": A, "hsps": H}
+	
 	def find_all(self, seq, names, opts={}):
 		
 		all = []
 		
 		for name in names:
 			db = path.join(self.database_path, name.database)
-			xml = Process.run("blastall -p blastp -d %s -m7 -e 1e-5 -a 8" % db, "%s\n" % seq)
-	
-			record_offset = 0
-			for record in NCBIXML.parse(StringIO(xml)):
-				# {"organism": ..., "record": ..., "alignment": ..., "hsps": ...}
-				o = name
-				r = RecordPresenter(record, {"offset": record_offset})
-				record_offset += r.width
-				for alignment in record.alignments:
-					a = AlignmentPresenter(alignment)
-					h = map(HSPPresenter, alignment.hsps)
-					all.append({"organism": o, "record": r, "alignment": a, "hsps": h})
+			xml = self.get_xml(db, seq)
+			
+			for datum in self.parse_xml(xml, name):
+				all.append(datum)
 					
 		return DataSet(all)

@@ -25,7 +25,7 @@ def normalize(seq):
 #
 # A shim over [`Bio.SeqRecord`](http://www.biopython.org/DIST/docs/api/Bio.SeqRecord.SeqRecord-class.html).
 class Sequence:
-	# **name**: `SeqRecord.description`
+	# **name**: `SeqRecord.name`
 	#
 	# **seq**: `str(SeqRecord.seq)`
 	def __init__(self, opts={}):
@@ -42,7 +42,7 @@ class Sequence:
 	@classmethod
 	def from_biopython(klass, r):
 		return klass({
-			"name": r.description.strip(),
+			"name": r.name.strip(),
 			"seq": str(r.seq),
 		})
 

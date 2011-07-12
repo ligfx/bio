@@ -1,4 +1,4 @@
-body { width: 900px; font-size: 8px; font-family: Arial,sans; }
+body { font-size: 8px; font-family: Helvetica, Verdana, Arial,sans; }
 body { font-size: 10px; font-weight: bold;}
 .hit .stats { font-weight: strong; }
 .hit { padding-bottom: 1em;}
@@ -17,8 +17,6 @@ body { font-size: 10px; font-weight: bold;}
 .hsp_border.fair { border-color: blue; }
 .hsp_border.poor { border-color: black; }
 
-figure { margin: 0; }
-
 #colorkey {
 	text-align: center;
 	width: 500px;
@@ -36,42 +34,6 @@ figure { margin: 0; }
 #colorkey .poor { background-color: black; }
 #colorkey div { float: left; color: white; font-size: 15px; width: 100px; font-weight: normal;}
 
-#taxonkey {
-	float: left;
-}
-
-#taxonkey div {
-	width: 150px;
-	font-size: 15px;
-	font-weight: bold;
-	color: black;
-	padding: 5px;
-}
-.plantae {
-	background: green;
-	background: rgba(0, 128, 0, 0.2);
-}
-.chromalveolate {
-	background: orange;
-	background: rgba(255, 165, 0, 0.2);
-}
-.excavate {
-	background: yellow;
-	background: rgba(255, 255, 0, 0.2);
-}
-.amoebozoa {
-	background: purple;
-	background: rgba(128, 0, 128, 0.2);
-}
-.rhizaria {
-	background: blue;
-	background: rgba(0, 0, 255, 0.2);
-}
-.opisthokonta {
-	background: orchid;
-	background: rgba(218, 112, 214, 0.2);
-}
-
 table { width: 100%; }
 table, table * { padding: 0; margin: 0; border-spacing: 0; border-collapse: collapse;}
 thead th {
@@ -84,7 +46,6 @@ tbody tr {
 	padding: 2px;
 }
 .organism {
-	border: 1px solid black;
 	width: 200px;
 	margin-bottom: 1em;
 }
@@ -105,10 +66,15 @@ tbody tr {
 	float: left;
 	width: 100%;
 	position: relative;
-	border-left: 1px dashed black;
+	border-left: 1px solid #999;
 	margin-left: -1px;
 }
-.alignmentContainer {
+
+.alignment > .divider {
+		background: rgba(230, 230, 230, 0.5);
+}
+
+.alignmentGraphics {
 	width: 100%;
 	position: relative;
 }
@@ -139,25 +105,31 @@ td.hits {
 	text-align: right;
 }
 
-/* */
+/* sizes */
 
 .organism, .alignment {
-	width: 900px;
+	width: 1100px;
 }
 
-.sequences, .organism > .divider {
-	width: 700px;
-	margin-left: 200px;
+.sequences, .alignment {
+	width: 800px;
+	margin-left: 300px;
+}
+
+.divider {
+	width: 800px;
 }
 
 .organismName, .alignmentName {
-	width: 200px;
+	width: 300px;
 	float: left;
 }
 
-.alignment {
-	margin-left: -200px;
+.alignmentName {
+	margin-left: -300px;
 }
+
+/* end sizes */
 
 .organism {
 	overflow: hidden;
@@ -165,81 +137,48 @@ td.hits {
 
 .alignment {
 	padding: 5px 0;
+	padding-bottom: 10px;
 }
 
-.alignment.even {
-  background-color: #eee;
-	background-color: rgba(238, 238, 238, 0.5);
-}
-.alignment.odd {
-  background-color: #fff;
-	background-color: rgba(255, 255, 255, 0.5);
+.organism a {
+	display: block;
 }
 
-a:active .alignment,
-a:hover .alignment {
+.organism a:active,
+.organism a:hover {
 	background-color: #ccc;
-	background-color: rgba(204, 204, 204, 0.5);
-}
-
-.alignmentGraphics {
-	margin-left: 200px;
+	background-color: rgba(240, 240, 240, 0.5);
 }
 
 .organismName {
 	font-weight: bold;
 	color: #333;
-	font-size: 15px;
-	text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
-	-moz-text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
-	-webkit-text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
-	
-	background-image: -webkit-gradient(
-		linear,
-		left bottom,
-		left top,
-		color-stop(0, rgba(150,150,150,0.3)),
-		color-stop(1, rgba(255,255,255, 0.2))
-	);
-	background-image: -moz-linear-gradient(
-		center bottom,
-		rgba(150,150,150,0.3) 0%,
-		rgba(255,255,255,0.2) 100%
-	);
+	font-size: 20px;
 }
 
 .sequences {
-	background-color: #C83232;
-	
-	background-image: -webkit-gradient(
-	    linear,
-	    left bottom,
-	    left top,
-	    color-stop(0, rgb(200,50,50)),
-	    color-stop(1, rgb(237,43,43))
-	);
-	background-image: -moz-linear-gradient(
-	    center bottom,
-	    rgb(200,50,50) 0%,
-	    rgb(237,43,43) 100%
-	);
-	
-	border-left: 1px solid black;
-	text-shadow: 0 1px 0 rgba(0, 0, 0, .5);
-	-moz-text-shadow: 0 1px 0 rgba(0, 0, 0, .5);
-	-webkit-text-shadow: 0 1px 0 rgba(0, 0, 0, .5);
+	color: #333;
 }
 
 .organism > header {
-	border-bottom: 1px solid black;
+	border-bottom: 2px solid #333;
 }
 
 .alignmentName strong {
 	font-size: 12px;
 }
+.alignmentName strong, .alignmentName em {
+	padding-left: 0.5em;
+	padding-right: 1em;
+	display: inline-block;
+}
 
 a {
 	color: blue;
+}
+
+a:visited {
+	color: #6464FF;
 }
 
 a:active,
@@ -247,12 +186,7 @@ a:hover {
 	color: #0096FF;
 }
 
-a:visited {
-	color: #6464FF;
-}
-
 .sequence {
-	color: white;
 	font-size: 14px;
 	padding: 0;
 	width: 100%;

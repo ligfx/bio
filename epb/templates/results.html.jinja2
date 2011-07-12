@@ -73,8 +73,7 @@
 			<h1>{{ organism.database }} {{ organism.taxon }} {{ organism.extra }}</h1>
 			<h1>{{ alignment.name }}</h1>
 			
-			{% for datum in data.items() %}
-				{% for hsp in datum.hsps %}
+			{% for hsp, datum in data.by_hsp() %}
 					<div class="hsp" style="border: 1px solid #333; padding: 5px">
 						<h1>Query sequence: {{ datum.record.query }}</h1>
 						<h2>E-value: {{ hsp.evalue }}</h2>
@@ -97,7 +96,6 @@
 						
 						<div id="paper-{{alignment.digest}}-{{ organism.id }}-{{ datum.record.query }}"></div>
 					</div>
-				{% endfor %}
 			{% endfor %}
 		</div>
 	{% endfor %}
@@ -167,20 +165,22 @@
 				
 						<div class="alignmentName">
 							<strong>{{ alignment.name }}</strong><br/>
-							<em>{{ alignment.evalue }}</em>
+							<em>{{ data.lowest_evalue() }}</em>
 						</div>
 				
 						<div class="alignmentGraphics">
-							{% for datum in data.items() %}
+							{% for record, data in data.by_record() %}
 								<div class="graphic" style="
-									width: {{ datum.record.width | as_percent(input_width) }};
-									margin-left: {{ datum.record.offset | as_percent(input_width) }}"
+									width: {{ record.width | as_percent(input_width) }};
+									margin-left: {{ record.offset | as_percent(input_width) }}"
 								>
-									{% for hsp in datum.hsps %}
+									{% for datum in data %}
+									{% with hsp = datum.hsp %}
 										<div class="hsp_border {{ hsp.strength }}" style="
-											margin-left: {{ hsp.query_start | as_percent(datum.record.width) }};
-											width: {{ hsp.query_width | as_percent(datum.record.width) }}">
+											margin-left: {{ hsp.query_start | as_percent(record.width) }};
+											width: {{ hsp.query_width | as_percent(record.width) }}">
 										</div>
+									{% endwith %}
 									{% endfor %}
 								</div>
 							{% endfor %}

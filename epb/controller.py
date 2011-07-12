@@ -57,7 +57,10 @@ def render(action, context={}):
 	return template.render(context)
 
 def environment():
-	env = jinja2.Environment(loader = jinja2.PackageLoader('epb', 'templates'))
+	env = jinja2.Environment(
+		loader = jinja2.PackageLoader('epb', 'templates'),
+		extensions = ['jinja2.ext.with_']
+	)
 	env.filters['as_percent'] = lambda value, total: "{0}%".format(value * 100.0 / total)
 	env.filters['map_function'] = lambda enum, name: (eval(name)(e) for e in enum)
 	env.globals['render'] = render

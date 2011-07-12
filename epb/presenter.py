@@ -28,24 +28,11 @@ class RecordPresenter:
 #
 # Shim over [`Bio.Blast.Record.Alignment`](http://www.biopython.org/DIST/docs/api/Bio.Blast.Record.Alignment-class.html)
 class AlignmentPresenter:
-	# **Properties**: `digest`, `end`, `evalue`, `name`, `start`, `width`
+	# **Properties**: `digest`, `length`, `name`
 	def __init__(self, align):
-		# `digest`, `evalue`, `name`
 		self.name = align.title
+		self.length = align.length
 		self.digest = hashlib.md5(self.name).hexdigest()
-		# This needs to be set later when we have the full list of HSPs (probably in DataSet).
-		# If we have multiple records, they could each have the same alignment, so we want to
-		# combine them all.
-		self.evalue = None
-		
-		# `query_end`, `query_start`, `query_width`
-		#hsps = map(HSPPresenter, align.hsps)
-		#start = min(h.query_start for h in hsps)
-		#end = max(h.query_end for h in hsps)
-		
-		#self.query_start = query_start
-	 	#self.query_end = query_end
-		#self.query_width = query_end - query_start
 	
 	def __lt__(self, other):
 		return self.name < other.name
@@ -75,6 +62,9 @@ class HSPPresenter:
 		self.subject_start = hsp.sbjct_start
 		self.subject_end = hsp.sbjct_end
 		self.subject_width = self.subject_end - self.subject_start
+	
+	def __lt__(self, other):
+		return self.evalue < other.evalue
 	
 def _score_to_strength(score):
 	if score < 40:     strength = "poor"

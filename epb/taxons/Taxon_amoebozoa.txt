@@ -1,5 +1,0 @@
-DictyosteliumDiscoideum	Amoebozoa	
-DictyosteliumPurpureum	Amoebozoa	
-EntamoebaHistolytica	Amoebozoa	
-EntamoebaDispar	Amoebozoa	
-EntamoebaInvadens	Amoebozoa

@@ -17,7 +17,7 @@
 			var alignments = [
 				{% for organism, data in data.by_organism() %}
 					{% for alignment, data in data.by_alignment() %}
-						"{{ alignment.digest }}-{{ organism.id }}",
+						"{{ alignment.digest }}",
 					{% endfor %}
 				{% endfor %}
 			];
@@ -64,13 +64,13 @@
 <div id="overlays">
 	{% for organism, data in data.by_organism() %}
 	{% for alignment, data in data.by_alignment() %}
-		<div id="alignment-overlay-{{ alignment.digest }}-{{ organism.id }}">
+		<div id="alignment-overlay-{{ alignment.digest }}">
 			<div class="actions">
-				<a id="alignment-overlay-close-{{ alignment.digest }}-{{ organism.id }}"
+				<a id="alignment-overlay-close-{{ alignment.digest }}"
 				   href="#close">Close popup</a>
 			</div>
 			
-			<h1>{{ organism.database }} {{ organism.taxon }} {{ organism.extra }}</h1>
+			<h1>{{ organism }}</h1>
 			<h1>{{ alignment.name }}</h1>
 			
 			{% for hsp, datum in data.by_hsp() %}
@@ -83,6 +83,7 @@
 						<p>Query {{ datum.record.width }} nt: {{ hsp.start }} &ndash; {{ hsp.end }}</p>
 						<div class="hsp_border {{ hsp.strength }}" style="
 							width: {{ hsp.query_width | as_percent(datum.record.width) }};
+							height: {{ hsp.evalue }}
 							margin-left: {{ hsp.query_start | as_percent(datum.record.width) }};">
 						</div>
 						<div style="height: 5px; background-color: black"></div>
@@ -94,7 +95,7 @@
 						</div>
 						<div style="height: 5px; background-color: black"></div>
 						
-						<div id="paper-{{alignment.digest}}-{{ organism.id }}-{{ datum.record.query }}"></div>
+						<div id="paper-{{alignment.digest}}-{{ datum.record.query }}"></div>
 					</div>
 			{% endfor %}
 		</div>
@@ -104,15 +105,6 @@
 </div>
 
 <div id="baseLayer">
-
-	<figure id="taxonkey">
-		<div class="plantae">Plantae</div>
-		<div class="chromalveolate">Chromalveolate</div>
-		<div class="excavate">Excavate</div>
-		<div class="amoebozoa">Amoebozoa</div>
-		<div class="rhizaria">Rhizaria</div>
-		<div class="opisthokonta">Opisthokonta</div>
-	</figure>
 
 	<figure id="colorkey">
 		<figcaption>Color key for alignment scores</figcaption>
@@ -128,12 +120,10 @@
 	<div class="organisms">
 
 	{% for organism, data in data.by_organism() %}
-	<section class="organism {{ organism.taxon | lower }}">
+	<section class="organism">
 		<header>
 			<div class="organismName">
-				{{ organism.database }}<br/>
-				{{ organism.taxon }}<br/>
-				{{ organism.extra }}
+				{{ organism }}
 			</div>
 			<div class="sequences">
 				{% for seq in sequences %}
@@ -159,8 +149,8 @@
 				right: {{ sequences[:-1] | map_function('len') | sum | as_percent(input_width) }}"
 			>
 				{% for alignment, data in data.by_alignment() %}
-					<a id="alignment-{{ alignment.digest }}-{{ organism.id }}"
-					   href="#alignment-{{ alignment.digest }}-{{ organism.id }}">
+					<a id="alignment-{{ alignment.digest }}"
+					   href="#alignment-{{ alignment.digest }}">
 					<div class="alignment {{loop.cycle('odd', 'even') }}">
 				
 						<div class="alignmentName">

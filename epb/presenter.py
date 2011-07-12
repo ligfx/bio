@@ -4,16 +4,6 @@
 
 import hashlib
 
-# === NamePresenter ===
-class NamePresenter:
-	# **Properties:** `database`, `extra`, `id`, `taxon`
-	def __init__(self, database, taxon="", extra=""):
-		self.database = database
-		self.taxon = taxon
-		self.extra = extra
-		
-		self.id = _get_uid()
-
 # === RecordPresenter ===
 #
 # Shim over [`Bio.Blast.Record.Blast`](http://www.biopython.org/DIST/docs/api/Bio.Blast.Record.Blast-class.html)
@@ -50,14 +40,17 @@ class HSPPresenter:
 		self.evalue = hsp.expect
 		self.score = hsp.score
 		self.strength = _score_to_strength(hsp.score)
+		
 		# `query`, `subject`, `width`
 		self.query = hsp.query
 		self.subject = hsp.sbjct
 		self.match = hsp.match
+		
 		# `query_start`, `query_end`, `query_width`
 		self.query_start = hsp.query_start
 		self.query_end = hsp.query_end
 		self.query_width = hsp.query_end - hsp.query_start
+		
 		# `subject_start`, `subject_end`, `subject_width`
 		self.subject_start = hsp.sbjct_start
 		self.subject_end = hsp.sbjct_end
@@ -74,10 +67,3 @@ def _score_to_strength(score):
 	elif score >= 200: strength = "great"
 	else:              strength = ""
 	return strength
-
-def _get_uid():
-	global PRESENTER_COUNT
-	uid = PRESENTER_COUNT
-	PRESENTER_COUNT += 1
-	return uid
-PRESENTER_COUNT = 0

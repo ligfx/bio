@@ -3,7 +3,9 @@
 import jinja2
 
 import epb.fasta as Fasta
-from epb.blast import Blast
+from epb.organism import OrganismCollection
+import os
+import yaml
 
 # === results ===
 
@@ -27,9 +29,10 @@ from epb.blast import Blast
 # 3. We have multiple sequences, separate. Blast the sequences, and for each
 #    record add an offset (erm? I have qualms about this), then render them like before
 def results(params):
-	names = params["names"]
 	fasta = params["sequence"]
 	method = params["method"]
+	categories = params["categories"]
+	dbdir = params['dbdir']
 	
 	if method == 'concat':
 		seq = Fasta.normalize(fasta)
@@ -38,8 +41,11 @@ def results(params):
 	else:
 		raise Exception, "method must be one of 'concat' or 'multiple'"
 	
-	blast = Blast({"database_path": params['dbdir']})
-	data = blast.find_all(seq, names)
+	organisms = OrganismCollection.find_all_by_categories(
+		categories,
+		{"path": dbdir}
+	)
+	data = organisms.blast(seq)
 	
 	sequences = list(Fasta.each(fasta))
 	

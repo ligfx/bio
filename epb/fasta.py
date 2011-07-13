@@ -6,7 +6,7 @@ from StringIO import StringIO
 from Bio import SeqIO
 
 # === each(seq) ===
-#
+
 # **Takes:** a _string_ `seq` of FASTA sequences to parse
 #
 # **Returns:** an _iterator_ over each parsed sequence in `seq`, coerced to a `Sequence`
@@ -14,15 +14,25 @@ def each(seq):
 	return map(Sequence.from_biopython, parse_string(seq))
 	
 # === normalize ===
+
+# Normalizes a _string_ `seq` of FASTA sequences according to `method`:
 #
-# **Takes:** a _string_ `seq` of FASTA sequences to parse
-#
-# **Returns**: a _string_ of the concatenated parsed sequences
-def normalize(seq):
-	return "> Concatenated input\n" + "".join(s.seq for s in each(seq))
+# - `concat`: Concatenates sequences
+# - `multiple`: Leaves input untouched
+def normalize(seq, **opts):
+	method = opts['method']
+	
+	if method == 'concat':
+		return "> Concatenated input\n" + "".join(s.seq for s in each(seq))
+	elif method == 'multiple':
+		return seq
+	else:
+		raise Exception, "method must be one of 'concat' or 'multiple'"
+	
+	
 
 # === Sequence ===
-#
+
 # A shim over [`Bio.SeqRecord`](http://www.biopython.org/DIST/docs/api/Bio.SeqRecord.SeqRecord-class.html).
 class Sequence:
 	# **name**: `SeqRecord.name`

@@ -34,7 +34,7 @@ def status(params):
 #    see the boundaries)
 # 3. We have multiple sequences, separate. Blast the sequences, and for each
 #    record add an offset (erm? I have qualms about this), then render them like before
-def results(**opts):
+def results(opts={}):
 	data = opts['data']
 	sequences = opts['sequences']
 	

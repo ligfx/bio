@@ -1,7 +1,4 @@
 Jinja2
-Werkzeug
 numpy
 biopython
-wsgiref
 pyyaml
-unittest2

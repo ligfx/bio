@@ -26,37 +26,48 @@ def missing_param(param):
 	
 	exit(0)
 
+class Request:
+	def __init__(self):
+		form = cgi.FieldStorage()
+		
+		self.sequence = form.getvalue("sequence", None)
+		if not self.sequence: missing_param('sequence')
+		self.method = form.getvalue("method", None)
+		if not self.method: missing_param('method')
+		self.categories = form.getlist("category")
+		if not self.categories: missing_param('category')
+
+class Job:
+	_directory = "results"
+	
+	def __init__(self):
+		self.id = int(time.time())
+		# Shard the results into different folders, so we don't run into
+		# issues with directory size limits
+		shard = ("%06i" % (self.id % 999999))
+		self.shard = os.path.join(shard[:3], shard[3:])
+		
+		self.output_directory = os.path.join(self._directory, self.shard, str(self.id))
+		os.makedirs(self.output_directory)
+
+		self.status_file = os.path.join(self.output_directory, "status.html")
+		self.status_file_temp = self.status_file + "_temp"
+		
+		self.results_file = os.path.join(self.output_directory, "results.html")
 
 try:
 
 	directory = "results"
 
-	form = cgi.FieldStorage()
+	request = Request()
+	job = Job()
 
-	sequence = form.getvalue("sequence", None)
-	if not sequence: missing_param('sequence')
-	method = form.getvalue("method", None)
-	if not method: missing_param('method')
-	categories = form.getlist("category")
-	if not categories: missing_param('category')
-
-	job_id = int(time.time())
-	# Shard the results into different folders, so we don't run into
-	# issues with directory size limits
-	job_shard = ("%06i" % (job_id % 999999))
-	job_shard = os.path.join(job_shard[:3], job_shard[3:])
-
-	output_directory = os.path.join(directory, job_shard, str(job_id))
-	os.makedirs(output_directory)
-
-	status = {"job": job_id, "steps": []}
-	status_file = os.path.join(output_directory, "status.html")
-	status_file_temp = status_file + "_temp"
-	with open(status_file, "w") as f:
+	status = {"job": job.id, "steps": []}
+	with open(job.status_file, "w") as f:
 		f.write(epb.controller.status(status))
 
 	print "Status: 302 Found"
-	print "Location: /%s" % status_file
+	print "Location: %s" % job.status_file
 	print "Content-Type: text/plain"
 	print
 	#print status_file
@@ -91,39 +102,38 @@ try:
 	def callback(organism):
 		global status
 		status['steps'] = ["Blasting %s" % organism] + status['steps']
-		with open(status_file_temp, "w") as f:
+		with open(job.status_file_temp, "w") as f:
 			f.write(epb.controller.status(status))
-		os.rename(status_file_temp, status_file)
+		os.rename(job.status_file_temp, job.status_file)
 
-	if method == 'concat':
-		seq = Fasta.normalize(sequence)
-	elif method == 'multiple':
-		seq = sequence
+	if request.method == 'concat':
+		seq = Fasta.normalize(request.sequence)
+	elif request.method == 'multiple':
+		seq = request.sequence
 	else:
 		raise Exception, "method must be one of 'concat' or 'multiple'"
 
 	organisms = OrganismCollection.find_all_by_categories(
-		categories, path=e.dbdir
+		request.categories, path=e.dbdir
 	)
 	data = organisms.blast(seq, callback=callback)
 
-	sequences = list(Fasta.each(sequence))
+	sequences = list(Fasta.each(request.sequence))
 
 	results = epb.controller.results(data=data, sequences=sequences)
 
 	status['done'] = True
-	with open(status_file_temp, "w") as f:
+	with open(job.status_file_temp, "w") as f:
 		f.write(epb.controller.status(status))
-	os.rename(status_file_temp, status_file)
+	os.rename(job.status_file_temp, job.status_file)
 
-	results_file = os.path.join(output_directory, "results.html")
-	with open(results_file, "w") as f:
+	with open(job.results_file, "w") as f:
 		f.write(results)
 
 except:
 	status['done'] = True
 	status['error'] = "<pre>%s</pre>" % cgi.escape(traceback.format_exc())
 	
-	with open(status_file, "w") as f:
+	with open(job.status_file, "w") as f:
 		f.write(epb.controller.status(status))
-	os.rename(status_file_temp, status_file)
+	os.rename(job.status_file_temp, job.status_file)

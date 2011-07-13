@@ -7,6 +7,12 @@ from epb.organism import OrganismCollection
 import os
 import yaml
 
+# === status ===
+
+# Renders job status page
+def status(params):
+	return render("status.html.jinja2", params)
+
 # === results ===
 
 # Renders results page.
@@ -28,7 +34,7 @@ import yaml
 #    see the boundaries)
 # 3. We have multiple sequences, separate. Blast the sequences, and for each
 #    record add an offset (erm? I have qualms about this), then render them like before
-def results(params):
+def results(params, callback=None):
 	fasta = params["sequence"]
 	method = params["method"]
 	categories = params["categories"]
@@ -42,10 +48,9 @@ def results(params):
 		raise Exception, "method must be one of 'concat' or 'multiple'"
 	
 	organisms = OrganismCollection.find_all_by_categories(
-		categories,
-		{"path": dbdir}
+		categories, path=dbdir
 	)
-	data = organisms.blast(seq)
+	data = organisms.blast(seq, callback=callback)
 	
 	sequences = list(Fasta.each(fasta))
 	

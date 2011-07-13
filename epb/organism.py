@@ -14,11 +14,14 @@ class OrganismCollection:
 		self.organisms = organisms
 
 	# === blast ===
-	def blast(self, sequence):
+	def blast(self, sequence, **opts):
+		
+		callback = opts.get("callback", None)
 		
 		data = []
 		
 		for (organism, info) in self.organisms.items():
+			if callback: callback(organism)
 			xml = Blast.get_xml(os.path.join(self.path, organism), sequence)
 			
 			for datum in Blast.parse_xml(xml):
@@ -29,7 +32,7 @@ class OrganismCollection:
 
 	# === find_all_by_categories ===
 	@classmethod
-	def find_all_by_categories(klass, categories, opts={}):
+	def find_all_by_categories(klass, categories, **opts):
 		path = opts['path']
 		categories = [c.lower() for c in categories]
 
@@ -43,8 +46,8 @@ class OrganismCollection:
 				info_categories = info['categories']
 				# It could be a single string
 				if type(info_categories) == str:
-					info_categories = [info_categories]
-				if any((c.lower() in categories) for c in info_categories):
+					info_categories = info_categories.split(",")
+				if any((c.strip().lower() in categories) for c in info_categories):
 					name = fname[:-len(klass.ext)]
 					organism_names[name] = info
 

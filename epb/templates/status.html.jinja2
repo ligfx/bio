@@ -1,0 +1,68 @@
+<html>
+<head>
+	{% if not done %}
+		<meta http-equiv="refresh" content="2">
+	{% endif %}
+	
+	<title>Job Status {{ job }} - EukPhyloBlast</title>
+	<style type="text/css">
+		body {
+			font-family: Helvetica, Arial, Verdana, sans-serif;
+			width: 500px;
+			margin: 0 auto;
+			color: #333;
+		}
+		section > header h1 {
+			font-size: 1.5em;
+		}
+		.done, .error {
+			padding: 5px;
+		}
+		.done {
+			background-color: #8C0;
+		}
+		.error {
+			background-color: red;
+		}
+		.done p, .error p {
+			margin: 0;
+			color: white;
+			font-weight: bold;
+		}
+		pre {
+			overflow: scroll;
+			background-color: white;
+			padding: 5px;
+			margin: 5px 0 0 0;
+		}
+	</style>
+</head>
+<body>
+
+	<header>
+		<h1>EukPhyloBlast</h1>
+	</header>
+	
+	<section>
+		<header><h1>Status of job {{ job }}</h1></header>
+	
+		{% if done %}
+			{% if error %}
+				<div class="error"><p>Error:</p><pre>{{ error }}</pre></div>
+			{% else %}
+				<div class="done"><p>Done! Results are at <a href="results.html">results.html</a></p></div>
+			{% endif %}
+		{% else %}
+			<p>Page will reload momentarily. If it doesn't, <a href="status.html">click here</a>.</p>
+		{% endif %}
+	
+		<ul>
+			{% for step in steps %}
+				<li>{{ step }}</li>
+			{% endfor %}
+		</ul>
+	
+	</section>
+
+</body>
+</html>

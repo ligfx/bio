@@ -11,6 +11,8 @@ class EPB:
 		with open(self.configfile) as f:
 			self.config = yaml.load(f)
 		self.dbdir = self.config['dbdir']
+		if not self.dbdir.startswith("/"):
+			self.dbdir = path.join(self.directory, self.dbdir)
 	
 	def dispatch(self, params={}):
 		params['dbdir'] = self.dbdir

@@ -34,25 +34,9 @@ def status(params):
 #    see the boundaries)
 # 3. We have multiple sequences, separate. Blast the sequences, and for each
 #    record add an offset (erm? I have qualms about this), then render them like before
-def results(params, callback=None):
-	fasta = params["sequence"]
-	method = params["method"]
-	categories = params["categories"]
-	dbdir = params['dbdir']
-	
-	if method == 'concat':
-		seq = Fasta.normalize(fasta)
-	elif method == 'multiple':
-		seq = fasta
-	else:
-		raise Exception, "method must be one of 'concat' or 'multiple'"
-	
-	organisms = OrganismCollection.find_all_by_categories(
-		categories, path=dbdir
-	)
-	data = organisms.blast(seq, callback=callback)
-	
-	sequences = list(Fasta.each(fasta))
+def results(**opts):
+	data = opts['data']
+	sequences = opts['sequences']
 	
 	return render("results.html.jinja2", {
 		"data": data,

@@ -17,6 +17,7 @@
 		}
 		.done, .error {
 			padding: 5px;
+			color: white;
 		}
 		.done {
 			background-color: #8C0;
@@ -24,9 +25,9 @@
 		.error {
 			background-color: red;
 		}
-		.done p, .error p {
+		.done strong, .error strong {
+			display: block;
 			margin: 0;
-			color: white;
 			font-weight: bold;
 		}
 		pre {
@@ -34,6 +35,7 @@
 			background-color: white;
 			padding: 5px;
 			margin: 5px 0 0 0;
+			color: #333;
 		}
 	</style>
 </head>
@@ -48,9 +50,9 @@
 	
 		{% if done %}
 			{% if error %}
-				<div class="error"><p>Error:</p><pre>{{ error }}</pre></div>
+				<div class="error"><strong>Error:</strong>{{ error }}</div>
 			{% else %}
-				<div class="done"><p>Done! Results are at <a href="results.html">results.html</a></p></div>
+				<div class="done"><strong>Done! Results are at <a href="results.html">results.html</a></strong></div>
 			{% endif %}
 		{% else %}
 			<p>Page will reload momentarily. If it doesn't, <a href="status.html">click here</a>.</p>

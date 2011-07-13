@@ -80,12 +80,15 @@ class Job:
 
 try:
 
-	directory = "results"
-
 	request = Request()
 	job = Job()
+	config = epb.config()
 
-	status = {"job": job.id, "steps": []}
+	organisms = OrganismCollection.find_all_by_categories(
+		request.categories, path=config.dbdir
+	)
+
+	status = {"job": job.id, "steps": [], "organisms": organisms}
 	with job.status_file() as f:
 		f.write(epb.controller.status(status))
 
@@ -120,8 +123,6 @@ os.close(2)
 
 try:
 
-	e = epb.EPB(os.path.dirname(epb.__file__))
-
 	def callback(organism):
 		global status
 		status['steps'] = ["Blasting %s" % organism] + status['steps']
@@ -136,9 +137,6 @@ try:
 	else:
 		raise Exception, "method must be one of 'concat' or 'multiple'"
 
-	organisms = OrganismCollection.find_all_by_categories(
-		request.categories, path=e.dbdir
-	)
 	data = organisms.blast(seq, callback=callback)
 
 	sequences = list(Fasta.each(request.sequence))

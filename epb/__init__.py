@@ -4,8 +4,8 @@ import yaml
 import epb.controller as Controller
 from epb.presenter import *
 
-class EPB:
-	def __init__(self, directory):
+class config:
+	def __init__(self, directory=path.dirname(__file__)):
 		self.directory = directory
 		self.configfile = path.join(self.directory, 'config.yaml')
 		with open(self.configfile) as f:

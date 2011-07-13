@@ -58,6 +58,8 @@
 			<p>Page will reload momentarily. If it doesn't, <a href="status.html">click here</a>.</p>
 		{% endif %}
 	
+		<p>Found {{ organisms | length }} organisms:</p>
+	
 		<ul>
 			{% for step in steps %}
 				<li>{{ step }}</li>

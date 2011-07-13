@@ -12,6 +12,9 @@ class OrganismCollection:
 	def __init__(self, path, organisms):
 		self.path = path
 		self.organisms = organisms
+		
+	def __len__(self):
+		return len(self.organisms)
 
 	# === blast ===
 	def blast(self, sequence, **opts):

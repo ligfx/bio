@@ -40,6 +40,23 @@ class Request:
 class Job:
 	_directory = "results"
 	
+	class atomicfile:
+		def __init__(self, temp_path, real_path):
+			self.temp_path = temp_path
+			self.real_path = real_path
+			
+			self.file = open(self.temp_path, "w")
+		
+		def __enter__(self):
+			return self.file
+			
+		def __exit__(self, type, value, traceback):
+			self.file.close()
+			# `value` is an exception, or None
+			if not value:
+				os.rename(self.temp_path, self.real_path)
+			
+	
 	def __init__(self):
 		self.id = int(time.time())
 		# Shard the results into different folders, so we don't run into
@@ -50,10 +67,16 @@ class Job:
 		self.output_directory = os.path.join(self._directory, self.shard, str(self.id))
 		os.makedirs(self.output_directory)
 
-		self.status_file = os.path.join(self.output_directory, "status.html")
-		self.status_file_temp = self.status_file + "_temp"
+		self.status_file_path = os.path.join(self.output_directory, "status.html")
+		self.status_file_temp_path = self.status_file_path + "_temp"
 		
-		self.results_file = os.path.join(self.output_directory, "results.html")
+		self.results_file_path = os.path.join(self.output_directory, "results.html")
+
+	def status_file(self):
+		return Job.atomicfile(self.status_file_temp_path, self.status_file_path)
+
+	def results_file(self):
+		return open(self.results_file_path, "w")
 
 try:
 
@@ -63,11 +86,11 @@ try:
 	job = Job()
 
 	status = {"job": job.id, "steps": []}
-	with open(job.status_file, "w") as f:
+	with job.status_file() as f:
 		f.write(epb.controller.status(status))
 
 	print "Status: 302 Found"
-	print "Location: %s" % job.status_file
+	print "Location: %s" % job.status_file_path
 	print "Content-Type: text/plain"
 	print
 	#print status_file
@@ -102,9 +125,9 @@ try:
 	def callback(organism):
 		global status
 		status['steps'] = ["Blasting %s" % organism] + status['steps']
-		with open(job.status_file_temp, "w") as f:
+		
+		with job.status_file() as f:
 			f.write(epb.controller.status(status))
-		os.rename(job.status_file_temp, job.status_file)
 
 	if request.method == 'concat':
 		seq = Fasta.normalize(request.sequence)
@@ -123,17 +146,15 @@ try:
 	results = epb.controller.results(data=data, sequences=sequences)
 
 	status['done'] = True
-	with open(job.status_file_temp, "w") as f:
+	with job.status_file() as f:
 		f.write(epb.controller.status(status))
-	os.rename(job.status_file_temp, job.status_file)
 
-	with open(job.results_file, "w") as f:
+	with job.results_file() as f:
 		f.write(results)
 
 except:
 	status['done'] = True
 	status['error'] = "<pre>%s</pre>" % cgi.escape(traceback.format_exc())
 	
-	with open(job.status_file, "w") as f:
+	with job.status_file() as f:
 		f.write(epb.controller.status(status))
-	os.rename(job.status_file_temp, job.status_file)

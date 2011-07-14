@@ -1,7 +1,9 @@
 from os import path
 import yaml
 
-import epb.controller as Controller
+import epb.controller
+import epb.fasta as Fasta
+from epb.organism import *
 from epb.presenter import *
 
 class config:
@@ -13,23 +15,27 @@ class config:
 		self.dbdir = self.config['dbdir']
 		if not self.dbdir.startswith("/"):
 			self.dbdir = path.join(self.directory, self.dbdir)
-	
-	def dispatch(self, params={}):
-		params['dbdir'] = self.dbdir
-		return Controller.results(params)
 
 import sys
 if __file__ == sys.argv[0]:
 	method = sys.argv[1]
 	categories = sys.argv[2:]
-	seq = sys.stdin.read()
+	sequence = sys.stdin.read()
 	
-	e = EPB(path.dirname(__file__))
+	e = config()
 	sys.stderr.write("[debug] configfile: %s\n" % e.configfile)
 	sys.stderr.write("[debug] dbdir: %s\n" % e.dbdir)
-	print e.dispatch({
-		"sequence": seq,
-		"method": method,
-		"categories": categories
-	})
+	
+	organisms = OrganismCollection.find_all_by_categories(
+		categories, path=e.dbdir
+	)
+	seq = Fasta.normalize(sequence, method=method)
+	data = organisms.blast(seq)
+
+	sequences = Fasta.each(sequence)
+
+	print epb.controller.results({
+		"data": data,
+		"sequences": sequences
+	}).encode('utf-8')
 	

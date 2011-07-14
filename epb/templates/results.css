@@ -11,12 +11,6 @@ body { font-size: 10px; font-weight: bold;}
 
 .hsp_stat { font-weight: normal; display: none;}
 
-.hsp_border.great { border-color: red; }
-.hsp_border.good { border-color: fuchsia; }
-.hsp_border.okay { border-color: lime; }
-.hsp_border.fair { border-color: blue; }
-.hsp_border.poor { border-color: black; }
-
 #colorkey {
 	text-align: center;
 	width: 500px;

@@ -88,12 +88,12 @@ try:
 		"sequences": sequences
 	})
 
+	with job.results_file() as f:
+		f.write(results.encode('utf-8'))
+
 	status['done'] = True
 	with job.status_file() as f:
 		f.write(epb.controller.status(status))
-
-	with job.results_file() as f:
-		f.write(results)
 
 except:
 	status['done'] = True

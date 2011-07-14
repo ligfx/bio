@@ -36,10 +36,10 @@ class AlignmentPresenter:
 class HSPPresenter:
 	# **Properties:**
 	def __init__(self, hsp):
-		# `evalue`, `score`, `strength`
+		# `color`, `evalue`, `score`, `strength`
 		self.evalue = hsp.expect
 		self.score = hsp.score
-		self.strength = _score_to_strength(hsp.score)
+		self.color = _score_to_color(hsp.score)
 		
 		# `query`, `subject`, `width`
 		self.query = hsp.query
@@ -59,11 +59,11 @@ class HSPPresenter:
 	def __lt__(self, other):
 		return self.evalue < other.evalue
 	
-def _score_to_strength(score):
-	if score < 40:     strength = "poor"
-	elif score < 50:   strength = "fair"
-	elif score < 80:   strength = "okay"
-	elif score < 200:  strength = "good"
-	elif score >= 200: strength = "great"
-	else:              strength = ""
-	return strength
+def _score_to_color(score):
+	if score < 40:     color = "black"
+	elif score < 50:   color = "blue"
+	elif score < 80:   color = "lime"
+	elif score < 200:  color = "fuchsia"
+	elif score >= 200: color = "red"
+	else:              color = ""
+	return color

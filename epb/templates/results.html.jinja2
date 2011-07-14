@@ -6,7 +6,6 @@
 		{{ render("results.css") }}
 	</style>
 	
-	<script type="text/javascript" src="raphael-min.js"></script>
 	<script type="text/javascript">
 		{{ render("app.js.jinja2") }}
 	</script>
@@ -73,6 +72,8 @@
 			<h1>{{ organism }}</h1>
 			<h1>{{ alignment.name }}</h1>
 			
+			<div id="alignment-paper-{{ alignment.digest }}" class="paper" style="width: 400px; height: 400px"></div>
+			
 			{% for hsp, datum in data.by_hsp() %}
 					<div class="hsp" style="border: 1px solid #333; padding: 5px">
 						<h1>Query sequence: {{ datum.record.query }}</h1>
@@ -81,7 +82,8 @@
 						<pre>Sbjct: {{ hsp.subject }}<br/>Match: {{ hsp.match }}<br/>Query: {{ hsp.query }}</pre>
 						<p></p>
 						<p>Query {{ datum.record.width }} nt: {{ hsp.query_start }} &ndash; {{ hsp.query_end }}</p>
-						<div class="hsp_border {{ hsp.strength }}" style="
+						<div class="hsp_border" style="
+							border-color: {{ hsp.color }};
 							width: {{ hsp.query_width | as_percent(datum.record.width) }};
 							height: {{ hsp.evalue }}
 							margin-left: {{ hsp.query_start | as_percent(datum.record.width) }};">
@@ -89,7 +91,8 @@
 						<div style="height: 5px; background-color: black"></div>
 						
 						<p>Subject {# alignment.length #} nt: {{ hsp.subject_start }} &ndash; {{ hsp.subject_end }}</p>
-						<div class="hsp_border {{ hsp.strength }}" style="
+						<div class="hsp_border" style="
+						  border-color: {{ hsp.color }};
 							width: {# hsp.subject_width | as_percent(alignment.length) #};
 							margin-left: {# hsp.subject_start | as_percent(alignment.length) #}">
 						</div>
@@ -98,6 +101,7 @@
 						<div id="paper-{{alignment.digest}}-{{ datum.record.query }}"></div>
 					</div>
 			{% endfor %}
+			
 		</div>
 	{% endfor %}
 	{% endfor %}
@@ -164,13 +168,12 @@
 									width: {{ record.width | as_percent(input_width) }};
 									margin-left: {{ record.offset | as_percent(input_width) }}"
 								>
-									{% for datum in data %}
-									{% with hsp = datum.hsp %}
-										<div class="hsp_border {{ hsp.strength }}" style="
+									{% for hsp, datum in data.by_hsp() %}
+										<div class="hsp_border" style="
+											border-color: {{ hsp.color }};
 											margin-left: {{ hsp.query_start | as_percent(record.width) }};
 											width: {{ hsp.query_width | as_percent(record.width) }}">
 										</div>
-									{% endwith %}
 									{% endfor %}
 								</div>
 							{% endfor %}
@@ -196,31 +199,42 @@
 </div><!-- #baseLayer -->
 
 <script type="text/javascript">
-	var paper = Raphael("paper-102620776a20dc866709038f2ade720e-test", 120, 200);
+
+	{% for alignment, data in data.by_alignment() %}
+
+		(function() {
+
+			var element = $("alignment-paper-{{ alignment.digest }}").elements[0];
+
+			var width = parseInt(element.style.width);
+			var height = parseInt(element.style.height);
+
+			var paper = Raphael("alignment-paper-{{ alignment.digest }}", width, height);
+		
+			{% for hsp, datum in data.by_hsp() %}
 	
-	paper.path("M71 0L120 0").attr({
-		"stroke": "red",
-		"stroke-width": 5
-	});
-	paper.path("M0 151L0 199").attr({
-		"stroke": "red",
-		"stroke-width": 5
-	});
-	paper.path("M71 0L71 200").attr({
-		"stroke": "#ddd",
-		"stroke-width": 2,
-		"stroke-dasharray": "-"
-	});
-	paper.path("M0 151L120 151").attr({
-		"stroke": "#ddd",
-		"stroke-width": 2,
-		"stroke-dasharray": "-"
-	});
-	paper.path("M71 151L120 199").attr({
-		"stroke": "red",
-		"stroke-width": 8
-	});
+				(function() {
+
+					var query_start = {{ hsp.query_start / input_width }} * width;
+					var query_end = {{ hsp.query_end / input_width }} * width;
+					
+					var subject_start = {{ hsp.subject_start / alignment.length }} * height;
+					var subject_end = {{ hsp.subject_end / alignment.length }} * height;
 	
+					var path = "M" + query_start + " " + subject_start + "L" + query_end + " " + subject_end;
+	
+					paper.path(path).attr({
+						"stroke": "{{ hsp.color }}",
+						"stroke-width": 5
+					});
+				
+				})();
+			
+			{% endfor %}
+	
+		})();
+	
+	{% endfor %}
 	
 </script>
 

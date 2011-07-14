@@ -15,7 +15,7 @@ class DataSet:
 	#       "hsp": ...
 	#     }
 	def __init__(self, data):
-		self.data = data
+		self.data = list(data)
 	
 	# === by_organism ===
 	def by_organism(self):
@@ -50,4 +50,4 @@ class DataSet:
 		f = lambda _: _[key]
 		scope = sorted(self.data, key = f)
 		groups = groupby(scope, f)
-		return [(group, DataSet(list(data))) for (group, data) in groups]
+		return [(group, DataSet(data)) for (group, data) in groups]

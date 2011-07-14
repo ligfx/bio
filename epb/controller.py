@@ -48,15 +48,31 @@ def results(opts={}):
 
 # Render [Jinja2](http://jinja.pocoo.org/docs/) template from directory `epb/templates`
 def render(action, context={}):
-	template = environment().get_template(action)
-	return template.render(context)
+	return environment_for(action).get_template(action).render(context)
 
-def environment():
-	env = jinja2.Environment(
-		loader = jinja2.PackageLoader('epb', 'templates'),
-		extensions = ['jinja2.ext.with_']
-	)
+def environment_for(action):
+	if action.endswith(".js") or action.endswith(".js.jinja2"):
+		return javascript_environment()
+	else:
+		return html_environment()
+
+def loader():
+	return jinja2.PackageLoader('epb', 'templates')
+
+def html_environment():
+	env = jinja2.Environment(loader = loader())
 	env.filters['as_percent'] = lambda value, total: "{0}%".format(value * 100.0 / total)
 	env.filters['map_function'] = lambda enum, name: (eval(name)(e) for e in enum)
+	env.globals['render'] = render
+	return env
+
+def javascript_environment():
+	env = jinja2.Environment(
+		loader = loader(),
+		block_start_string = "<%",
+		block_end_string = "%>",
+		variable_start_string = "<%=",
+		variable_end_string = "%>"
+	)
 	env.globals['render'] = render
 	return env

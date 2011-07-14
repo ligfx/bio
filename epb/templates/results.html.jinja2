@@ -80,7 +80,7 @@
 						<h2>Score: {{ hsp.score }}</h2>
 						<pre>Sbjct: {{ hsp.subject }}<br/>Match: {{ hsp.match }}<br/>Query: {{ hsp.query }}</pre>
 						<p></p>
-						<p>Query {{ datum.record.width }} nt: {{ hsp.start }} &ndash; {{ hsp.end }}</p>
+						<p>Query {{ datum.record.width }} nt: {{ hsp.query_start }} &ndash; {{ hsp.query_end }}</p>
 						<div class="hsp_border {{ hsp.strength }}" style="
 							width: {{ hsp.query_width | as_percent(datum.record.width) }};
 							height: {{ hsp.evalue }}

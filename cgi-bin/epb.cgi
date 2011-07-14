@@ -88,7 +88,6 @@ try:
 		"sequences": sequences
 	})
 
-	status['steps'] = ["Done!"] + status['steps']
 	status['done'] = True
 	with job.status_file() as f:
 		f.write(epb.controller.status(status))

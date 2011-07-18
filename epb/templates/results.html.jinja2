@@ -90,11 +90,11 @@
 						</div>
 						<div style="height: 5px; background-color: black"></div>
 						
-						<p>Subject {# alignment.length #} nt: {{ hsp.subject_start }} &ndash; {{ hsp.subject_end }}</p>
+						<p>Subject {{ alignment.length }} nt: {{ hsp.subject_start }} &ndash; {{ hsp.subject_end }}</p>
 						<div class="hsp_border" style="
 						  border-color: {{ hsp.color }};
-							width: {# hsp.subject_width | as_percent(alignment.length) #};
-							margin-left: {# hsp.subject_start | as_percent(alignment.length) #}">
+							width: {{ hsp.subject_width | as_percent(alignment.length) }};
+							margin-left: {{ hsp.subject_start | as_percent(alignment.length) }}">
 						</div>
 						<div style="height: 5px; background-color: black"></div>
 						

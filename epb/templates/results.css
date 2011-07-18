@@ -60,12 +60,8 @@ tbody tr {
 	float: left;
 	width: 100%;
 	position: relative;
-	border-left: 1px solid #999;
+	border-left: 1px solid #ddd;
 	margin-left: -1px;
-}
-
-.alignment > .divider {
-		background: rgba(230, 230, 230, 0.5);
 }
 
 .alignmentGraphics {

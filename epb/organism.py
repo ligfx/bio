@@ -45,13 +45,10 @@ class OrganismCollection:
 
 		for fname in info_files:
 			with open(os.path.join(path, fname)) as f:
-				info = yaml.load(f)
-				info_categories = info['categories']
-				# It could be a single string
-				if type(info_categories) == str:
-					info_categories = info_categories.split(",")
-				if any((c.strip().lower() in categories) for c in info_categories):
+				info = yaml.load(f) or {}
+				if True: #any((c.strip().lower() in categories) for c in info_categories):
 					name = fname[:-len(klass.ext)]
+					import sys
 					organism_names[name] = info
 
 		return OrganismCollection(path, organism_names)

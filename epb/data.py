@@ -28,7 +28,7 @@ class DataSet:
 	# === by_alignment ===
 	def by_alignment(self):
 		data = self._group('alignment')
-		data.sort(key=lambda (a, d): d.lowest_evalue())
+		data.sort(key=lambda (a, d): d.minimum_evalue())
 		return data
 	
 	# === by_hsp ===
@@ -38,9 +38,17 @@ class DataSet:
 		data = self._group('hsp')
 		return [(hsp, next(iter(d))) for (hsp, d) in data]
 	
-	# === lowest_evalue ===
-	def lowest_evalue(self):
+	# === minimum_evalue ===
+	def minimum_evalue(self):
 		return min(d['hsp'].evalue for d in self.data)
+		
+	# === minimum_subject_start ===
+	def minimum_subject_start(self):
+		return min(d['hsp'].subject_start for d in self.data)
+		
+	# === maximum_subject_end ===
+	def maximum_subject_end(self):
+		return max(d['hsp'].subject_end for d in self.data)
 		
 	# === \_\_iter__ ===
 	def __iter__(self):

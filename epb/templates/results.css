@@ -190,3 +190,43 @@ a:hover {
 .organisms {
 	margin-top: 2em;
 }
+
+.paper {
+	border: 1px solid #333;
+}
+
+.graphic {
+	font-size: 14px;
+	color: #333;
+}
+
+.verticalLegend {
+	width: 3em;
+	height: 400px;
+	text-align: center;
+	float: left;
+}
+.paper, .horizontalLegend {
+	margin-left: 3em;
+}
+
+.horizontalLegend {
+	height: 1.5em;
+	width: 400px;
+}
+
+.verticalLegend, .horizontalLegend {
+	position: relative;
+}
+.verticalLegend div, .horizontalLegend div {
+	position: absolute;
+}
+.horizontalLegend div.first {
+	left: -0.5em;
+}
+.horizontalLegend div.last {
+	right: 0;
+}
+.verticalLegend div.last {
+	bottom: 0;
+}

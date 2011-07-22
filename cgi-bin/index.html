@@ -3,7 +3,7 @@
 	<title>EukPhyloBlast</title>
 	<style type="text/css">
 		body {
-			font-family: Helvetica, Arial, Verdana, sans-serif;
+			font-family: "Helvetica Neue", Helvetica, Arial, Verdana, sans-serif;
 			width: 500px;
 			margin: 0 auto;
 			color: #333;
@@ -25,6 +25,9 @@
 		}
 		form > header h1 {
 			font-size: 1.5em;
+		}
+		fieldset div > div {
+			padding-left: 1em;
 		}
 	</style>
 </head>
@@ -53,8 +56,33 @@
 		<fieldset>
 			<legend>Select the categories you want to search:</legend>
 			<div>
-				<input type="checkbox" id="plantae" name="category" value="plantae" checked="true">
-				<label for="plantae">Plantae</label>
+				<input type="checkbox" id="all" name="category" value="all" checked="true">
+				<label for="all">All</label>
+				
+				<div>
+					<input type="checkbox" id="excavates" name="category" value="excavates" checked="true">
+					<label for="excavates">Excavates</label>
+				</div>
+
+				<div>
+					<input type="checkbox" id="amoebozoa" name="category" value="amoebozoa" checked="true">
+					<label for="amoebozoa">Amoebozoa</label>
+				</div>
+
+				<div>
+					<input type="checkbox" id="ophistokonta" name="category" value="ophistokonta" checked="true">
+					<label for="ophistokonta">Ophistokonta</label>
+				</div>
+
+				<div>
+					<input type="checkbox" id="chromalveolate" name="category" value="chromalveolate" checked="true">
+					<label for="chromalveolate">Chromalveolate</label>
+				</div>
+
+				<div>
+					<input type="checkbox" id="plantae" name="category" value="plantae" checked="true">
+					<label for="plantae">Plantae</label>
+				</div>
 			</div>
 		</fieldset>
 		<input type="submit" value="Blast sequence">

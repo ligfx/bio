@@ -72,7 +72,29 @@
 			<h1>{{ organism }}</h1>
 			<h1>{{ alignment.name }}</h1>
 			
-			<div id="alignment-paper-{{ alignment.digest }}" class="paper" style="width: 400px; height: 400px"></div>
+			<div class="graph">
+				<div class="graphic">
+					<div class="horizontalLegend">
+						<div class="first">0</div>
+						<div class="last">{{ input_width }}</div>
+					</div>
+					<div class="verticalLegend">
+						<div class="last">{{ alignment.length }}</div>
+					</div>
+					<div id="alignment-paper-{{ alignment.digest }}"
+					     class="paper"
+					     style="width: 400px; height: 400px">
+					</div>
+				</div>
+				<div class="info">
+					<div class="alignmentInfo">
+						Target ({{ alignment.length }} nt) {{ data.minimum_subject_start() }} &ndash; {{ data.maximum_subject_end() }}
+					</div>
+					<div class="queryInfo">
+						
+					</div>
+				</div>
+			</div>
 			
 			{% for hsp, datum in data.by_hsp() %}
 					<div class="hsp" style="border: 1px solid #333; padding: 5px">
@@ -160,7 +182,7 @@
 						>
 							<div class="alignmentName">
 								<strong>{{ alignment.name }}</strong><br/>
-								<em>{{ data.lowest_evalue() }}</em>
+								<em>{{ data.minimum_evalue() }}</em>
 							</div>
 						
 							{% for record, data in data.by_record() %}
@@ -225,7 +247,7 @@
 	
 					paper.path(path).attr({
 						"stroke": "{{ hsp.color }}",
-						"stroke-width": 5
+						"stroke-width": 3
 					});
 				
 				})();

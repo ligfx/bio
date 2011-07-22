@@ -30,7 +30,7 @@ if __file__ == sys.argv[0]:
 		categories, path=e.dbdir
 	)
 	seq = Fasta.normalize(sequence, method=method)
-	data = organisms.blast(seq)
+	data = organisms.blast(seq, callback=lambda organism: sys.stderr.write("[debug] Blasting %s\n" % organism))
 
 	sequences = Fasta.each(sequence)
 

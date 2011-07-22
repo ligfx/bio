@@ -63,6 +63,7 @@ def html_environment():
 	env = jinja2.Environment(loader = loader())
 	env.filters['as_percent'] = lambda value, total: "{0}%".format(value * 100.0 / total)
 	env.filters['map_function'] = lambda enum, name: (eval(name)(e) for e in enum)
+	env.filters['verticalize'] = lambda s: "<br/>".join(list(str(s)))
 	env.globals['render'] = render
 	return env
 

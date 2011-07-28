@@ -4,6 +4,7 @@ import epb.blast as Blast
 from epb.data import DataSet
 import os
 import re
+import sqlite3
 import yaml
 
 # === Organism ===
@@ -18,12 +19,20 @@ class Organism:
 		match = re.match(self.info.get('fasta_header_format', ''), gene)
 		if match:
 			keys = match.groupdict()
-			for k in keys:
-				if keys[k]:
-					keys[k] = keys[k].strip()
+			for k in keys: keys[k] = (keys[k] or '').strip()
 		else:
 			keys = {}
 		return self.info.get('gene_url','#').format(**keys)
+		
+	def get_sequence(self, name):
+		conn = sqlite3.connect(os.path.join(self.path, self.slug) + '.db')
+		c = conn.cursor()
+		try:
+			statement = c.execute('select sequence from sequences where sequences.fullname = ? limit 1', (name,))
+			row = statement.fetchone()
+			return row[0]
+		finally:
+			c.close()
 
 # === OrganismCollection ===
 class OrganismCollection:

@@ -26,10 +26,6 @@ class AlignmentPresenter:
 		self.length = align.length
 		self.digest = hashlib.md5(self.name).hexdigest()
 	
-	def get_sequence(self, organism):
-		with open(os.path.join(organism.path, organism.slug) + '.ffa') as f:
-			return epb.fasta.find_sequence(self.name, f)
-	
 	def __lt__(self, other):
 		return self.name < other.name
 	

@@ -58,6 +58,25 @@ class HSPPresenter:
 		self.subject_end = hsp.sbjct_end
 		self.subject_width = self.subject_end - self.subject_start
 	
+	# === lines(count) ===
+	def lines(self, count=80):
+		first = count - 7
+		query = "Query: " + self.query[0:first]
+		match = "Match: " + self.match[0:first]
+		sbjct = "Sbjct: " + self.match[0:first]
+		yield (query, match, sbjct)
+		
+		length = len(self.query)
+		remaining = length - first
+		for i in range(0, (remaining + count - 1) / count):
+			start = first + count * i
+			end = first + count * (i + 1)
+			query = self.query[start:end]
+			match = self.match[start:end]
+			sbjct = self.subject[start:end]
+			yield (query, match, sbjct)
+			
+	
 	def __lt__(self, other):
 		return self.evalue < other.evalue
 	

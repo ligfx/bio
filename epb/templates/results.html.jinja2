@@ -116,33 +116,34 @@
 				<header>
 					<h1>High-scoring pairs</h1>
 				</header>
-				<div class="hsp">
-					<div class="info">
-						<dl>
-							<dt>E-value</dt>
-							<dd>1.16563e-30</dd>
+				{% for hsp, datum in data.by_hsp() %}
+					<div class="hsp">
+						<div class="info">
+							<dl>
+								<dt>E-value</dt>
+								<dd>{{ hsp.evalue }}</dd>
 
-							<dt>Score</dt>
-							<dd>330.0</dd>
+								<dt>Score</dt>
+								<dd>{{ hsp.score }}</dd>
 
-							<dt>Query</dt>
-							<dd>771–1269 out of 2746 nt</dd>
+								<dt>Query</dt>
+								<dd>{{ hsp.query_start }}–{{ hsp.query_end }} out of TODO nt</dd>
 
-							<dt>Target</dt>
-							<dd>1011–1467 out of 1679 nt</dd>
-						</dl>
+								<dt>Target</dt>
+								<dd>{{ hsp.subject_start }}–{{ hsp.subject_end }} out of {{ alignment.length }} nt</dd>
+							</dl>
+						</div>
+						<div class="match">
+							<pre>
+								{% for query, match, sbjct in hsp.lines() %}
+<div class="line">{{ sbjct }}
+{{ match }}
+{{ query }}</div>
+								{% endfor %}
+							</pre>
+						</div>
 					</div>
-					<div class="match">
-						<pre>
-			<div class="line-1">Sbjct: QEEDDSPLAALKRRVQQLSTSPYDKEIWAVALPALVAMLLEPVMNALNAGMRACIFVSMCVSFSVSCSPPPTPTRMYRLNVSYIQIQVSCIVAKSLWIAVVSGVASAAAMFAGAEAIVAMLKPPEAAVAAFAIDYIRVRSLAIP
-Match: QEEDDSPLAALKRRVQQLSTSPYDKEIW               MNALNAGMRACI                   RMYRLNVSYIQIQVSCIVAKSLW                       LKPPEAAVAAFAIDYIRVRSLAIP
-Query: QEEDDSPLAALKRRVQQLSTSPYDKEIWXXXXXXXXXXXXXXXMNALNAGMRACIXXXXXXXXXXXXXXXXXXXRMYRLNVSYIQIQVSCIVAKSLWXXXXXXXXXXXXXXXXXXXXXXXLKPPEAAVAAFAIDYIRVRSLAIP</div>
-							<div class="line-2">AVLLGFVATAVFRGFKDTRTPLFGALVSAAVSLGLNVLFLYVLRLGVVGSAVATAAAQIVSCCLLLGALFAKGRGGGGGGGVVVQARHLRRPPPLSVMVPTLKLGAVLGARN
-AVLLGFVATAVFRGFKDTRTPLFGALVSAAVSLGLNVLFLYVLRLG              SCCLLLGALFAK            QARHLRRPPPLSVMVPTLKLGAVLGARN
-AVLLGFVATAVFRGFKDTRTPLFGALVSAAVSLGLNVLFLYVLRLGXXXXXXXXXXXXXXSCCLLLGALFAKXXXXXXXXXXXXQARHLRRPPPLSVMVPTLKLGAVLGARN</div>
-						</pre>
-					</div>
-				</div>
+				{% endfor %}
 			</section>
 			
 		</section>

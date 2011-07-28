@@ -3,14 +3,33 @@
 import epb.blast as Blast
 from epb.data import DataSet
 import os
+import re
 import yaml
+
+# === Organism ===
+class Organism:
+	def __init__(self, path, slug, info):
+		self.path = path
+		self.slug = slug
+		self.info = info
+		self.name = info.get('name', slug)
+		
+	def url_for_gene(self, gene):
+		match = re.match(self.info.get('fasta_header_format', ''), gene)
+		if match:
+			keys = match.groupdict()
+			for k in keys:
+				if keys[k]:
+					keys[k] = keys[k].strip()
+		else:
+			keys = {}
+		return self.info.get('gene_url','#').format(**keys)
 
 # === OrganismCollection ===
 class OrganismCollection:
 	ext = ".info"
 
-	def __init__(self, path, organisms):
-		self.path = path
+	def __init__(self, organisms):
 		self.organisms = organisms
 		
 	def __len__(self):
@@ -23,12 +42,12 @@ class OrganismCollection:
 		
 		data = []
 		
-		for (organism, info) in self.organisms.items():
+		for organism in self.organisms:
 			if callback: callback(organism)
-			xml = Blast.get_xml(os.path.join(self.path, organism), sequence)
+			xml = Blast.get_xml(os.path.join(organism.path, organism.slug), sequence)
 			
 			for datum in Blast.parse_xml(xml):
-				datum['organism'] = info.get('name', organism)
+				datum['organism'] = organism
 				data.append(datum)
 		
 		return DataSet(data)
@@ -41,14 +60,13 @@ class OrganismCollection:
 
 		info_files = [f for f in os.listdir(path) if f.endswith(klass.ext)]
 
-		organism_names = {}
+		organisms = []
 
 		for fname in info_files:
 			with open(os.path.join(path, fname)) as f:
 				info = yaml.load(f) or {}
 				if True: #any((c.strip().lower() in categories) for c in info_categories):
-					name = fname[:-len(klass.ext)]
-					import sys
-					organism_names[name] = info
+					slug = fname[:-len(klass.ext)]
+					organisms.append(Organism(path, slug, info))
 
-		return OrganismCollection(path, organism_names)
+		return OrganismCollection(organisms)

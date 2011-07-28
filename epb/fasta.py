@@ -28,8 +28,6 @@ def normalize(seq, **opts):
 		return seq
 	else:
 		raise Exception, "method must be one of 'concat' or 'multiple'"
-	
-	
 
 # === Sequence ===
 

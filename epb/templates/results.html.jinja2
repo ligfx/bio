@@ -63,68 +63,89 @@
 <div id="overlays">
 	{% for organism, data in data.by_organism() %}
 	{% for alignment, data in data.by_alignment() %}
-		<div id="alignment-overlay-{{ alignment.digest }}">
+		<section id="alignment-overlay-{{ alignment.digest }}">
 			<div class="actions">
 				<a id="alignment-overlay-close-{{ alignment.digest }}"
 				   href="#close">Close popup</a>
 			</div>
 			
-			<h1>{{ organism }}</h1>
-			<h1>{{ alignment.name }}</h1>
-			
-			<div class="graph">
-				<div class="graphic">
-					<div class="horizontalLegend">
-						<div class="first">0</div>
-						<div class="last">{{ input_width }}</div>
+			<header>
+			<h1 class="organismName">{{ organism.name }}</h1>
+			<h2 class="geneName">{{ alignment.name }}</h2>
+			</header>
+
+			<dl>
+				<dt>E-value</dt>
+				<dd>{{ data.minimum_evalue() }}</dd>
+
+				<dt>Combined Score</dt>
+				<dd>TODO</dd>
+
+				<dt>Coverage</dt>
+				<dd>TODO</dd>
+
+				<dt>Source</dt>
+				<dd>{{ organism.info.source }}</dd>
+
+				<dt>Webpage</dt>
+				<dd>{{ organism.info.url }}</dd>
+
+				<dt>Gene</dt>
+				<dd>{{ organism.url_for_gene(alignment.name) }}</dd>
+
+				<dt>Reference</dt>
+				<dd>{{ organism.info.reference }}</dd>
+			</dl>
+
+			<section class="alignment">
+				<header>
+					<h1>Alignment</h1>
+				</header>
+				<div id="..." class="alignmentGraph"></div>
+			</section>
+
+			<section class="sequence">
+				<header>
+					<h1>Sequence</h1>
+				</header>
+
+				<span>{{ alignment.get_sequence(organism) }}</span>
+			</section>
+
+			<section class="hsps">
+				<header>
+					<h1>High-scoring pairs</h1>
+				</header>
+				<div class="hsp">
+					<div class="info">
+						<dl>
+							<dt>E-value</dt>
+							<dd>1.16563e-30</dd>
+
+							<dt>Score</dt>
+							<dd>330.0</dd>
+
+							<dt>Query</dt>
+							<dd>771–1269 out of 2746 nt</dd>
+
+							<dt>Target</dt>
+							<dd>1011–1467 out of 1679 nt</dd>
+						</dl>
 					</div>
-					<div class="verticalLegend">
-						<div class="last">{{ alignment.length }}</div>
-					</div>
-					<div id="alignment-paper-{{ alignment.digest }}"
-					     class="paper"
-					     style="width: 400px; height: 400px">
+					<div class="match">
+						<pre>
+			<div class="line-1">Sbjct: QEEDDSPLAALKRRVQQLSTSPYDKEIWAVALPALVAMLLEPVMNALNAGMRACIFVSMCVSFSVSCSPPPTPTRMYRLNVSYIQIQVSCIVAKSLWIAVVSGVASAAAMFAGAEAIVAMLKPPEAAVAAFAIDYIRVRSLAIP
+Match: QEEDDSPLAALKRRVQQLSTSPYDKEIW               MNALNAGMRACI                   RMYRLNVSYIQIQVSCIVAKSLW                       LKPPEAAVAAFAIDYIRVRSLAIP
+Query: QEEDDSPLAALKRRVQQLSTSPYDKEIWXXXXXXXXXXXXXXXMNALNAGMRACIXXXXXXXXXXXXXXXXXXXRMYRLNVSYIQIQVSCIVAKSLWXXXXXXXXXXXXXXXXXXXXXXXLKPPEAAVAAFAIDYIRVRSLAIP</div>
+							<div class="line-2">AVLLGFVATAVFRGFKDTRTPLFGALVSAAVSLGLNVLFLYVLRLGVVGSAVATAAAQIVSCCLLLGALFAKGRGGGGGGGVVVQARHLRRPPPLSVMVPTLKLGAVLGARN
+AVLLGFVATAVFRGFKDTRTPLFGALVSAAVSLGLNVLFLYVLRLG              SCCLLLGALFAK            QARHLRRPPPLSVMVPTLKLGAVLGARN
+AVLLGFVATAVFRGFKDTRTPLFGALVSAAVSLGLNVLFLYVLRLGXXXXXXXXXXXXXXSCCLLLGALFAKXXXXXXXXXXXXQARHLRRPPPLSVMVPTLKLGAVLGARN</div>
+						</pre>
 					</div>
 				</div>
-				<div class="info">
-					<div class="alignmentInfo">
-						Target ({{ alignment.length }} nt) {{ data.minimum_subject_start() }} &ndash; {{ data.maximum_subject_end() }}
-					</div>
-					<div class="queryInfo">
-						
-					</div>
-				</div>
-			</div>
+			</section>
 			
-			{% for hsp, datum in data.by_hsp() %}
-					<div class="hsp" style="border: 1px solid #333; padding: 5px">
-						<h1>Query sequence: {{ datum.record.query }}</h1>
-						<h2>E-value: {{ hsp.evalue }}</h2>
-						<h2>Score: {{ hsp.score }}</h2>
-						<pre>Sbjct: {{ hsp.subject }}<br/>Match: {{ hsp.match }}<br/>Query: {{ hsp.query }}</pre>
-						<p></p>
-						<p>Query {{ datum.record.width }} nt: {{ hsp.query_start }} &ndash; {{ hsp.query_end }}</p>
-						<div class="hsp_border" style="
-							border-color: {{ hsp.color }};
-							width: {{ hsp.query_width | as_percent(datum.record.width) }};
-							height: {{ hsp.evalue }}
-							margin-left: {{ hsp.query_start | as_percent(datum.record.width) }};">
-						</div>
-						<div style="height: 5px; background-color: black"></div>
-						
-						<p>Subject {{ alignment.length }} nt: {{ hsp.subject_start }} &ndash; {{ hsp.subject_end }}</p>
-						<div class="hsp_border" style="
-						  border-color: {{ hsp.color }};
-							width: {{ hsp.subject_width | as_percent(alignment.length) }};
-							margin-left: {{ hsp.subject_start | as_percent(alignment.length) }}">
-						</div>
-						<div style="height: 5px; background-color: black"></div>
-						
-						<div id="paper-{{alignment.digest}}-{{ datum.record.query }}"></div>
-					</div>
-			{% endfor %}
-			
-		</div>
+		</section>
 	{% endfor %}
 	{% endfor %}
 	<div style="clear: both"></div>
@@ -149,7 +170,7 @@
 	<section class="organism">
 		<header>
 			<div class="organismName">
-				{{ organism }}
+				{{ organism.name	 }}
 			</div>
 			<div class="sequences">
 				{% for seq in sequences %}

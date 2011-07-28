@@ -81,10 +81,9 @@ tbody tr {
 	font-size: 16px;
 }
 
-#overlays > div {
+#overlays > section {
 	display: none;
 	padding: 10px;
-	font-size: 10px;
 }
 
 td.hits {

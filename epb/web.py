@@ -23,20 +23,21 @@ class Request:
 #
 # Abstracts over a EukPhyloBlast job.
 class Job:
-	_directory = "results"
-	
-	def __init__(self):
+	def __init__(self, diskpath, httppath):
 		self.id = int(time.time())
 		# Shard the results into different folders, so we don't run into
 		# issues with directory size limits
 		shard = ("%06i" % (self.id % 999999))
 		self.shard = os.path.join(shard[:3], shard[3:])
 		
-		self.output_directory = os.path.join(self._directory, self.shard, str(self.id))
+		self.output_directory = os.path.join(diskpath, self.shard, str(self.id))
 		os.makedirs(self.output_directory)
 
 		self.status_file_path = os.path.join(self.output_directory, "status.html")
 		self.results_file_path = os.path.join(self.output_directory, "results.html")
+		
+		self.output_http_path = os.path.join(httppath, self.shard, str(self.id))
+		self.status_http_path = os.path.join(self.output_http_path, "status.html")
 
 	# === status_file ===
 	def status_file(self):

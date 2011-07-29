@@ -29,8 +29,9 @@ try:
 		})
 		exit(0)
 	
-	job = epb.web.Job()
+	job = epb.web.Job("results", "results")
 	config = epb.config()
+	config.dbdir = "/databases"
 
 	organisms = OrganismCollection.find_all_by_categories(
 		request.categories, path=config.dbdir
@@ -41,7 +42,7 @@ try:
 		f.write(epb.controller.status(status))
 
 	print "Status: 302 Found"
-	print "Location: %s" % job.status_file_path
+	print "Location: %s" % job.status_http_path
 	print "Content-Type: text/plain"
 	print
 	#print status_file

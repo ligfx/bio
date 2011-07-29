@@ -1,0 +1,76 @@
+<html>
+<head>
+	
+	
+	<title>Job Status 1311186510 - EukPhyloBlast</title>
+	<style type="text/css">
+		body {
+			font-family: Helvetica, Arial, Verdana, sans-serif;
+			width: 500px;
+			margin: 0 auto;
+			color: #333;
+		}
+		section > header h1 {
+			font-size: 1.5em;
+		}
+		.done, .error {
+			padding: 5px;
+			color: white;
+		}
+		.done {
+			background-color: #8C0;
+		}
+		.error {
+			background-color: red;
+		}
+		.done strong, .error strong {
+			display: block;
+			margin: 0;
+			font-weight: bold;
+		}
+		pre {
+			overflow: scroll;
+			background-color: white;
+			padding: 5px;
+			margin: 5px 0 0 0;
+			color: #333;
+		}
+	</style>
+</head>
+<body>
+
+	<header>
+		<h1>EukPhyloBlast</h1>
+	</header>
+	
+	<section>
+		<header><h1>Status of job 1311186510</h1></header>
+	
+		
+			
+				<div class="error"><strong>Error:</strong><pre>Traceback (most recent call last):
+  File "/Users/michael/Projects/bio/epb-py/cgi-bin/epb.cgi", line 82, in &lt;module&gt;
+    data = organisms.blast(seq, callback=callback)
+  File "/Users/michael/Projects/bio/epb-py/epb/organism.py", line 28, in blast
+    xml = Blast.get_xml(os.path.join(self.path, organism), sequence)
+  File "/Users/michael/Projects/bio/epb-py/epb/blast.py", line 11, in get_xml
+    return Process.run("blastall -p blastp -d %s -m7 -e 1e-5 -a 8" % db, "%s\n" % seq)
+  File "/Users/michael/Projects/bio/epb-py/epb/process.py", line 16, in run
+    raise ExecutableNotFound("can't find '%s' executable in PATH" % command)
+ExecutableNotFound: can't find 'blastall -p blastp -d /Users/michael/Projects/bio/epb-py/cgi-bin/../epb/../blast/Emihu1_reduced_proteins -m7 -e 1e-5 -a 8' executable in PATH
+</pre></div>
+			
+		
+		
+		<p>Running <strong>1</strong> out of <strong>6</strong> organisms:</p>
+	
+		<ul>
+			
+				<li>Blasting Emihu1_reduced_proteins</li>
+			
+		</ul>
+	
+	</section>
+
+</body>
+</html>

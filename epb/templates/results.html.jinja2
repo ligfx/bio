@@ -258,6 +258,21 @@
 
 			var paper = Raphael("alignment-paper-{{ alignment.digest }}", width, height);
 		
+			(function() {
+				var offset = 0;
+				{% for sequence in sequences[:-1] %}
+						offset = offset + {{ sequence | length }};
+						(function() {
+							var x = parseInt(offset / {{ input_width }} * width);
+							var path = "M" + x + " 0L" + x + " " + height;
+							paper.path(path).attr({
+								"stroke": "#aaa",
+								"stroke-width": 1
+							});
+						})();
+				{% endfor %}
+			})();
+		
 			{% for hsp, datum in data.by_hsp() %}
 	
 				(function() {
@@ -268,11 +283,24 @@
 					var subject_start = {{ hsp.subject_start / alignment.length }} * height;
 					var subject_end = {{ hsp.subject_end / alignment.length }} * height;
 	
-					var path = "M" + query_start + " " + subject_start + "L" + query_end + " " + subject_end;
+					var path;
 	
+					path = "M" + query_start + " " + subject_start + "L" + query_end + " " + subject_end;
 					paper.path(path).attr({
 						"stroke": "{{ hsp.color }}",
 						"stroke-width": 3
+					});
+					
+					path = "M" + query_start + " 0L" + query_end + " 0";
+					paper.path(path).attr({
+						"stroke": "{{ hsp.color }}",
+						"stroke-width": 6
+					});
+					
+					path = "M0 " + subject_start + "L0 " + subject_end;
+					paper.path(path).attr({
+						"stroke": "{{ hsp.color }}",
+						"stroke-width": 6
 					});
 				
 				})();

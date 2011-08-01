@@ -229,3 +229,6 @@ a:hover {
 .verticalLegend div.last {
 	bottom: 0;
 }
+.alignmentGraph {
+	border: 1px solid #666;
+}

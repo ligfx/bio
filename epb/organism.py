@@ -31,12 +31,15 @@ class OrganismDatabase:
 		self.path = os.path.join(dbdir, slug) + self.file_ext
 	
 	def cursor(self):
-		conn = sqlite3.connect(self.path)
-		c = conn.cursor()
-		guard = OrganismDatabase.Guard()
-		guard.__enter__ = lambda: c
-		guard.__exit__ = lambda *args: guard.in_order(c.close, conn.close)
-		return guard
+		try:
+			conn = sqlite3.connect(self.path)
+			c = conn.cursor()
+			guard = OrganismDatabase.Guard()
+			guard.__enter__ = lambda: c
+			guard.__exit__ = lambda *args: guard.in_order(c.close, conn.close)
+			return guard
+		except:
+			raise Exception("Problem with database {}".format(self.path))
 	
 	def get_sequence(self, alignment):
 		with self.cursor() as c:

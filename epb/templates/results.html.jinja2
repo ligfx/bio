@@ -247,6 +247,7 @@
 
 <script type="text/javascript">
 
+	{% for organism, data in data.by_organism() %}
 	{% for alignment, data in data.by_alignment() %}
 
 		(function() {
@@ -257,6 +258,19 @@
 			var height = parseInt(element.style.height);
 
 			var paper = Raphael("alignment-paper-{{ alignment.digest }}", width, height);
+		
+			{% for domain in organism.get_domains(alignment.name) %}
+				(function(){
+					var x = 0;
+					var y = {{ domain.qstart / alignment.length }} * height;
+					var h = {{ (domain.qend - domain.qstart) / alignment.length }} * height;
+					paper.rect(x, y, width, h).attr({
+						"stroke": "#aaa",
+						"stroke-width": 1,
+						"fill": "#f8f8f8"
+					});
+				})();
+			{% endfor %}
 		
 			(function() {
 				var offset = 0;
@@ -309,6 +323,7 @@
 	
 		})();
 	
+	{% endfor %}
 	{% endfor %}
 	
 </script>

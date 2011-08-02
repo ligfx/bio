@@ -12,9 +12,15 @@ class config:
 		self.configfile = path.join(self.directory, 'config.yaml')
 		with open(self.configfile) as f:
 			self.config = yaml.load(f)
-		self.dbdir = self.config['dbdir']
-		if not self.dbdir.startswith("/"):
-			self.dbdir = path.join(self.directory, self.dbdir)
+		self.blastdir = self.absolute_directory(self.config['blastdir'])
+		self.dbdir = self.absolute_directory(self.config['dbdir'])
+		self.infodir = self.absolute_directory(self.config['infodir'])
+	
+	def absolute_directory(self, directory):
+		if directory.startswith("/"):
+			return directory
+		else:
+			return path.join(self.directory, directory)
 
 import sys
 if __file__ == sys.argv[0]:
@@ -26,9 +32,11 @@ if __file__ == sys.argv[0]:
 	sys.stderr.write("[debug] configfile: %s\n" % e.configfile)
 	sys.stderr.write("[debug] dbdir: %s\n" % e.dbdir)
 	
-	organisms = OrganismCollection.find_all_by_categories(
-		categories, path=e.dbdir
-	)
+	OrganismCollection.blastdir = e.blastdir
+	OrganismCollection.dbdir = e.dbdir
+	OrganismCollection.infodir = e.infodir
+	
+	organisms = OrganismCollection.find_all_by_categories(categories)
 	seq = Fasta.normalize(sequence, method=method)
 	data = organisms.blast(seq, callback=lambda organism: sys.stderr.write("[debug] Blasting %s\n" % organism.name))
 

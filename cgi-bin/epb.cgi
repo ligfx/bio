@@ -31,7 +31,6 @@ try:
 	
 	job = epb.web.Job("../html/results", "../results")
 	config = epb.config(os.path.dirname(__file__))
-	config.dbdir = "/databases"
 
 	OrganismCollection.blastdir = config.blastdir
 	OrganismCollection.dbdir = config.dbdir

@@ -8,7 +8,7 @@ from StringIO import StringIO
 # Interface to the `blastall` program.
 
 def get_xml(db, seq):
-	return Process.run("./blastp -db %s -outfmt 5 -evalue 1e-5 -num_threads 8" % db, "%s\n" % seq)
+	return Process.run("blastp -db %s -outfmt 5 -evalue 1e-5 -num_threads 8" % db, "%s\n" % seq)
 
 def parse_xml(xml):
 	record_offset = 0

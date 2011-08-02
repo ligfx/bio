@@ -76,7 +76,7 @@ try:
 
 	def callback(organism):
 		global status
-		status['steps'] = ["Blasting %s" % organism] + status['steps']
+		status['steps'] = ["Blasting %s" % organism.name] + status['steps']
 		
 		with job.status_file() as f:
 			f.write(epb.controller.status(status))

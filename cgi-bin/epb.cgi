@@ -30,7 +30,7 @@ try:
 		exit(0)
 	
 	job = epb.web.Job("../html/results", "results")
-	config = epb.config()
+	config = epb.config(os.path.dirname(__file__))
 	config.dbdir = "/databases"
 
 	organisms = OrganismCollection.find_all_by_categories(

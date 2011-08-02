@@ -29,7 +29,7 @@ try:
 		})
 		exit(0)
 	
-	job = epb.web.Job("../html/results", "results")
+	job = epb.web.Job("../html/results", "../results")
 	config = epb.config(os.path.dirname(__file__))
 	config.dbdir = "/databases"
 

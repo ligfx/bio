@@ -84,7 +84,7 @@ class Organism:
 
 # === OrganismCollection ===
 class OrganismCollection:
-	ext = ".info"
+	ext = ".yaml"
 	
 	blastdir = None
 	dbdir = None

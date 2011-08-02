@@ -33,9 +33,11 @@ try:
 	config = epb.config(os.path.dirname(__file__))
 	config.dbdir = "/databases"
 
-	organisms = OrganismCollection.find_all_by_categories(
-		request.categories, path=config.dbdir
-	)
+	OrganismCollection.blastdir = config.blastdir
+	OrganismCollection.dbdir = config.dbdir
+	OrganismCollection.infodir = config.infodir
+
+	organisms = OrganismCollection.find_all_by_categories(request.categories)
 
 	status = {"job": job.id, "steps": [], "organisms": organisms}
 	with job.status_file() as f:

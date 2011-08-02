@@ -43,7 +43,7 @@ class OrganismDatabase:
 	
 	def get_sequence(self, alignment):
 		with self.cursor() as c:
-			statement = c.execute('select sequences.sequence from sequences where sequences.fullname = ? limit 1', (alignment,))
+			statement = c.execute('select sequences.sequence from sequences where sequences.accession = ? limit 1', (alignment,))
 			row = statement.fetchone()
 			return row[0]
 
@@ -130,7 +130,7 @@ class OrganismCollection:
 					slug = fname[:-len(klass.ext)]
 					o = Organism(slug, info,
 					    blastdir = klass.blastdir,
-					    dbdir = klass.dbdir,
+					    dbdir = klass.dbdir
 					)
 					organisms.append(o)
 

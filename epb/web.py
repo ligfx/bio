@@ -32,12 +32,20 @@ class Job:
 		
 		self.output_directory = os.path.join(diskpath, self.shard, str(self.id))
 		os.makedirs(self.output_directory)
+		
+		self.alignment_directory = os.path.join(self.output_directory, "alignments")
+		os.makedirs(self.alignment_directory)
 
 		self.status_file_path = os.path.join(self.output_directory, "status.html")
 		self.results_file_path = os.path.join(self.output_directory, "results.html")
 		
 		self.output_http_path = os.path.join(httppath, self.shard, str(self.id))
 		self.status_http_path = os.path.join(self.output_http_path, "status.html")
+	
+	# === alignment_file ===
+	def alignment_file(self, key):
+		alignment_file_path = os.path.join(self.alignment_directory, "%s.html" % key)
+		return open(alignment_file_path, "w")
 
 	# === status_file ===
 	def status_file(self):

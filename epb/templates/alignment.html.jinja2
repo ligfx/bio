@@ -1,0 +1,87 @@
+<section id="alignment-overlay-{{ alignment.digest }}">
+	<div class="actions">
+		<a id="alignment-overlay-close-{{ alignment.digest }}"
+		   href="#close">Close popup</a>
+	</div>
+	
+	<header>
+	<h1 class="organismName">{{ organism.name }}</h1>
+	<h2 class="geneName">{{ alignment.name }}</h2>
+	</header>
+
+	<dl>
+		<dt>E-value</dt>
+		<dd>{{ data.minimum_evalue() }}</dd>
+
+		<dt>Combined Score</dt>
+		<dd>TODO</dd>
+
+		<dt>Coverage</dt>
+		<dd>TODO</dd>
+
+		<dt>Source</dt>
+		<dd>{{ organism.info.source }}</dd>
+
+		<dt>Webpage</dt>
+		<dd>{{ organism.info.url }}</dd>
+
+		<dt>Gene</dt>
+		<dd>{{ organism.url_for_gene(alignment.name) }}</dd>
+
+		<dt>Reference</dt>
+		<dd>{{ organism.info.reference }}</dd>
+	</dl>
+
+	<section class="alignment">
+		<header>
+			<h1>Alignment</h1>
+		</header>
+		<div id="alignment-paper-{{ alignment.digest }}"
+		     class="alignmentGraph"
+		     style="width: 200px; height: 200px"
+		></div>
+	</section>
+
+	<section class="sequence">
+		<header>
+			<h1>Sequence</h1>
+		</header>
+
+		<span>{{ organism.get_sequence(alignment.name) }}</span>
+	</section>
+
+	<section class="hsps">
+		<header>
+			<h1>High-scoring pairs</h1>
+		</header>
+		{% for hsp, datum in data.by_hsp() %}
+			<div class="hsp">
+				<div class="info">
+					<dl>
+						<dt>E-value</dt>
+						<dd>{{ hsp.evalue }}</dd>
+
+						<dt>Score</dt>
+						<dd>{{ hsp.score }}</dd>
+
+						<dt>Query</dt>
+						<dd>{{ hsp.query_start }}–{{ hsp.query_end }} out of TODO nt</dd>
+
+						<dt>Target</dt>
+						<dd>{{ hsp.subject_start }}–{{ hsp.subject_end }} out of {{ alignment.length }} nt</dd>
+					</dl>
+				</div>
+				<div class="match">
+					<pre>
+						{% for query, match, sbjct in hsp.lines() %}
+<div class="line">{{ sbjct }}
+{{ match }}
+{{ query }}</div>	
+						{% endfor %}
+					</pre>
+				</div>
+			</div>
+		{% endfor %}
+	</section>
+	
+</section>

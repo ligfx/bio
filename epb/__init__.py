@@ -12,9 +12,11 @@ class config:
 		self.configfile = path.join(self.directory, 'config.yaml')
 		with open(self.configfile) as f:
 			self.config = yaml.load(f)
-		self.blastdir = self.absolute_directory(self.config['blastdir'])
-		self.dbdir = self.absolute_directory(self.config['dbdir'])
-		self.infodir = self.absolute_directory(self.config['infodir'])
+		self.blast_dir = self.absolute_directory(self.config['blast_dir'])
+		self.db_dir = self.absolute_directory(self.config['db_dir'])
+		self.info_dir = self.absolute_directory(self.config['info_dir'])
+		self.results_output_dir = self.absolute_directory(self.config['results_output_dir'])
+		self.results_http_dir = self.config['results_http_dir']
 	
 	def absolute_directory(self, directory):
 		if directory.startswith("/"):

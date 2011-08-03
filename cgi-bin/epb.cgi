@@ -29,12 +29,12 @@ try:
 		})
 		exit(0)
 	
-	job = epb.web.Job("../html/results", "../results")
 	config = epb.config(os.path.dirname(__file__))
+	job = epb.web.Job(config.results_output_dir, config.results_http_dir)
 
-	OrganismCollection.blastdir = config.blastdir
-	OrganismCollection.dbdir = config.dbdir
-	OrganismCollection.infodir = config.infodir
+	OrganismCollection.blastdir = config.blast_dir
+	OrganismCollection.dbdir = config.db_dir
+	OrganismCollection.infodir = config.info_dir
 
 	organisms = OrganismCollection.find_all_by_categories(request.categories)
 
@@ -92,6 +92,16 @@ try:
 
 	with job.results_file() as f:
 		f.write(results.encode('utf-8'))
+		
+	for organism, data in data.by_organism():
+		for alignment, data in data.by_alignment():
+			html = epb.controller.alignment({
+				"data": data,
+				"alignment": alignment,
+				"organism": organism
+			})
+			with job.alignment_file(alignment.digest) as f:
+				f.write(html.encode('utf-8'))
 
 	status['done'] = True
 	with job.status_file() as f:

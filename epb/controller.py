@@ -16,24 +16,6 @@ def status(params):
 # === results ===
 
 # Renders results page.
-#
-# `params` is expected to be of the form
-#
-#     {
-#       "names": [NamePresenter],
-#       "sequence": string,
-#       "method": "concat" or "multiple",
-#       "dbdir": string
-#     }
-#
-# We have three different pathways here:
-#
-# 1. We have one sequence. Easy, just blast it and render it
-# 2. We have multiple sequences, concatenated. Blast the concatenated
-#    sequence, but give the renderer each individual sequence (so we can
-#    see the boundaries)
-# 3. We have multiple sequences, separate. Blast the sequences, and for each
-#    record add an offset (erm? I have qualms about this), then render them like before
 def results(opts={}):
 	data = opts['data']
 	sequences = opts['sequences']
@@ -43,6 +25,12 @@ def results(opts={}):
 		"sequences": sequences,
 		"input_width": sum(len(s) for s in sequences)
 	})
+
+# === alignment ===
+
+# Renders alignment detail page
+def alignment(params):
+	return render("alignment.html.jinja2", params)
 
 # === render ===
 

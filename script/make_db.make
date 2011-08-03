@@ -8,4 +8,4 @@ OUT := $(PHR) $(PIN) $(PSQ)
 all: $(OUT)
 
 %.phr %.pin %.psq: %.ffa
-	formatdb -t $(patsubst %.ffa, %, $<) -i $< -n $(patsubst %.ffa, %, $<) -p T
+	makeblastdb -title $(patsubst %.ffa, %, $<) -out $(patsubst %.ffa, %, $<) -in $< 

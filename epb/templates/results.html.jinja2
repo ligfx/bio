@@ -5,57 +5,6 @@
 	<style type="text/css">
 		{{ render("results.css") }}
 	</style>
-	
-	<script type="text/javascript">
-		{{ render("app.js.jinja2") }}
-	</script>
-	<script type="text/javascript">
-	
-		(function() {
-	
-			var alignments = [
-				{% for organism, data in data.by_organism() %}
-					{% for alignment, data in data.by_alignment() %}
-						"{{ alignment.digest }}",
-					{% endfor %}
-				{% endfor %}
-			];
-	
-			var scrolling = (function() {
-				var lastScroll = [0, 0];
-				return {
-					save: function() {
-						var hscroll = (document.all ? document.scrollLeft : window.pageXOffset);
-						var vscroll = (document.all ? document.scrollTop : window.pageYOffset);
-						lastScroll = [hscroll, vscroll];
-					},
-					restore: function() {
-						window.scrollTo(lastScroll[0], lastScroll[1]);
-					}
-				};
-			})();
-	
-			domReady(function() {
-				$.each(alignments, function(d) {
-					$("alignment-" + d).click(function() {
-						scrolling.save();
-						
-						$('overlays').show();
-						$('alignment-overlay-' + d).show();
-						$('baseLayer').hide();
-					});
-					$("alignment-overlay-close-" + d).click(function() {
-						$('overlays').hide();
-						$('alignment-overlay-' + d).hide();
-						$('baseLayer').show();
-						
-						scrolling.restore();
-					});
-				});
-			});
-			
-		}());
-	</script>
 </head>
 
 <body>
@@ -96,7 +45,7 @@
 			<div class="alignmentContainer">
 			{% for alignment, data in data.by_alignment() %}
 				<a id="alignment-{{ alignment.digest }}"
-				   href="#alignment-{{ alignment.digest }}">
+				   href="alignments/{{ alignment.digest }}.html">
 				<div class="alignment">
 			
 					<div class="divider">

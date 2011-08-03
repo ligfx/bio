@@ -45,6 +45,9 @@ class OrganismDatabase:
 		with self.cursor() as c:
 			statement = c.execute('select sequences.sequence from sequences where sequences.accession = ? limit 1', (alignment,))
 			row = statement.fetchone()
+			if not row:
+				statement = c.execute('select sequences.sequence from sequences where sequences.fullname = ? limit 1', (alignment,))
+				row = statement.fetchone()
 			return row[0]
 
 	def get_domains(self, alignment):

@@ -23,7 +23,7 @@
 .pullout {
 	margin-left: -200px;
 }
-#dataMeta {
+.dataMeta {
 	width: 200px;
 }
 .organismMeta {
@@ -36,6 +36,9 @@
 .organismAlignment:hover {
 	background-color: #eee;
 	background-color: rgba(220, 220, 220, 0.5);
+}
+.alignmentGraphic a {
+	display: block;
 }
 .alignmentGraphic a:hover {
 	background-color: #eee;
@@ -72,7 +75,6 @@
 	height: 1em;
 }
 </style>
-<script type="text/javascript" src="raphael-min.js"></script>
 </head>
 <body>
 	
@@ -82,16 +84,27 @@
 <div id="ruler"></div>
 <div id="proteinDomainsHeader"></div>
 
-<div id="data" style="position: relative">
-	<div id="proteinDomainsBackground"></div>
-	<div id="dataHeader" class="pullout">
-		<div id="dataMeta">
-			<div class="selectionColumn"><strong>Select</strong></div>
+<form method="get" action="#">
+	<div id="data" style="position: relative">
+		<div id="proteinDomainsBackground"></div>
+		<div id="dataHeader" class="pullout">
+			<div class="dataMeta">
+				<div class="selectionColumn"><strong>Select</strong></div>
+			</div>
+		</div>
+	
+		<div id="organisms" class="pullout"></div>
+		&nbsp;
+	</div>
+
+	<div id="dataFooter" class="pullout">
+		<div class="dataMeta">
+			<div class="selectionColumn">
+				<input type="submit" value="Export sequence data">
+			</div>
 		</div>
 	</div>
-	<div id="organisms" class="pullout"></div>
-	&nbsp;
-</div>
+</form>
 
 </div>
 </div>
@@ -114,7 +127,7 @@
 </script>
 <script type="text/html" id="alignmentTemplate">
 	<div class="organismAlignment">
-		<div class="alignmentSelection"><input type="checkbox" /></div>
+		<div class="alignmentSelection"><input type="checkbox" name="alignment"></div>
 		<div class="alignmentGraphic"><a href="#"></a></div>
 	</div>
 </script>
@@ -275,6 +288,8 @@ OrganismGraphicView.prototype = {
 			var e = new Template("alignmentTemplate").asNode();
 			this.element.appendChild(e);
 			
+			e.querySelector(".alignmentSelection input").value = organism.name + ":" + alignment.digest;
+			
 			var alignment_view = new AlignmentGraphicView(e.querySelector(".alignmentGraphic > a"));
 			alignment_view.draw(alignment);
 		}
@@ -287,11 +302,6 @@ var OrganismMetaView = function(element) {
 OrganismMetaView.prototype = {
 	draw: function(organism) {
 		this.element.querySelector(".organismInfo").innerHTML = organism.name;
-		for (var i = 0; i < organism.alignments.length; ++i) {
-			var alignment = organism.alignments[i];
-			
-			this.element.querySelector(".selectionColumn")
-		}
 	}
 }
 
@@ -323,16 +333,19 @@ OrganismListView.prototype = {
 	}
 }
 
-var width = 2056;
+var width = {{ input_width }};
 
 var ruler = new RulerView(document.getElementById("ruler"));
 ruler.width = width;
 ruler.draw();
 
 var domains = [
-	{query_start: 200 / width, query_width: 300 / width},
-	{query_start: 708 / width, query_width: 217 / width},
-	{query_start: 2000 / width, query_width: 56 / width},
+	{% for domain in domains %}
+	{
+		query_start: {{ domain.query_start / input_width }},
+		query_width: {{ domain.query_width / input_width }}
+	},
+	{% endfor %}
 ];
 
 var protein_domains_header = new ProteinDomainsHeaderView(document.getElementById("proteinDomainsHeader"));

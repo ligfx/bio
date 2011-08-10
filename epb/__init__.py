@@ -18,6 +18,9 @@ class config:
 		self.results_output_dir = self.absolute_directory(self.config['results_output_dir'])
 		self.results_http_dir = self.config['results_http_dir']
 	
+	def __getitem__(self, key):
+		return self.config[key]
+	
 	def absolute_directory(self, directory):
 		if directory.startswith("/"):
 			return directory

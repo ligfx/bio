@@ -19,10 +19,12 @@ def status(params):
 def results(opts={}):
 	data = opts['data']
 	sequences = opts['sequences']
+	domains = opts['domains']
 	
 	return render("results.html.jinja2", {
 		"data": data,
 		"sequences": sequences,
+		"domains": domains,
 		"input_width": sum(len(s) for s in sequences)
 	})
 

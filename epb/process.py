@@ -12,18 +12,19 @@ from subprocess import PIPE
 #
 # **Returns:** `output` from stdout
 def run(command, input):
-	if not which(shlex.split(command)[0]):
+	command = shlex.split(command)
+	
+	if not which(command[0]):
 		raise ExecutableNotFound("can't find '%s' executable in PATH" % command)
 	
 	p = subprocess.Popen(
-		shlex.split(command),
-		stdin=PIPE, stdout=PIPE, stderr=PIPE
+		command, stdin=PIPE, stdout=PIPE, stderr=PIPE
 	)
 	
 	output, err = p.communicate(input)
 	if p.returncode != 0:
 		raise ProcessFailed(
-			"Return code %i from '%s'\n%s" % (p.returncode, command, err)
+			"Return code %i from '%s'\n%s\n%s" % (p.returncode, command, output, err)
 		)
 	return output
 

@@ -9,6 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import epb
 import epb.controller
 import epb.fasta as Fasta
+from epb.domains import PfamScan
 from epb.organism import OrganismCollection
 import epb.web
 import time
@@ -46,8 +47,6 @@ try:
 	print "Location: %s" % job.status_http_path
 	print "Content-Type: text/plain"
 	print
-	#print status_file
-	print
 	
 except Exception:
 	print "Status: 500 Internal Server Error"
@@ -59,14 +58,12 @@ except Exception:
 	})
 	exit(0)
 
+# Disconnect from the server by forking and closing all input/output pipes
 sys.stdout.flush()
-
 if os.fork(): exit(0)
-
 sys.stdin.close()
 sys.stdout.close()
 sys.stderr.close()
-
 os.close(0)
 os.close(1)
 os.close(2)
@@ -82,11 +79,15 @@ try:
 
 	seq = Fasta.normalize(request.sequence, method=request.method)
 	data = organisms.blast(seq, callback=callback)
-
+	
+	PfamScan.pfamdir = config['pfam_dir']
+	domains = PfamScan.get_domains(seq)
+	
 	sequences = Fasta.each(request.sequence)
 
 	results = epb.controller.results({
 		"data": data,
+		"domains": domains,
 		"sequences": sequences
 	})
 

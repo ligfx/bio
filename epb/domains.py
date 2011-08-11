@@ -14,7 +14,7 @@ class PfamScan:
 	@classmethod
 	def get_domains(klass, seq):
 		f = tempfile.NamedTemporaryFile(delete=False)
-		f.write(seq)
+		f.write(seq.replace("> ", ">"))
 		f.close()
 		result = Process.run("pfam_scan.pl -fasta %s -dir %s" % (f.name, klass.pfamdir), '')
 		return list(klass.parse_domains(result.split("\n")))

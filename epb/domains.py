@@ -7,6 +7,11 @@ class Domain:
 		self.query_start = opts['query_start']
 		self.query_end = opts['query_end']
 		self.query_width = self.query_end - self.query_start
+		
+		self.name = opts['name']
+		self.accession_name = opts['accession_name']
+		self.url = "http://pfam.sanger.ac.uk/family/" + self.accession_name
+		
 
 class PfamScan:
 	pfamdir = None
@@ -23,6 +28,10 @@ class PfamScan:
 	def parse_domains(klass, lines):
 		for line in lines:
 			if not line.startswith("#") and len(line.strip()) > 0:
-				# format: ^<seq id>\s+<alignment start>\s+<alignment end>\s+<other stuff>$
-				split = re.split(r"\s+", line, 3)
-				yield Domain({"query_start" : int(split[1]), "query_end": int(split[2])})
+				split = re.split(r"\s+", line)
+				yield Domain({
+					"query_start": int(split[1]),
+					"query_end": int(split[2]),
+					"accession_name": split[5],
+					"name": split[6]
+				})

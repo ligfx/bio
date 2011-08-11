@@ -83,6 +83,30 @@ body {
 .organismName {
 	font-weight: bold;
 }
+
+.alignmentGraphic svg rect {
+	fill: red;
+	stroke: none;
+}
+#proteinDomainsHeader svg rect {
+	fill: rgb(40, 150, 40);
+	stroke: none;
+}
+#proteinDomainsHeader svg a:hover rect {
+	fill: rgb(40, 170, 40);
+}
+#proteinDomainsHeader svg path {
+	fill: none;
+	stroke: #666;
+}
+#proteinDomainsHeader svg text {
+	fill: white;
+	font-size: 10px;
+}
+#proteinDomainsBackground svg rect {
+	fill: rgb(180, 224, 158);
+	stroke: none;
+}
 </style>
 </head>
 <body>
@@ -222,17 +246,22 @@ var View = (function(){
 })();
 
 Raphael.fn.epb = {
-	drawDomains: function(domains, attr) {
+	drawDomains: function(domains, callback) {
 		var self = this;
 		_.each(domains, function (domain) {
 			var s = parseInt(domain.query_start * self.width);
 			var w = parseInt(domain.query_width * self.width);
-			self.rect(s, 0, w, self.height).attr(attr);
+			
+			var rect = self.rect(s, 0, w, self.height);
+			rect.node.removeAttribute("fill");
+			rect.node.removeAttribute("stroke");
+			
+			if (callback) { callback(self, rect, domain); };
 		});
 	},
 	drawMidline: function(attr) {
 		var mid = parseInt(this.height / 2) + 0.5;
-		this.path("M0 " + mid + "L" + this.width + " " + mid).attr(attr);
+		this.path("M0 " + mid + "L" + this.width + " " + mid);
 	},
 	resizeToParent: function() {
 		var size = $.size(this.canvas.parentNode);
@@ -256,8 +285,17 @@ var ProteinDomainsHeaderView = View.extend({
 	},
 	render: function() {
 		this.paper.epb.resizeToParent();
-		this.paper.epb.drawMidline({stroke: "#666"});
-		this.paper.epb.drawDomains(this.model, {fill: "rgb(40, 150, 40)", stroke: ""})
+		this.paper.epb.drawMidline();
+		this.paper.epb.drawDomains(this.model, function(paper, rect, domain) {
+			var text = paper.text(rect.getBBox().x, paper.height / 2, domain.name);
+			text.attr({"text-anchor": "start"});
+			text.node.removeAttribute("style");
+			text.node.removeAttribute("stroke");
+			text.node.removeAttribute("fill");
+			
+			rect.attr({"href": domain.url});
+			text.insertAfter(rect);
+		})
 	}
 });
 
@@ -267,7 +305,7 @@ var ProteinDomainsBackgroundView = View.extend({
 	},
 	render: function() {
 		this.paper.epb.resizeToParent();
-		this.paper.epb.drawDomains(this.model, {fill: "rgb(180, 224, 158)", stroke: ""})
+		this.paper.epb.drawDomains(this.model)
 	}
 });
 
@@ -304,7 +342,7 @@ var AlignmentCanvas = View.extend({
 		var y_offset = 0;
 		var self = this;
 		_.each(renderers, function(hsp) {
-			hsp.drawOn(self.paper).translate(0, y_offset).attr({fill: "red", stroke: "none"});
+			hsp.drawOn(self.paper).translate(0, y_offset);
 			y_offset = y_offset + hsp.height();
 		})
 	}
@@ -358,7 +396,9 @@ var Data = {
 		{% for domain in domains %}
 		{
 			query_start: {{ domain.query_start / input_width }},
-			query_width: {{ domain.query_width / input_width }}
+			query_width: {{ domain.query_width / input_width }},
+			name: "{{ domain.name }}",
+			url: "{{ domain.url }}",
 		},
 		{% endfor %}
 	],

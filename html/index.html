@@ -27,9 +27,14 @@
 			font-size: 1.5em;
 		}
 		fieldset div > div {
-			padding-left: 1em;
+			padding-left: 2em;
+		}
+		div.categoryChildren {
+			padding-left: 0;
 		}
 	</style>
+	<script type="text/javascript" src="bean.min.js"></script>
+	<script type="text/javascript" src="peso.js"></script>
 </head>
 <body>
 
@@ -53,40 +58,228 @@
 				<label for="multiple">Individually blast multiple sequences</label>
 			</div>
 		</fieldset>
-		<fieldset>
+		<fieldset id="categories">
 			<legend>Select the categories you want to search:</legend>
-			<div>
-				<input type="checkbox" id="all" name="category" value="all" checked="true">
-				<label for="all">All</label>
-				
-				<div>
-					<input type="checkbox" id="excavates" name="category" value="excavates" checked="true">
-					<label for="excavates">Excavates</label>
-				</div>
-
-				<div>
-					<input type="checkbox" id="amoebozoa" name="category" value="amoebozoa" checked="true">
-					<label for="amoebozoa">Amoebozoa</label>
-				</div>
-
-				<div>
-					<input type="checkbox" id="ophistokonta" name="category" value="ophistokonta" checked="true">
-					<label for="ophistokonta">Ophistokonta</label>
-				</div>
-
-				<div>
-					<input type="checkbox" id="chromalveolate" name="category" value="chromalveolate" checked="true">
-					<label for="chromalveolate">Chromalveolate</label>
-				</div>
-
-				<div>
-					<input type="checkbox" id="plantae" name="category" value="plantae" checked="true">
-					<label for="plantae">Plantae</label>
-				</div>
-			</div>
 		</fieldset>
 		<input type="submit" value="Blast sequence">
 	</form>
 
+<script type="text/html" id="categoryTemplate">
+	<div class="category">
+		<input type="checkbox" name="category">
+		<label></label>
+		<div class="categoryChildren"></div>
+	</div>
+</script>
+<script type="text/javascript">
+
+	var _ = {
+		each: function(collection, callback) {
+			for (var i = 0; i < collection.length; ++i) {
+				var ret = callback(collection[i]);
+				if (ret == false) { break; }
+			}
+		},
+		reduce: function (collection, callback, total) {
+			_.each(collection, function (element) {
+				total = callback(total, element);
+			});
+			return total;
+		},
+		map: function (collection, callback) {
+			return _.reduce(collection, function (total, element) {
+				total.push(callback(element));
+				return total;
+			}, []);
+		},
+		keys: function(obj) {
+			var keys = [];
+			for (var key in obj) {
+				keys.push(key);
+			}
+			return keys;
+		},
+		match: function(value, patterns) {
+			_.each(_.keys(patterns), function(pattern) {
+				if (pattern === value) {
+					patterns[pattern]();
+					return false;
+				}
+			})
+		}
+	};
+
+	var Data = {
+		categories: [
+			{
+				"value": "all",
+				"label": "All (225 genomes)",
+				"children": [
+					{
+						"value": "excavates",
+						"label": "Excavates (11 genomes)",
+					},
+					{
+						"value": "chromalveolate",
+						"label": "Chromalveolate (28 genomes)",
+					},
+					{
+						"value": "amoebozoa",
+						"label": "Amoebozoa (7 genomes)",
+					},
+					{
+						"value": "opisthokonts",
+						"label": "Opisthokonts (146 genomes)",
+						"children": [
+							{
+								"value": "fungi",
+								"label": "Fungi (94 genomes)",
+								"children": [
+									{
+										"value": "ascomycota",
+										"label": "Ascomycota (52 genomes)"
+									},
+									{
+										"value": "basidiomycota",
+										"label": "Basidiomycota (36 genomes)"
+									},
+									{
+										"value": "other_fungi",
+										"label": "Other fungi (6 genomes)"
+									}
+								],
+							},
+							{
+								"value": "metazoan",
+								"label": "Metazoans + Choanoflagellate (52 genomes)",
+							}
+						],
+					},
+					{
+						"value": "plantae",
+						"label": "Plantae (33 genomes)"
+					}
+				],
+			}
+		]
+	};
+	
+	var Category = function(data, parent) {
+		this.parent = parent;
+		this.value = data.value;
+		this.label = data.label;
+		this.children = [];
+		this.checked = true;
+		
+		if (data.children) {
+			var self = this;
+			_.each(data.children, function(category) {
+				self.children.push(new Category(category, self));
+			})
+		}
+	};
+	Category.load = function(data) {
+		return _.map(data, function(category) {
+			return new Category(category, null);
+		});
+	};
+	Category.prototype = {
+		setChecked: function(value) {
+			this.checked = value;
+			this.emit("changed");
+		},
+		toggle: function() {
+			this.setChecked(!this.checked);
+			this.fixParent();
+			this.fixChildren();
+		},
+		fixParent: function() {
+			if (this.parent) {
+				if (this.checked == false) {
+					this.parent.setChecked(false);
+					this.parent.fixParent();
+				} else
+				if (this.checked == true) {
+					var all = _.reduce(this.parent.children, function(memo, sibling) {
+						return memo && sibling.checked;
+					}, true)
+					if (all) {
+						this.parent.setChecked(true);
+						this.parent.fixParent();
+					}
+				}
+			}
+		},
+		fixChildren: function() {
+			if (this.children) {
+				var self = this;
+				_.each(this.children, function(child) {
+					child.setChecked(self.checked);
+					child.fixChildren();
+				})
+			}
+		},
+		emit: function(signal) {
+			console.log("emit " + signal);
+			if (this.events && this.events[signal]) {
+				_.each(this.events[signal], function(callback) {
+					callback();
+				});
+			}
+		},
+		on: function(signal, callback) {
+			if (!this.events) { this.events = {}; }
+			if (!this.events[signal]) { this.events[signal] = []; }
+			this.events[signal].push(callback);
+		}
+	};
+	
+	var CategoryView = View.extend({
+		init: function(opts) {
+			this.element = new Template("categoryTemplate").asElement();
+			opts.parent.appendChild(this.element);
+			
+			this.childrenContainer = this.$(".categoryChildren");
+			this.label = this.$("label");
+			this.input = this.$("input");
+			
+			var self = this;
+			bean.add(this.input, "click", function() { self.model.toggle(); });
+			_.each(this.model.children || [], function(category) {
+				new CategoryView({
+					parent: self.childrenContainer,
+					model: category,
+				});
+			});
+			this.model.on("changed", function() { self.render(); });
+		},
+		render: function() {
+			this.label.innerHTML = this.model.label;
+			this.input.value = this.model.value;
+			this.input.checked = this.model.checked;
+			if (this.model.children && this.model.children.length > 0) {
+				this.input.name = null;
+			}
+		}
+	})
+	
+	var AppView = View.extend({
+		init: function() {
+			var self = this;
+			_.each(this.model, function(category) {
+				new CategoryView({
+					parent: self.element,
+					model: category
+				})
+			})
+		}
+	})
+	
+	var App = new AppView({
+		model: Category.load(Data.categories),
+		element: $("#categories")
+	});
+	
+</script>
 </body>
 </html>

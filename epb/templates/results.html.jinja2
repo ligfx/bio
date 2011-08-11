@@ -6,13 +6,8 @@
 	{{ render('raphael-min.js') }}
 </script>
 <style type="text/css">
-#outerContainer {
-	width: 700px;
-	margin: 0 auto;
-}
-#innerContainer {
-	width: 500px;
-	margin-left: 200px;
+body {
+	font-family: Arial;
 }
 #proteinDomainsBackground {
 	height: 100%;
@@ -20,18 +15,26 @@
 	position: absolute;
 	z-index: -1;
 }
+#outerContainer {
+	width: 900px;
+	margin: 0 auto;
+}
+#innerContainer {
+	width: 500px;
+	margin-left: 400px;
+}
 .pullout {
-	margin-left: -200px;
+	margin-left: -400px;
 }
 .dataMeta {
-	width: 200px;
+	width: 400px;
 }
 .organismMeta {
-	width: 150px;
+	width: 350px;
 	float: left;
 }
 .organismGraphic {
-	margin-left: 150px;
+	margin-left: 350px;
 }
 .organismAlignment:hover {
 	background-color: #eee;
@@ -45,7 +48,7 @@
 	background-color: rgba(220, 220, 220, 0.5);
 }
 .selectionColumn {
-	margin-left: 150px;
+	margin-left: 350px;
 	text-align: center;
 }
 .alignmentSelection {
@@ -73,6 +76,9 @@
 }
 #proteinDomainsHeader {
 	height: 1em;
+}
+.organism {
+	border-bottom: 1px solid #999;
 }
 </style>
 </head>

@@ -22,6 +22,7 @@ class RecordPresenter:
 class AlignmentPresenter:
 	# **Properties**: `digest`, `length`, `name`
 	def __init__(self, align):
+		self.id = align.hit_id
 		self.name = align.hit_def
 		self.length = align.length
 		self.digest = hashlib.md5(self.name).hexdigest()

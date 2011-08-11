@@ -364,6 +364,7 @@ var Data = {
 			alignments: [
 				{% for alignment, data in data.by_alignment() %}
 				{
+					uid: "{{ organism.slug }}:{{ alignment.id }}",
 					url: "alignments/{{ alignment.digest }}.html",
 					hsps: [
 						{% for hsp, datum in data.by_hsp() %}

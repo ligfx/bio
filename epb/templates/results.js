@@ -122,7 +122,6 @@ var AlignmentView = View.extend({
 var OrganismView = View.extend({
 	init: function(opts) {
 		this.element = new Template("organismTemplate").asElement();
-		window.o = opts;
 		opts.parent.appendChild(this.element);
 		
 		this.name = this.$(".organismName a");
@@ -149,7 +148,6 @@ var OrganismListView = View.extend({
 	init: function() {
 		var self = this;
 		_.each(self.model, function(organism) {
-			alert(self.element);
 			new OrganismView({
 				parent: self.element,
 				model: organism,

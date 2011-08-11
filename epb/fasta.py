@@ -23,7 +23,7 @@ def normalize(seq, **opts):
 	method = opts['method']
 	
 	if method == 'concat':
-		return "> Concatenated input\n" + "".join(s.seq for s in each(seq))
+		return ">Concatenated input\n" + "".join(s.seq for s in each(seq))
 	elif method == 'multiple':
 		return seq
 	else:

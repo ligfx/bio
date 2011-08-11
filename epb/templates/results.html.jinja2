@@ -146,7 +146,7 @@ body {
 <script type="text/html" id="rulerTemplate">
 	<div id="rulerLegend">
 		<div id="rulerLegendStart">0</div>
-		<div id="rulerLegendEnd" data-value="width"></div>
+		<div id="rulerLegendEnd"></div>
 		<div style="clear: both"></div>
 	</div>
 	<div id="rulerGraphic"></div>
@@ -154,7 +154,7 @@ body {
 <script type="text/html" id="organismTemplate">
 	<div class="organism">
 		<div class="organismMeta">
-			<div class="organismName"></div>
+			<div class="organismName"><a href="#"></a></div>
 			<div class="organismPhylogeny"></div>
 		</div>
 		<div class="organismGraphic"></div>
@@ -273,7 +273,7 @@ Raphael.fn.epb = {
 var RulerView = View.extend({
 	init: function() {
 		new Template("rulerTemplate").apply(this.element);
-		this.endCap = this.$("[data-value='width']");
+		this.endCap = this.$("#rulerLegendEnd");
 	},
 	render: function() {
 		this.endCap.innerHTML = this.model.width;
@@ -366,6 +366,9 @@ var AlignmentView = View.extend({
 var OrganismView = View.extend({
 	init: function() {
 		this.element = new Template("organismTemplate").asElement();
+		this.name = this.$(".organismName a");
+		this.link = this.name;
+		this.phylogeny = this.$(".organismPhylogeny");
 		
 		var self = this;
 		_.each(this.model.alignments, function(alignment) {
@@ -374,8 +377,9 @@ var OrganismView = View.extend({
 		});
 	},
 	render: function() {
-		this.$(".organismName").innerHTML = this.model.name;
-		this.$(".organismPhylogeny").innerHTML = this.model.phylogeny;
+		this.name.innerHTML = this.model.name;
+		this.link.href = this.model.url;
+		this.phylogeny.innerHTML = this.model.phylogeny;
 	}
 })
 
@@ -408,6 +412,7 @@ var Data = {
 		{
 			name: "{{organism.name}}",
 			phylogeny: "{{organism.info.detail_group}}",
+			url: "{{organism.info.url}}",
 			alignments: [
 				{% for alignment, data in data.by_alignment() %}
 				{

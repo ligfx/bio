@@ -35,15 +35,14 @@
 			return $(selector, this.element);
 		}
 		var extend = function(prototype) {
-			var class = function() {
+			var klass = function() {
 				_init.apply(this, arguments);
 				if (this.init) { this.init.apply(this, arguments); };
 				if (this.render) { this.render(); };
 			};
-		
-			class.prototype = prototype;
-			class.prototype.$ = _$;
-			return class;
+			klass.prototype = prototype;
+			klass.prototype.$ = _$;
+			return klass;
 		}
 		return { extend: extend };
 	})();

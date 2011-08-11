@@ -1,234 +1,104 @@
-body { font-size: 8px; font-family: Helvetica, Verdana, Arial,sans; }
-body { font-size: 10px; font-weight: bold;}
-.hit .stats { font-weight: strong; }
-.hit { padding-bottom: 1em;}
-.hsp_border {
-	border-bottom: 5px solid;
-	box-shadow: 0 1px 0 rgba(0, 0, 0, .5);
-	-moz-box-shadow: 0 1px 0 rgba(0, 0, 0, .5);
-	-webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, .5);
-}
-
-.hsp_stat { font-weight: normal; display: none;}
-
-#colorkey {
-	text-align: center;
-	width: 500px;
-	margin-left: 50px;
-	float: left;
-}
-#colorkey figcaption {
-	font-size: 20px;
-}
-
-#colorkey .great { background-color: red; }
-#colorkey .good { background-color: fuchsia; }
-#colorkey .okay { background-color: lime; }
-#colorkey .fair { background-color: blue; }
-#colorkey .poor { background-color: black; }
-#colorkey div { float: left; color: white; font-size: 15px; width: 100px; font-weight: normal;}
-
-table { width: 100%; }
-table, table * { padding: 0; margin: 0; border-spacing: 0; border-collapse: collapse;}
-thead th {
-	text-align: left;
-}
-tbody tr {
-	margin-bottom: 1em;
-}
-.sequence {
-	padding: 2px;
-}
-.organism {
-	width: 200px;
-	margin-bottom: 1em;
-}
-.hits { background: #b7c4e5; width: 700px; border: 1px solid black; padding-top: 2px; padding-bottom: 8px; margin-bottom: 1em;}
-.nt {
-	color: white;
-	font-size: 14px;
-	height: 1.5em;
-	padding: 0;
+#proteinDomainsBackground {
+	height: 100%;
 	width: 100%;
-}
-.nt > div {
-	font-size: 14px;
-	font-weight: bold;
-}
-
-.divider {
-	float: left;
-	width: 100%;
-	position: relative;
-	border-left: 1px solid #ddd;
-	margin-left: -1px;
-}
-
-.alignmentGraphics {
-	width: 100%;
-	position: relative;
-}
-
-#overlays {
 	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	z-index: 10;
-	display: none;
-	background: white;
-	
-	font-size: 16px;
+	z-index: -1;
 }
-
-#overlays > section {
-	display: none;
-	padding: 10px;
+#outerContainer {
+	width: 900px;
+	margin: 0 auto;
 }
-
-td.hits {
-	overflow: hidden;
+#innerContainer {
+	width: 500px;
+	margin-left: 400px;
 }
-
-#overlays .actions {
-	text-align: right;
+.pullout {
+	margin-left: -400px;
 }
-
-/* sizes */
-
-.organism, .alignment {
-	width: 1100px;
-}
-
-.sequences, .alignment {
-	width: 800px;
-	margin-left: 300px;
-}
-
-.divider {
-	width: 800px;
-}
-
-.organismName, .alignmentName {
-	width: 300px;
-	float: left;
-}
-
-.alignmentName {
-	margin-left: -300px;
-}
-
-/* end sizes */
-
-.organism {
-	overflow: hidden;
-}
-
-.alignment {
-	padding: 5px 0;
-	padding-bottom: 10px;
-}
-
-.organism a {
-	display: block;
-}
-
-.organism a:active,
-.organism a:hover {
-	background-color: #ccc;
-	background-color: rgba(240, 240, 240, 0.5);
-}
-
-.organismName {
-	font-weight: bold;
-	color: #333;
-	font-size: 20px;
-}
-
-.sequences {
-	color: #333;
-}
-
-.organism > header {
-	border-bottom: 2px solid #333;
-}
-
-.alignmentName strong {
-	font-size: 12px;
-}
-.alignmentName strong, .alignmentName em {
-	padding-left: 0.5em;
-	padding-right: 1em;
-	display: inline-block;
-}
-
-a {
-	color: #0086E6;
-}
-
-a:visited {
-	color: #6464FF;
-}
-
-a:active,
-a:hover {
-	color: #0096FF;
-}
-
-.sequence {
-	font-size: 14px;
-	padding: 0;
-	width: 100%;
-}
-.sequence {
-	font-size: 14px;
-	font-weight: bold;
-	float: left;
-}
-
-.organisms {
-	margin-top: 2em;
-}
-
-.paper {
-	border: 1px solid #333;
-}
-
-.graphic {
-	font-size: 14px;
-	color: #333;
-}
-
-.verticalLegend {
-	width: 3em;
-	height: 400px;
-	text-align: center;
-	float: left;
-}
-.paper, .horizontalLegend {
-	margin-left: 3em;
-}
-
-.horizontalLegend {
-	height: 1.5em;
+.dataMeta {
 	width: 400px;
 }
-
-.verticalLegend, .horizontalLegend {
-	position: relative;
+.organismMeta {
+	width: 350px;
+	float: left;
 }
-.verticalLegend div, .horizontalLegend div {
+.organismGraphic {
+	margin-left: 350px;
+}
+.selectionColumn {
+	margin-left: 350px;
+	text-align: center;
+}
+.alignmentSelection {
+	width: 50px;
 	position: absolute;
+	text-align: center;
 }
-.horizontalLegend div.first {
-	left: -0.5em;
+.alignmentGraphic {
+	margin-left: 50px;
 }
-.horizontalLegend div.last {
-	right: 0;
+
+body {
+	font-family: Arial;
+	font-family: "Helvetica Neue", Helvetica, Arial, Verdana, sans-serif;
+	color: #333;
 }
-.verticalLegend div.last {
-	bottom: 0;
+.organismAlignment:hover {
+	background-color: #eee;
+	background-color: rgba(220, 220, 220, 0.5);
 }
-.alignmentGraph {
+.alignmentGraphic a {
+	display: block;
+}
+.alignmentGraphic a:hover {
+	background-color: #eee;
+	background-color: rgba(220, 220, 220, 0.5);
+}
+#ruler {
+	margin-bottom: 1em;
+}
+#rulerLegendStart {
+	float: left;
+}
+#rulerLegendEnd {
+	float: right;
+}
+#rulerGraphic {
+	height: 1em;
 	border: 1px solid #666;
+	border-top: none;
+}
+#proteinDomainsHeader {
+	height: 1em;
+}
+.organism {
+	border-bottom: 1px solid #999;
+}
+.organismName {
+	font-weight: bold;
+}
+
+.alignmentGraphic svg rect {
+	fill: red;
+	stroke: none;
+}
+#proteinDomainsHeader svg rect {
+	fill: rgb(40, 150, 40);
+	stroke: none;
+}
+#proteinDomainsHeader svg a:hover rect {
+	fill: rgb(40, 170, 40);
+}
+#proteinDomainsHeader svg path {
+	fill: none;
+	stroke: #666;
+}
+#proteinDomainsHeader svg text {
+	fill: white;
+	font-size: 10px;
+	font-weight: bold;
+}
+#proteinDomainsBackground svg rect {
+	fill: rgb(180, 224, 158);
+	stroke: none;
 }

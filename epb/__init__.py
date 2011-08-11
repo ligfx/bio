@@ -26,29 +26,3 @@ class config:
 			return directory
 		else:
 			return path.join(self.directory, directory)
-
-import sys
-if __file__ == sys.argv[0]:
-	method = sys.argv[1]
-	categories = sys.argv[2:]
-	sequence = sys.stdin.read()
-	
-	e = config()
-	sys.stderr.write("[debug] configfile: %s\n" % e.configfile)
-	sys.stderr.write("[debug] dbdir: %s\n" % e.dbdir)
-	
-	OrganismCollection.blastdir = e.blastdir
-	OrganismCollection.dbdir = e.dbdir
-	OrganismCollection.infodir = e.infodir
-	
-	organisms = OrganismCollection.find_all_by_categories(categories)
-	seq = Fasta.normalize(sequence, method=method)
-	data = organisms.blast(seq, callback=lambda organism: sys.stderr.write("[debug] Blasting %s\n" % organism.name))
-
-	sequences = Fasta.each(sequence)
-
-	print epb.controller.results({
-		"data": data,
-		"sequences": sequences
-	}).encode('utf-8')
-	

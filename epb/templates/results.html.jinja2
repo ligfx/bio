@@ -5,117 +5,34 @@
 <script type="text/javascript">
 	{{ render('raphael-min.js') }}
 </script>
+<script type="text/javascript">
+	{{ render('underscore.js') }}
+</script>
+<script type="text/javascript">
+	{{ render('peso.js') }}
+</script>
 <style type="text/css">
-body {
-	font-family: Arial;
-}
-#proteinDomainsBackground {
-	height: 100%;
-	width: 100%;
-	position: absolute;
-	z-index: -1;
-}
-#outerContainer {
-	width: 900px;
-	margin: 0 auto;
-}
-#innerContainer {
-	width: 500px;
-	margin-left: 400px;
-}
-.pullout {
-	margin-left: -400px;
-}
-.dataMeta {
-	width: 400px;
-}
-.organismMeta {
-	width: 350px;
-	float: left;
-}
-.organismGraphic {
-	margin-left: 350px;
-}
-.organismAlignment:hover {
-	background-color: #eee;
-	background-color: rgba(220, 220, 220, 0.5);
-}
-.alignmentGraphic a {
-	display: block;
-}
-.alignmentGraphic a:hover {
-	background-color: #eee;
-	background-color: rgba(220, 220, 220, 0.5);
-}
-.selectionColumn {
-	margin-left: 350px;
-	text-align: center;
-}
-.alignmentSelection {
-	width: 50px;
-	position: absolute;
-	text-align: center;
-}
-.alignmentGraphic {
-	margin-left: 50px;
-}
-
-#ruler {
-	margin-bottom: 1em;
-}
-#rulerLegendStart {
-	float: left;
-}
-#rulerLegendEnd {
-	float: right;
-}
-#rulerGraphic {
-	height: 1em;
-	border: 1px solid #666;
-	border-top: none;
-}
-#proteinDomainsHeader {
-	height: 1em;
-}
-.organism {
-	border-bottom: 1px solid #999;
-}
-.organismName {
-	font-weight: bold;
-}
-
-.alignmentGraphic svg rect {
-	fill: red;
-	stroke: none;
-}
-#proteinDomainsHeader svg rect {
-	fill: rgb(40, 150, 40);
-	stroke: none;
-}
-#proteinDomainsHeader svg a:hover rect {
-	fill: rgb(40, 170, 40);
-}
-#proteinDomainsHeader svg path {
-	fill: none;
-	stroke: #666;
-}
-#proteinDomainsHeader svg text {
-	fill: white;
-	font-size: 10px;
-	font-weight: bold;
-}
-#proteinDomainsBackground svg rect {
-	fill: rgb(180, 224, 158);
-	stroke: none;
-}
+	{{ render('results.css') }}
 </style>
 </head>
 <body>
 	
 <div id="outerContainer">
+	
+<div id="header">
+	<h1>EukPhyloBlast</h1>
+</div>
+	
 <div id="innerContainer">
 
-<div id="ruler"></div>
+<div id="ruler">
+	<div id="rulerLegend">
+		<div id="rulerLegendStart">0</div>
+		<div id="rulerLegendEnd"></div>
+		<div style="clear: both"></div>
+	</div>
+	<div id="rulerGraphic"></div>
+</div>
 <div id="proteinDomainsHeader"></div>
 
 <form method="get" action="#">
@@ -143,14 +60,6 @@ body {
 </div>
 </div>
 
-<script type="text/html" id="rulerTemplate">
-	<div id="rulerLegend">
-		<div id="rulerLegendStart">0</div>
-		<div id="rulerLegendEnd"></div>
-		<div style="clear: both"></div>
-	</div>
-	<div id="rulerGraphic"></div>
-</script>
 <script type="text/html" id="organismTemplate">
 	<div class="organism">
 		<div class="organismMeta">
@@ -167,295 +76,7 @@ body {
 	</div>
 </script>
 <script type="text/javascript">
-
-var Template = function(id) {
-	this.template = document.getElementById(id);
-}
-Template.prototype = {
-	apply: function (element) {
-		element.innerHTML = this.template.innerHTML;
-	},
-	asElement: function () {
-		var holder = document.createElement("div");
-		holder.innerHTML = this.template.innerHTML;
-		return holder.children[0];
-	}
-}
-
-var _ = {
-	each: function (collection, callback) {
-		for (var i = 0; i < collection.length; ++i) {
-			callback(collection[i]);
-		};
-	},
-	reduce: function (collection, callback, total) {
-		_.each(collection, function (element) {
-			total = callback(total, element);
-		});
-		return total;
-	},
-	map: function (collection, callback) {
-		return _.reduce(collection, function (total, element) {
-			total.push(callback(element));
-			return total;
-		}, []);
-	},
-	sum: function (collection, callback) {
-		return _.reduce(collection, function(total, element) {
-			total = total + callback(element);
-			return total;
-		}, 0);
-	}
-}
-
-var $ = (function() {
-	var $ = function(selector, parent) {
-		if (!parent) { parent = document };
-		return parent.querySelector(selector);
-	}
-	$.size = function(element) {
-		var style = window.getComputedStyle(element, null);
-		var width = parseInt(style.getPropertyValue("width"));
-		var height = parseInt(style.getPropertyValue("height"));
-		return {width: width, height: height};
-	}
-	
-	return $;
-})();
-
-var View = (function(){
-	var _init = function(opts) {
-		if (!opts) { opts = {}; }
-		this.model = opts.model;
-		this.element = opts.element;
-	}
-	var _$ = function(selector) {
-		return $(selector, this.element);
-	}
-	var extend = function(prototype) {
-		var class = function() {
-			_init.apply(this, arguments);
-			if (this.init) { this.init(); };
-			if (this.render) { this.render(); };
-		};
-		
-		class.prototype = prototype;
-		class.prototype.$ = _$;
-		return class;
-	}
-	return { extend: extend };
-})();
-
-Raphael.fn.epb = {
-	drawDomains: function(domains, callback) {
-		var self = this;
-		_.each(domains, function (domain) {
-			var s = parseInt(domain.query_start * self.width);
-			var w = parseInt(domain.query_width * self.width);
-			
-			var rect = self.rect(s, 0, w, self.height);
-			rect.node.removeAttribute("fill");
-			rect.node.removeAttribute("stroke");
-			
-			if (callback) { callback(self, rect, domain); };
-		});
-	},
-	drawMidline: function(attr) {
-		var mid = parseInt(this.height / 2) + 0.5;
-		this.path("M0 " + mid + "L" + this.width + " " + mid);
-	},
-	resizeToParent: function() {
-		var size = $.size(this.canvas.parentNode);
-		this.setSize(size.width, size.height);
-	}
-}
-
-var RulerView = View.extend({
-	init: function() {
-		new Template("rulerTemplate").apply(this.element);
-		this.endCap = this.$("#rulerLegendEnd");
-	},
-	render: function() {
-		this.endCap.innerHTML = this.model.width;
-	},
-});
-
-var ProteinDomainsHeaderView = View.extend({
-	init: function() {
-		this.paper = Raphael(this.element);
-	},
-	render: function() {
-		this.paper.epb.resizeToParent();
-		this.paper.epb.drawMidline();
-		this.paper.epb.drawDomains(this.model, function(paper, rect, domain) {
-			var text = paper.text(rect.getBBox().x, paper.height / 2, domain.name);
-			text.attr({"text-anchor": "start"});
-			text.node.removeAttribute("style");
-			text.node.removeAttribute("stroke");
-			text.node.removeAttribute("fill");
-			
-			rect.attr({"href": domain.url});
-			text.insertAfter(rect);
-		})
-	}
-});
-
-var ProteinDomainsBackgroundView = View.extend({
-	init: function() {
-		this.paper = Raphael(this.element);
-	},
-	render: function() {
-		this.paper.epb.resizeToParent();
-		this.paper.epb.drawDomains(this.model)
-	}
-});
-
-var HSPRenderer = function(hsp) {
-	this.hsp = hsp;
-}
-HSPRenderer.prototype = {
-	height: function() { return 5; },
-	drawOn: function(paper) {
-		var x = parseInt(this.hsp.query_start * paper.width);
-		var y = 0;
-		var h = this.height();
-		var w = parseInt(this.hsp.query_width * paper.width);
-		return paper.rect(x, y, w, h);
-	}
-}
-
-var AlignmentCanvas = View.extend({
-	init: function() {
-		this.paper = Raphael();
-		this.element = this.paper.canvas;
-		this.element.removeAttribute("style");
-	},
-	render: function() {
-		var renderers = _.map(this.model.hsps, function (hsp) {
-			return new HSPRenderer(hsp);
-		})
-		
-		var height = _.sum(renderers, function(r) { return r.height(); })
-		var width = $.size(this.element).width;
-		this.paper.setSize(width, height);
-		this.paper.clear();
-		
-		var y_offset = 0;
-		var self = this;
-		_.each(renderers, function(hsp) {
-			hsp.drawOn(self.paper).translate(0, y_offset);
-			y_offset = y_offset + hsp.height();
-		})
-	}
-})
-
-var AlignmentView = View.extend({
-	init: function() {
-		this.element = new Template("alignmentTemplate").asElement();
-		this.checkbox = this.$(".alignmentSelection input");
-		this.link = this.$(".alignmentGraphic > a");
-		this.canvas = new AlignmentCanvas({ model: this.model })
-		this.link.appendChild(this.canvas.element);
-	},
-	render: function() {
-		this.checkbox.value = this.model.uid;
-		this.link.href = this.model.url;
-	}
-})
-
-var OrganismView = View.extend({
-	init: function() {
-		this.element = new Template("organismTemplate").asElement();
-		this.name = this.$(".organismName a");
-		this.link = this.name;
-		this.phylogeny = this.$(".organismPhylogeny");
-		
-		var self = this;
-		_.each(this.model.alignments, function(alignment) {
-			var view = new AlignmentView({ model: alignment });
-			self.$(".organismGraphic").appendChild(view.element);
-		});
-	},
-	render: function() {
-		this.name.innerHTML = this.model.name;
-		this.link.href = this.model.url;
-		this.phylogeny.innerHTML = this.model.phylogeny;
-	}
-})
-
-var OrganismListView = View.extend({
-	init: function() {
-		var self = this;
-		_.each(self.model, function(organism) {
-			var view = new OrganismView({
-				model: organism,
-			});
-			self.element.appendChild(view.element);
-		});
-	}
-})
-
-var Data = {
-	width: {{ input_width }},
-	domains: [
-		{% for domain in domains %}
-		{
-			query_start: {{ domain.query_start / input_width }},
-			query_width: {{ domain.query_width / input_width }},
-			name: "{{ domain.name }}",
-			url: "{{ domain.url }}",
-		},
-		{% endfor %}
-	],
-	organisms: [
-		{% for organism, data in data.by_organism() %}
-		{
-			name: "{{organism.name}}",
-			phylogeny: "{{organism.info.detail_group}}",
-			url: "{{organism.info.url}}",
-			alignments: [
-				{% for alignment, data in data.by_alignment() %}
-				{
-					uid: "{{ organism.slug }}:{{ alignment.name }}",
-					url: "alignments/{{ alignment.digest }}.html",
-					hsps: [
-						{% for hsp, datum in data.by_hsp() %}
-							{
-								query_start: {{ hsp.query_start / input_width }},
-								query_width: {{ hsp.query_width / input_width }}
-							},
-						{% endfor %}
-					]
-				},
-				{% endfor %}
-			]
-		},
-		{% endfor %}
-	]
-}
-
-var AppView = View.extend({
-	init: function() {
-		new RulerView({
-			model: { width: Data.width },
-			element: this.$("#ruler")
-		})
-		new ProteinDomainsHeaderView({
-			model: Data.domains,
-			element: this.$("#proteinDomainsHeader")
-		})
-		new OrganismListView({
-			model: Data.organisms,
-			element: this.$("#organisms")
-		})
-		new ProteinDomainsBackgroundView({
-			model: Data.domains,
-			element: this.$("#proteinDomainsBackground")
-		})
-	},
-})
-var App = new AppView({ element: document.body });
-
+	{{ render('results.js') }}
 </script>
 
 </body>

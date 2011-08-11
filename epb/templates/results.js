@@ -76,8 +76,8 @@ HSPRenderer.prototype = {
 }
 
 var AlignmentCanvas = View.extend({
-	init: function() {
-		this.paper = Raphael();
+	init: function(opts) {
+		this.paper = Raphael(opts.parent, 1, 1);
 		this.element = this.paper.canvas;
 		this.element.removeAttribute("style");
 	},
@@ -86,10 +86,11 @@ var AlignmentCanvas = View.extend({
 			return new HSPRenderer(hsp);
 		})
 		
-		var height = _.sum(renderers, function(r) { return r.height(); })
-		var width = $.size(this.element).width;
-		this.paper.setSize(width, height);
 		this.paper.clear();
+		this.paper.setSize(1, 1);
+		var height = _.sum(renderers, function(r) { return r.height(); })
+		var width = $.size(this.element.parentNode).width;
+		this.paper.setSize(width, height);	
 		
 		var y_offset = 0;
 		var self = this;
@@ -101,12 +102,16 @@ var AlignmentCanvas = View.extend({
 })
 
 var AlignmentView = View.extend({
-	init: function() {
+	init: function(opts) {
 		this.element = new Template("alignmentTemplate").asElement();
+		opts.parent.appendChild(this.element);
+		
 		this.checkbox = this.$(".alignmentSelection input");
 		this.link = this.$(".alignmentGraphic > a");
-		this.canvas = new AlignmentCanvas({ model: this.model })
-		this.link.appendChild(this.canvas.element);
+		this.canvas = new AlignmentCanvas({
+			parent: this.link,
+			model: this.model,
+		});
 	},
 	render: function() {
 		this.checkbox.value = this.model.uid;
@@ -115,16 +120,22 @@ var AlignmentView = View.extend({
 })
 
 var OrganismView = View.extend({
-	init: function() {
+	init: function(opts) {
 		this.element = new Template("organismTemplate").asElement();
+		window.o = opts;
+		opts.parent.appendChild(this.element);
+		
 		this.name = this.$(".organismName a");
 		this.link = this.name;
 		this.phylogeny = this.$(".organismPhylogeny");
+		this.graphic = this.$(".organismGraphic");
 		
 		var self = this;
 		_.each(this.model.alignments, function(alignment) {
-			var view = new AlignmentView({ model: alignment });
-			self.$(".organismGraphic").appendChild(view.element);
+			var view = new AlignmentView({
+				parent: self.graphic,
+				model: alignment
+			});
 		});
 	},
 	render: function() {
@@ -138,12 +149,13 @@ var OrganismListView = View.extend({
 	init: function() {
 		var self = this;
 		_.each(self.model, function(organism) {
-			var view = new OrganismView({
+			alert(self.element);
+			new OrganismView({
+				parent: self.element,
 				model: organism,
 			});
-			self.element.appendChild(view.element);
 		});
-	}
+	},
 })
 
 var AppView = View.extend({

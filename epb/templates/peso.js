@@ -37,7 +37,7 @@
 		var extend = function(prototype) {
 			var class = function() {
 				_init.apply(this, arguments);
-				if (this.init) { this.init(); };
+				if (this.init) { this.init.apply(this, arguments); };
 				if (this.render) { this.render(); };
 			};
 		

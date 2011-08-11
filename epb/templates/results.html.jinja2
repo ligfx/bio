@@ -80,6 +80,9 @@ body {
 .organism {
 	border-bottom: 1px solid #999;
 }
+.organismName {
+	font-weight: bold;
+}
 </style>
 </head>
 <body>
@@ -126,7 +129,8 @@ body {
 <script type="text/html" id="organismTemplate">
 	<div class="organism">
 		<div class="organismMeta">
-			<div class="organismInfo"></div>
+			<div class="organismName"></div>
+			<div class="organismPhylogeny"></div>
 		</div>
 		<div class="organismGraphic"></div>
 	</div>
@@ -331,7 +335,8 @@ var OrganismView = View.extend({
 		});
 	},
 	render: function() {
-		this.$(".organismInfo").innerHTML = this.model.name;
+		this.$(".organismName").innerHTML = this.model.name;
+		this.$(".organismPhylogeny").innerHTML = this.model.phylogeny;
 	}
 })
 
@@ -361,6 +366,7 @@ var Data = {
 		{% for organism, data in data.by_organism() %}
 		{
 			name: "{{organism.name}}",
+			phylogeny: "{{organism.info.detail_group}}",
 			alignments: [
 				{% for alignment, data in data.by_alignment() %}
 				{

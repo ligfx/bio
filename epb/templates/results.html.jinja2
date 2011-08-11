@@ -133,6 +133,27 @@
 </script>
 <script type="text/javascript">
 
+var View = (function(){
+	var _init = function(opts) {
+		this.model = opts.model;
+		this.element = opts.element;
+	}
+	var _$ = function(selector) {
+		return this.element.querySelector(selector);
+	}
+	var extend = function(prototype) {
+		var class = function() {
+			_init.apply(this, arguments);
+			this.init();
+			this.render();
+		};
+		class.prototype = prototype;
+		class.prototype.$ = _$;
+		return class;
+	}
+	return { extend: extend };
+})();
+
 var Template = function(id) {
 	this.template = document.getElementById(id);
 }
@@ -147,15 +168,29 @@ Template.prototype = {
 	}
 }
 
-var RulerView = function(element) {
-	this.element = element;
-}
-RulerView.prototype = {
-	draw: function() {
-		new Template("rulerTemplate").apply(this.element);
-		
-		var end = this.element.querySelector("[data-value='width']");
-		end.innerHTML = this.width;
+var _ = {
+	each: function (collection, callback) {
+		for (var i = 0; i < collection.length; ++i) {
+			callback(collection[i]);
+		}
+	},
+	reduce: function (collection, total, callback) {
+		_.each(collection, function (element) {
+			total = callback(total, element);
+		})
+		return total;
+	},
+	map: function (collection, callback) {
+		return _.reduce(collection, [], function (total, element) {
+			total.push(callback(element));
+			return total;
+		})
+	},
+	sum: function (collection, callback) {
+		return _.reduce(collection, 0, function(total, element) {
+			total = total + callback(element);
+			return total;
+		})
 	}
 }
 
@@ -175,15 +210,24 @@ var E = {
 	}
 };
 
+var RulerView = View.extend({
+	init: function() {
+		new Template("rulerTemplate").apply(this.element);
+		this.endCap = this.$("[data-value='width']");
+	},
+	render: function() {
+		this.endCap.innerHTML = this.model.width;
+	},
+});
+
 var ProteinDomainsRaphael = (function() {
 	var drawDomains = function(domains, attr) {
-		for (var i = 0; i < domains.length; ++i) {
-			var domain = domains[i];
-
-			var s = parseInt(domain.query_start * this.width);
-			var w = parseInt(domain.query_width * this.width);
-			this.rect(s, 0, w, this.height).attr(attr);
-		}
+		var self = this;
+		_.each(domains, function (domain) {
+			var s = parseInt(domain.query_start * self.width);
+			var w = parseInt(domain.query_width * self.width);
+			self.rect(s, 0, w, self.height).attr(attr);
+		});
 	}
 	var drawMidline = function(attr) {
 		var mid = parseInt(this.height / 2) + 0.5;
@@ -196,103 +240,92 @@ var ProteinDomainsRaphael = (function() {
 	return { extend: extend }
 })();
 
-var AbstractProteinDomainsView = {
-	setup: function(opts) {
-		var paper = E.createRaphael(this.element);
-		ProteinDomainsRaphael.extend(paper);
-		
-		return paper;
-	}
-}
 
-var ProteinDomainsHeaderView = function(element) {
-	this.element = element;
-}
-ProteinDomainsHeaderView.prototype = {
-	setup: AbstractProteinDomainsView.setup,
-	draw: function() {
-		var paper = this.setup();
-		
-		paper.drawMidline({stroke: "#666"});
-		paper.drawDomains(this.domains, {fill: "rgb(40, 150, 40)", stroke: ""});
+var ProteinDomainsView = (function() {
+	var _init = function() {
+		this.paper = E.createRaphael(this.element);
+		ProteinDomainsRaphael.extend(this.paper);
 	}
-}
-
-var ProteinDomainsBackgroundView = function(element) {
-	this.element = element;
-}
-ProteinDomainsBackgroundView.prototype = {
-	setup: AbstractProteinDomainsView.setup,
-	draw: function() {
-		var paper = this.setup();
-		paper.drawDomains(this.domains, {fill: "rgb(180, 224, 158)", stroke: ""})
+	var extend = function(prototype) {
+		prototype.init = _init;
+		return View.extend(prototype);
 	}
-}
+	return { extend: extend }
+})();
 
-var HighScoringPairElement = function(hsp) {
+var ProteinDomainsHeaderView = ProteinDomainsView.extend({
+	render: function() {
+		this.paper.drawMidline({stroke: "#666"});
+		this.paper.drawDomains(this.model, {fill: "rgb(40, 150, 40)", stroke: ""})
+	}
+});
+
+var ProteinDomainsBackgroundView = ProteinDomainsView.extend({
+	render: function() {
+		this.paper.drawDomains(this.model, {fill: "rgb(180, 224, 158)", stroke: ""})
+	}
+});
+
+var HSPRenderer = function(hsp) {
 	this.hsp = hsp;
 }
-HighScoringPairElement.prototype = {
-	height: function () { return 5; },
+HSPRenderer.prototype = {
+	height: function() { return 5; },
 	drawOn: function(paper) {
-		return paper.rect(parseInt(this.hsp.query_start * paper.width), 0, parseInt(this.hsp.query_width * paper.width), this.height());
+		var x = parseInt(this.hsp.query_start * paper.width);
+		var y = 0;
+		var h = this.height();
+		var w = parseInt(this.hsp_query_width * paper.width);
+		return paper.rect(x, y, h, w);
 	}
 }
 
-var AlignmentGraphicView = function(element) {
-	this.element = element;
-}
-AlignmentGraphicView.prototype = {
-	draw: function(alignment) {
+var AlignmentGraphicView = View.extend({
+	init: function() {
+		this.paper = Raphael(this.element, 1, 1);
+		alert("init!");
+		alert(this.element);
+		window.a = this.element;
+	},
+	render: function() {
+		this.element.href = this.model.url;
+		this.element.innerHTML = "";
 		
-		this.element.href = alignment.url;
+		var renderers = _.map(this.model.hsps, function (hsp) {
+			return new HSPRenderer(hsp);
+		})
 		
-		var hsp_elements = [];
-		for (var i = 0; i < alignment.hsps.length; ++i) {
-			var hsp = alignment.hsps[i];
-			hsp_elements.push(new HighScoringPairElement(hsp));
-		}
-		
-		var height = 0;
-		for (var i = 0; i < hsp_elements.length; ++i) {
-			var e = hsp_elements[i];
-			height = height + e.height();
-		}
-		
+		var height = _.sum(renderers, function(r) { return r.height(); })
 		var width = E.getDimensions(this.element)[0];
-		var paper = Raphael(this.element, width, height);
+		this.paper.setSize(width, height);
 		
 		var y_offset = 0;
-		for (var i = 0; i < hsp_elements.length; ++i) {
-			var hsp = hsp_elements[i];
-			var paper_proxy = {
-				rect: function(x, y, w, h) {
-					return paper.rect(x, y + y_offset, w, h);
-				},
-				width: paper.width
-			}
-			hsp.drawOn(paper_proxy).attr({fill: "red", stroke: "none"});
+		var self = this;
+		_.each(renderers, function(hsp) {
+			hsp.drawOn(self.paper).translate(0, y_offset).attr({fill: "red", stroke: "none"});
 			y_offset = y_offset + hsp.height();
-		}
+		})
 	}
-}
+})
 
 var OrganismGraphicView = function(element) {
 	this.element = element;
 }
 OrganismGraphicView.prototype = {
 	draw: function (organism) {
-		for (var i = 0; i < organism.alignments.length; ++i) {
-			var alignment = organism.alignments[i];
-			
+		var self = this;
+		_.each(organism.alignments, function(alignment) {
 			var e = new Template("alignmentTemplate").asNode();
-			this.element.appendChild(e);
 			
 			e.querySelector(".alignmentSelection input").value = organism.name + ":" + alignment.digest;
 			
-			var alignment_view = new AlignmentGraphicView(e.querySelector(".alignmentGraphic > a"));
-			alignment_view.draw(alignment);
-		}
+			new AlignmentGraphicView({
+				element: e.querySelector(".alignmentGraphic > a"),
+				model: alignment
+			});
+			
+			self.element.appendChild(e);
+		});
 	}
 }
 
@@ -333,24 +366,27 @@ OrganismListView.prototype = {
 	}
 }
 
-var width = {{ input_width }};
+var Data = {
+	width: {{ input_width }},
+	domains: [
+		{% for domain in domains %}
+		{
+			query_start: {{ domain.query_start / input_width }},
+			query_width: {{ domain.query_width / input_width }}
+		},
+		{% endfor %}
+	],
+}
 
-var ruler = new RulerView(document.getElementById("ruler"));
-ruler.width = width;
-ruler.draw();
+var ruler = new RulerView({
+	model: { width: Data.width },
+	element: document.getElementById("ruler")
+});
 
-var domains = [
-	{% for domain in domains %}
-	{
-		query_start: {{ domain.query_start / input_width }},
-		query_width: {{ domain.query_width / input_width }}
-	},
-	{% endfor %}
-];
-
-var protein_domains_header = new ProteinDomainsHeaderView(document.getElementById("proteinDomainsHeader"));
-protein_domains_header.domains = domains;
-protein_domains_header.draw();
+var protein_domains_header = new ProteinDomainsHeaderView({
+	model: Data.domains,
+	element: document.getElementById("proteinDomainsHeader")
+});
 
 var organisms = [
 	{% for organism, data in data.by_organism() %}
@@ -378,9 +414,11 @@ var organisms = [
 var organism_list = new OrganismListView(document.getElementById("organisms"));
 organism_list.draw(organisms)
 
-var protein_domains_background = new ProteinDomainsBackgroundView(document.getElementById("proteinDomainsBackground"));
-protein_domains_background.domains = domains;
-protein_domains_background.draw();
+var protein_domains_background = new ProteinDomainsBackgroundView({
+	model: Data.domains,
+	element: document.getElementById("proteinDomainsBackground")
+});
+protein_domains_background.render();
 
 </script>
 

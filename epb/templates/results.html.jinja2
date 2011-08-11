@@ -76,6 +76,46 @@
 	</div>
 </script>
 <script type="text/javascript">
+	var Data = {
+		input_width: {{ input_width }},
+		domains: [
+			{% for domain in domains %}
+			{
+				query_start: {{ domain.query_start / input_width }},
+				query_width: {{ domain.query_width / input_width }},
+				name: "{{ domain.name }}",
+				url: "{{ domain.url }}",
+			},
+			{% endfor %}
+		],
+		organisms: [
+			{% for organism, data in data.by_organism() %}
+			{
+				name: "{{organism.name}}",
+				phylogeny: "{{organism.info.detail_group}}",
+				url: "{{organism.info.url}}",
+				alignments: [
+					{% for alignment, data in data.by_alignment() %}
+					{
+						uid: "{{ organism.slug }}:{{ alignment.name }}",
+						url: "alignments/{{ alignment.digest }}.html",
+						hsps: [
+							{% for hsp, datum in data.by_hsp() %}
+								{
+									query_start: {{ hsp.query_start / input_width }},
+									query_width: {{ hsp.query_width / input_width }}
+								},
+							{% endfor %}
+						]
+					},
+					{% endfor %}
+				]
+			},
+			{% endfor %}
+		]
+	}
+</script>
+<script type="text/javascript">
 	{{ render('results.js') }}
 </script>
 

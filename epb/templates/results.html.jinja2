@@ -370,7 +370,7 @@ var Data = {
 			alignments: [
 				{% for alignment, data in data.by_alignment() %}
 				{
-					uid: "{{ organism.slug }}:{{ alignment.id }}",
+					uid: "{{ organism.slug }}:{{ alignment.name }}",
 					url: "alignments/{{ alignment.digest }}.html",
 					hsps: [
 						{% for hsp, datum in data.by_hsp() %}

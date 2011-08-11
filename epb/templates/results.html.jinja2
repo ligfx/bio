@@ -133,27 +133,6 @@
 </script>
 <script type="text/javascript">
 
-var View = (function(){
-	var _init = function(opts) {
-		this.model = opts.model;
-		this.element = opts.element;
-	}
-	var _$ = function(selector) {
-		return this.element.querySelector(selector);
-	}
-	var extend = function(prototype) {
-		var class = function() {
-			_init.apply(this, arguments);
-			this.init();
-			this.render();
-		};
-		class.prototype = prototype;
-		class.prototype.$ = _$;
-		return class;
-	}
-	return { extend: extend };
-})();
-
 var Template = function(id) {
 	this.template = document.getElementById(id);
 }
@@ -161,7 +140,7 @@ Template.prototype = {
 	apply: function (element) {
 		element.innerHTML = this.template.innerHTML;
 	},
-	asNode: function () {
+	asElement: function () {
 		var holder = document.createElement("div");
 		holder.innerHTML = this.template.innerHTML;
 		return holder.children[0];
@@ -172,43 +151,84 @@ var _ = {
 	each: function (collection, callback) {
 		for (var i = 0; i < collection.length; ++i) {
 			callback(collection[i]);
-		}
+		};
 	},
-	reduce: function (collection, total, callback) {
+	reduce: function (collection, callback, total) {
 		_.each(collection, function (element) {
 			total = callback(total, element);
-		})
+		});
 		return total;
 	},
 	map: function (collection, callback) {
-		return _.reduce(collection, [], function (total, element) {
+		return _.reduce(collection, function (total, element) {
 			total.push(callback(element));
 			return total;
-		})
+		}, []);
 	},
 	sum: function (collection, callback) {
-		return _.reduce(collection, 0, function(total, element) {
+		return _.reduce(collection, function(total, element) {
 			total = total + callback(element);
 			return total;
-		})
+		}, 0);
 	}
 }
 
-var E = {
-	getDimensions: function(element) {
+var $ = (function() {
+	var $ = function(selector, parent) {
+		if (!parent) { parent = document };
+		return parent.querySelector(selector);
+	}
+	$.size = function(element) {
 		var style = window.getComputedStyle(element, null);
 		var width = parseInt(style.getPropertyValue("width"));
 		var height = parseInt(style.getPropertyValue("height"));
-		return [width, height]
-	},
-	createRaphael: function(element) {
-		var dimensions = E.getDimensions(element);
-		var width = dimensions[0];
-		var height = dimensions[1];
-		
-		return Raphael(element, width, height);
+		return {width: width, height: height};
 	}
-};
+	
+	return $;
+})();
+
+var View = (function(){
+	var _init = function(opts) {
+		if (!opts) { opts = {}; }
+		this.model = opts.model;
+		this.element = opts.element;
+	}
+	var _$ = function(selector) {
+		return $(selector, this.element);
+	}
+	var extend = function(prototype) {
+		var class = function() {
+			_init.apply(this, arguments);
+			if (this.init) { this.init(); };
+			if (this.render) { this.render(); };
+		};
+		
+		class.prototype = prototype;
+		class.prototype.$ = _$;
+		return class;
+	}
+	return { extend: extend };
+})();
+
+Raphael.fn.epb = {
+	drawDomains: function(domains, attr) {
+		var self = this;
+		_.each(domains, function (domain) {
+			var s = parseInt(domain.query_start * self.width);
+			var w = parseInt(domain.query_width * self.width);
+			self.rect(s, 0, w, self.height).attr(attr);
+		});
+	},
+	drawMidline: function(attr) {
+		var mid = parseInt(this.height / 2) + 0.5;
+		this.path("M0 " + mid + "L" + this.width + " " + mid).attr(attr);
+	},
+	resizeToParent: function() {
+		var size = $.size(this.canvas.parentNode);
+		this.setSize(size.width, size.height);
+	}
+}
 
 var RulerView = View.extend({
 	init: function() {
@@ -220,49 +240,24 @@ var RulerView = View.extend({
 	},
 });
 
-var ProteinDomainsRaphael = (function() {
-	var drawDomains = function(domains, attr) {
-		var self = this;
-		_.each(domains, function (domain) {
-			var s = parseInt(domain.query_start * self.width);
-			var w = parseInt(domain.query_width * self.width);
-			self.rect(s, 0, w, self.height).attr(attr);
-		});
-	}
-	var drawMidline = function(attr) {
-		var mid = parseInt(this.height / 2) + 0.5;
-		this.path("M0 " + mid + "L" + this.width + " " + mid).attr(attr);
-	}
-	var extend = function(paper) {
-		paper.drawDomains = drawDomains;
-		paper.drawMidline = drawMidline;
-	}
-	return { extend: extend }
-})();
-
-
-var ProteinDomainsView = (function() {
-	var _init = function() {
-		this.paper = E.createRaphael(this.element);
-		ProteinDomainsRaphael.extend(this.paper);
-	}
-	var extend = function(prototype) {
-		prototype.init = _init;
-		return View.extend(prototype);
-	}
-	return { extend: extend }
-})();
-
-var ProteinDomainsHeaderView = ProteinDomainsView.extend({
+var ProteinDomainsHeaderView = View.extend({
+	init: function() {
+		this.paper = Raphael(this.element);
+	},
 	render: function() {
-		this.paper.drawMidline({stroke: "#666"});
-		this.paper.drawDomains(this.model, {fill: "rgb(40, 150, 40)", stroke: ""})
+		this.paper.epb.resizeToParent();
+		this.paper.epb.drawMidline({stroke: "#666"});
+		this.paper.epb.drawDomains(this.model, {fill: "rgb(40, 150, 40)", stroke: ""})
 	}
 });
 
-var ProteinDomainsBackgroundView = ProteinDomainsView.extend({
+var ProteinDomainsBackgroundView = View.extend({
+	init: function() {
+		this.paper = Raphael(this.element);
+	},
 	render: function() {
-		this.paper.drawDomains(this.model, {fill: "rgb(180, 224, 158)", stroke: ""})
+		this.paper.epb.resizeToParent();
+		this.paper.epb.drawDomains(this.model, {fill: "rgb(180, 224, 158)", stroke: ""})
 	}
 });
 
@@ -275,29 +270,26 @@ HSPRenderer.prototype = {
 		var x = parseInt(this.hsp.query_start * paper.width);
 		var y = 0;
 		var h = this.height();
-		var w = parseInt(this.hsp_query_width * paper.width);
-		return paper.rect(x, y, h, w);
+		var w = parseInt(this.hsp.query_width * paper.width);
+		return paper.rect(x, y, w, h);
 	}
 }
 
-var AlignmentGraphicView = View.extend({
+var AlignmentCanvas = View.extend({
 	init: function() {
-		this.paper = Raphael(this.element, 1, 1);
-		alert("init!");
-		alert(this.element);
-		window.a = this.element;
+		this.paper = Raphael();
+		this.element = this.paper.canvas;
+		this.element.removeAttribute("style");
 	},
 	render: function() {
-		this.element.href = this.model.url;
-		this.element.innerHTML = "";
-		
 		var renderers = _.map(this.model.hsps, function (hsp) {
 			return new HSPRenderer(hsp);
 		})
 		
 		var height = _.sum(renderers, function(r) { return r.height(); })
-		var width = E.getDimensions(this.element)[0];
+		var width = $.size(this.element).width;
 		this.paper.setSize(width, height);
+		this.paper.clear();
 		
 		var y_offset = 0;
 		var self = this;
@@ -308,63 +300,46 @@ var AlignmentGraphicView = View.extend({
 	}
 })
 
-var OrganismGraphicView = function(element) {
-	this.element = element;
-}
-OrganismGraphicView.prototype = {
-	draw: function (organism) {
+var AlignmentView = View.extend({
+	init: function() {
+		this.element = new Template("alignmentTemplate").asElement();
+		this.checkbox = this.$(".alignmentSelection input");
+		this.link = this.$(".alignmentGraphic > a");
+		this.canvas = new AlignmentCanvas({ model: this.model })
+		this.link.appendChild(this.canvas.element);
+	},
+	render: function() {
+		this.checkbox.value = this.model.uid;
+		this.link.href = this.model.url;
+	}
+})
+
+var OrganismView = View.extend({
+	init: function() {
+		this.element = new Template("organismTemplate").asElement();
+		
 		var self = this;
-		_.each(organism.alignments, function(alignment) {
-			var e = new Template("alignmentTemplate").asNode();
-			
-			e.querySelector(".alignmentSelection input").value = organism.name + ":" + alignment.digest;
-			
-			new AlignmentGraphicView({
-				element: e.querySelector(".alignmentGraphic > a"),
-				model: alignment
+		_.each(this.model.alignments, function(alignment) {
+			var view = new AlignmentView({ model: alignment });
+			self.$(".organismGraphic").appendChild(view.element);
+		});
+	},
+	render: function() {
+		this.$(".organismInfo").innerHTML = this.model.name;
+	}
+})
+
+var OrganismListView = View.extend({
+	init: function() {
+		var self = this;
+		_.each(self.model, function(organism) {
+			var view = new OrganismView({
+				model: organism,
 			});
-			
-			self.element.appendChild(e);
+			self.element.appendChild(view.element);
 		});
 	}
-}
-
-var OrganismMetaView = function(element) {
-	this.element = element;
-}
-OrganismMetaView.prototype = {
-	draw: function(organism) {
-		this.element.querySelector(".organismInfo").innerHTML = organism.name;
-	}
-}
-
-var OrganismView = function(element) {
-	this.element = element;
-}
-OrganismView.prototype = {
-	draw: function(organism) {
-		var meta = new OrganismMetaView(this.element.querySelector(".organismMeta"));
-		meta.draw(organism);
-		
-		var graphic = new OrganismGraphicView(this.element.querySelector(".organismGraphic"));
-		graphic.draw(organism);
-	}
-}
-
-var OrganismListView = function(element) {
-	this.element = element;
-}
-OrganismListView.prototype = {
-	draw: function(organisms) {
-		for (var i = 0; i < organisms.length; ++i) {
-			var organism = organisms[i];
-			var child = new Template("organismTemplate").asNode();
-			this.element.appendChild(child);
-			var organism_view = new OrganismView(child);
-			organism_view.draw(organism);
-		}
-	}
-}
+})
 
 var Data = {
 	width: {{ input_width }},
@@ -376,49 +351,51 @@ var Data = {
 		},
 		{% endfor %}
 	],
+	organisms: [
+		{% for organism, data in data.by_organism() %}
+		{
+			name: "{{organism.name}}",
+			alignments: [
+				{% for alignment, data in data.by_alignment() %}
+				{
+					url: "alignments/{{ alignment.digest }}.html",
+					hsps: [
+						{% for hsp, datum in data.by_hsp() %}
+							{
+								query_start: {{ hsp.query_start / input_width }},
+								query_width: {{ hsp.query_width / input_width }}
+							},
+						{% endfor %}
+					]
+				},
+				{% endfor %}
+			]
+		},
+		{% endfor %}
+	]
 }
 
-var ruler = new RulerView({
-	model: { width: Data.width },
-	element: document.getElementById("ruler")
-});
-
-var protein_domains_header = new ProteinDomainsHeaderView({
-	model: Data.domains,
-	element: document.getElementById("proteinDomainsHeader")
-});
-
-var organisms = [
-	{% for organism, data in data.by_organism() %}
-	{
-		name: "{{organism.name}}",
-		alignments: [
-			{% for alignment, data in data.by_alignment() %}
-			{
-				url: "alignments/{{ alignment.digest }}.html",
-				hsps: [
-					{% for hsp, datum in data.by_hsp() %}
-						{
-							query_start: {{ hsp.query_start / input_width }},
-							query_width: {{ hsp.query_width / input_width }}
-						},
-					{% endfor %}
-				]
-			},
-			{% endfor %}
-		]
+var AppView = View.extend({
+	init: function() {
+		new RulerView({
+			model: { width: Data.width },
+			element: this.$("#ruler")
+		})
+		new ProteinDomainsHeaderView({
+			model: Data.domains,
+			element: this.$("#proteinDomainsHeader")
+		})
+		new OrganismListView({
+			model: Data.organisms,
+			element: this.$("#organisms")
+		})
+		new ProteinDomainsBackgroundView({
+			model: Data.domains,
+			element: this.$("#proteinDomainsBackground")
+		})
 	},
-	{% endfor %}
-];
-
-var organism_list = new OrganismListView(document.getElementById("organisms"));
-organism_list.draw(organisms)
-
-var protein_domains_background = new ProteinDomainsBackgroundView({
-	model: Data.domains,
-	element: document.getElementById("proteinDomainsBackground")
-});
-protein_domains_background.render();
+})
+var App = new AppView({ element: document.body });
 
 </script>
 

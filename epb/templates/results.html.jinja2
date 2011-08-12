@@ -103,6 +103,7 @@
 						hsps: [
 							{% for hsp, datum in data.by_hsp() %}
 								{
+									score: {{ hsp.score }},
 									query_start: {{ hsp.query_start / input_width }},
 									query_width: {{ hsp.query_width / input_width }}
 								},

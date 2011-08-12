@@ -79,9 +79,13 @@ body {
 }
 
 .alignmentGraphic svg rect {
-	fill: red;
 	stroke: none;
 }
+.alignmentGraphic svg rect.great { fill: red; }
+.alignmentGraphic svg rect.good  { fill: fuchsia; }
+.alignmentGraphic svg rect.okay  { fill: lime; }
+.alignmentGraphic svg rect.poor  { fill: blue; }
+.alignmentGraphic svg rect.bad   { fill: black; }
 #proteinDomainsHeader svg rect {
 	fill: rgb(40, 150, 40);
 	stroke: none;

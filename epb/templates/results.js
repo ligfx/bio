@@ -66,12 +66,32 @@ var HSPRenderer = function(hsp) {
 }
 HSPRenderer.prototype = {
 	height: function() { return 5; },
+	quality: function() {
+		// "bad, poor, okay, good, great"
+		var score = this.hsp.score;
+		if (score >= 200) {
+			return "great";
+		} else if (score >= 80) {
+			return "good";
+		} else if (score >= 50) {
+			return "okay";
+		} else if (score >= 40) {
+			return "poor";
+		} else {
+			return "bad";
+		}
+	},
 	drawOn: function(paper) {
 		var x = parseInt(this.hsp.query_start * paper.width);
 		var y = 0;
 		var h = this.height();
 		var w = parseInt(this.hsp.query_width * paper.width);
-		return paper.rect(x, y, w, h);
+		var rect = paper.rect(x, y, w, h);
+		rect.node.removeAttribute("style");
+		rect.node.removeAttribute("fill");
+		// className is an SVGAnimatedString, so change .baseVal
+		rect.node.className.baseVal = this.quality();
+		return rect;
 	}
 }
 

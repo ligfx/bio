@@ -115,23 +115,14 @@ dd {
 		<dt>E-value</dt>
 		<dd>{{ data.minimum_evalue() }}</dd>
 
-		<dt>Combined Score</dt>
-		<dd>TODO</dd>
-
-		<dt>Coverage</dt>
-		<dd>TODO</dd>
-
 		<dt>Source</dt>
 		<dd>{{ organism.info.source }}</dd>
 
 		<dt>Webpage</dt>
-		<dd>{{ organism.info.url }}</dd>
+		<dd><a href="{{ organism.info.url }}">{{ organism.info.url }}</a></dd>
 
 		<dt>Gene</dt>
-		<dd>{{ organism.url_for_gene(alignment.name) }}</dd>
-
-		<dt>Reference</dt>
-		<dd>{{ organism.info.reference }}</dd>
+		<dd><a href="{{ organism.url_for_gene(alignment.name) }}">{{ organism.url_for_gene(alignment.name) }}</a></dd>
 	</dl>
 </div>
 

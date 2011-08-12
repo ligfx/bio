@@ -80,11 +80,11 @@ class Organism:
 		if not format and "{" in url:
 			return "#BAD-KEY:fasta_header_format"
 		
-		match = re.match(self.info.get('fasta_header_format', ''), gene)
+		match = re.match(self.info.get('fasta_header_format', ''), ">" + gene)
 		if match:
 			keys = match.groupdict()
 		else:
-			return "#BAD-MATCH:fasta_header_format"
+			return "#BAD-MATCH:fasta_header_format:%s" % gene
 		
 		for (k, v) in keys.items():
 			url = re.sub(r"\{\s*%s\s*\}" % k, v.strip(), url)

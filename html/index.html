@@ -217,7 +217,6 @@
 			}
 		},
 		emit: function(signal) {
-			console.log("emit " + signal);
 			if (this.events && this.events[signal]) {
 				_.each(this.events[signal], function(callback) {
 					callback();

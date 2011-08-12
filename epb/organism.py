@@ -66,8 +66,8 @@ class Organism:
 		self.name = info.get('name', slug)
 		self.database = OrganismDatabase(kwargs['dbdir'], slug)
 		
-	def blast(self, sequence):
-		xml = Blast.get_xml(os.path.join(self.blastdir, self.slug), sequence)
+	def blast(self, sequence, opts):
+		xml = Blast.get_xml(os.path.join(self.blastdir, self.slug), sequence, opts)
 		
 		for datum in Blast.parse_xml(xml):
 			datum['organism'] = self
@@ -118,7 +118,7 @@ class OrganismCollection:
 		data = []
 		for organism in self.organisms:
 			if callback: callback(organism)
-			for datum in organism.blast(sequence):
+			for datum in organism.blast(sequence, opts):
 				data.append(datum)
 		
 		return DataSet(data)

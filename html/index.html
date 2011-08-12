@@ -61,6 +61,11 @@
 		<fieldset id="categories">
 			<legend>Select the categories you want to search:</legend>
 		</fieldset>
+		<fieldset>
+			<legend>BLAST Options</legend>
+			<label for="evalue">E-value limit <em>(default 1e-5)</em>:</label>
+			<input type="text" name="evalue" id="evalue" value="1e-5">
+		</fieldset>
 		<input type="submit" value="Blast sequence">
 	</form>
 
@@ -99,14 +104,6 @@
 			}
 			return keys;
 		},
-		match: function(value, patterns) {
-			_.each(_.keys(patterns), function(pattern) {
-				if (pattern === value) {
-					patterns[pattern]();
-					return false;
-				}
-			})
-		}
 	};
 
 	var Data = {

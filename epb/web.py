@@ -8,16 +8,24 @@ import time
 class Request:
 	# **Properties:** `categories`, `method`, `sequence`
 	def __init__(self):
-		form = cgi.FieldStorage()
+		self.form = cgi.FieldStorage()
 		
 		self.missing = []
 		
-		self.sequence = form.getvalue("sequence", None)
-		if not self.sequence: self.missing.append('sequence')
-		self.method = form.getvalue("method", None)
-		if not self.method: self.missing.append('method')
-		self.categories = form.getlist("category")
-		if not any(self.categories): self.missing.append('category')
+		self.sequence = self.getvalue("sequence")
+		self.method = self.getvalue("method")
+		self.categories = self.getlist("category")
+		self.evalue = self.getvalue("evalue")
+	
+	def getvalue(self, key):
+		value = self.form.getvalue(key, None)
+		if not value: self.missing.append(key)
+		return value
+		
+	def getlist(self, key):
+		value = self.form.getlist(key)
+		if not any(value): self.missing.append(key)
+		return value
 
 # === Job ===
 #

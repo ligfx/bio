@@ -79,7 +79,7 @@ try:
 			f.write(epb.controller.status(status))
 
 	seq = Fasta.normalize(request.sequence, method=request.method)
-	data = organisms.blast(seq, callback=callback)
+	data = organisms.blast(seq, callback=callback, evalue=request.evalue)
 	
 	PfamScan.pfamdir = config['pfam_dir']
 	domains = PfamScan.get_domains(seq)

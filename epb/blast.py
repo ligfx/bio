@@ -3,12 +3,18 @@
 from Bio.Blast import NCBIXML
 import epb.process as Process
 from epb.presenter import *
+import re
 from StringIO import StringIO
 
 # Interface to the `blastall` program.
 
-def get_xml(db, seq):
-	return Process.run("blastp -db %s -outfmt 5 -evalue 1e-5 -num_threads 8" % db, "%s\n" % seq)
+class BadEValueException(Exception): pass
+
+def get_xml(db, seq, opts):
+	evalue = opts['evalue']
+	if not re.match("^[\d\.\-e]*$", evalue):
+		raise BadEValueException("Parameter 'evalue' can only contain digits and the characters '.', '-', and 'e'; got `%s'" % evalue)
+	return Process.run("blastp -db %s -outfmt 5 -evalue %s -num_threads 8" % (db, evalue), "%s\n" % seq)
 
 def parse_xml(xml):
 	record_offset = 0

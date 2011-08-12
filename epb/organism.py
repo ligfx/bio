@@ -74,13 +74,18 @@ class Organism:
 			yield datum
 		
 	def url_for_gene(self, gene):
+		format = self.info.get('fasta_header_format', '')
+		url = self.info.get('gene_url', '#')
+		
+		if not format and "{" in url:
+			return "#BAD-KEY:fasta_header_format"
+		
 		match = re.match(self.info.get('fasta_header_format', ''), gene)
 		if match:
 			keys = match.groupdict()
 		else:
-			return "#BAD-KEY:fasta_header_format"
+			return "#BAD-MATCH:fasta_header_format"
 		
-		url = self.info.get('gene_url', '#')
 		for (k, v) in keys.items():
 			url = re.sub(r"\{\s*%s\s*\}" % k, v.strip(), url)
 		return url

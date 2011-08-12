@@ -1,11 +1,6 @@
 from os import path
 import yaml
 
-import epb.controller
-import epb.fasta as Fasta
-from epb.organism import *
-from epb.presenter import *
-
 class config:
 	def __init__(self, directory=path.dirname(__file__)):
 		self.directory = directory

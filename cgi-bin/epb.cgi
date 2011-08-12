@@ -7,7 +7,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import epb
-import epb.controller
+import epb.render
 import epb.fasta as Fasta
 from epb.domains import PfamScan
 from epb.organism import OrganismCollection
@@ -24,7 +24,7 @@ try:
 		print "Status: 400 Bad Request"
 		print "Content-Type: text/html"
 		print
-		print epb.controller.status({
+		print epb.render.status({
 			"done": True,
 			"error": "<p>Missing parameter(s) '%s'. Please fix the problem, or contact the webmaster if this keeps happening.</p>" % (", ".join(request.missing))
 		})
@@ -42,7 +42,7 @@ try:
 
 	status = {"job": job.id, "steps": [], "organisms": organisms}
 	with job.status_file() as f:
-		f.write(epb.controller.status(status))
+		f.write(epb.render.status(status))
 
 	print "Status: 302 Found"
 	print "Location: %s" % job.status_http_path
@@ -53,7 +53,7 @@ except Exception:
 	print "Status: 500 Internal Server Error"
 	print "Content-Type: text/html"
 	print
-	print epb.controller.status({
+	print epb.render.status({
 		"done": True,
 		"error": "<pre>%s</pre>" % cgi.escape(traceback.format_exc())
 	})
@@ -76,7 +76,7 @@ try:
 		status['steps'] = ["Blasting %s" % organism.name] + status['steps']
 		
 		with job.status_file() as f:
-			f.write(epb.controller.status(status))
+			f.write(epb.render.status(status))
 
 	seq = Fasta.normalize(request.sequence, method=request.method)
 	data = organisms.blast(seq, callback=callback, evalue=request.evalue)
@@ -86,7 +86,7 @@ try:
 	
 	sequences = Fasta.each(request.sequence)
 
-	results = epb.controller.results({
+	results = epb.render.results({
 		"data": data,
 		"domains": domains,
 		"sequences": sequences
@@ -97,7 +97,7 @@ try:
 		
 	for organism, data in data.by_organism():
 		for alignment, data in data.by_alignment():
-			html = epb.controller.alignment({
+			html = epb.render.alignment({
 				"data": data,
 				"alignment": alignment,
 				"organism": organism
@@ -107,11 +107,11 @@ try:
 
 	status['done'] = True
 	with job.status_file() as f:
-		f.write(epb.controller.status(status))
+		f.write(epb.render.status(status))
 
 except:
 	status['done'] = True
 	status['error'] = "<pre>%s</pre>" % cgi.escape(traceback.format_exc())
 	
 	with job.status_file() as f:
-		f.write(epb.controller.status(status))
+		f.write(epb.render.status(status))

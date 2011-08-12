@@ -2,11 +2,6 @@
 
 import jinja2
 
-import epb.fasta as Fasta
-from epb.organism import OrganismCollection
-import os
-import yaml
-
 # === status ===
 
 # Renders job status page
@@ -46,20 +41,18 @@ def environment_for(action):
 	else:
 		return html_environment()
 
-def loader():
-	return jinja2.PackageLoader('epb', 'templates')
+loader = jinja2.PackageLoader('epb', 'templates')
 
 def html_environment():
-	env = jinja2.Environment(loader = loader())
-	env.filters['as_percent'] = lambda value, total: "{0}%".format(value * 100.0 / total)
-	env.filters['map_function'] = lambda enum, name: (eval(name)(e) for e in enum)
+	env = jinja2.Environment(loader = loader)
 	env.filters['verticalize'] = lambda s: "<br/>".join(list(str(s)))
 	env.globals['render'] = render
 	return env
 
 def javascript_environment():
+	# Some minified javascript files have double curly brackets
 	env = jinja2.Environment(
-		loader = loader(),
+		loader = loader,
 		block_start_string = "<%",
 		block_end_string = "%>",
 		variable_start_string = "<%=",

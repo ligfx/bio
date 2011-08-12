@@ -89,7 +89,8 @@ try:
 	results = epb.render.results({
 		"data": data,
 		"domains": domains,
-		"sequences": sequences
+		"sequences": sequences,
+		"request": request
 	})
 
 	with job.results_file() as f:

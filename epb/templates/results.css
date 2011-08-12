@@ -78,6 +78,22 @@ body {
 	font-weight: bold;
 }
 
+#colorKey {
+	margin-bottom: 1em;
+}
+#colorKey > div {
+	width: 19%;
+	float: left;
+	font-weight: bold;
+	color: white;
+	text-align: center;
+}
+#colorKey .great { background-color: red; }
+#colorKey .good { background-color: fuchsia; }
+#colorKey .okay { background-color: lime; }
+#colorKey .poor { background-color: blue; }
+#colorKey .bad { background-color: black; }
+
 .alignmentGraphic svg rect {
 	stroke: none;
 }

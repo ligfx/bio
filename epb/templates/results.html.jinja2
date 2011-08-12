@@ -25,6 +25,16 @@
 	
 <div id="innerContainer">
 
+<strong>HSP Score Color Key:</strong>
+<div id="colorKey">
+	<div class="great">>= 200</div>
+	<div class="good">>= 80</div>
+	<div class="okay">>= 50</div>
+	<div class="poor">>= 40</div>
+	<div class="bad">< 40</div>
+	<div style="clear: both; float: none"></div>
+</div>
+
 <div id="ruler">
 	<div id="rulerLegend">
 		<div id="rulerLegendStart">0</div>
@@ -35,7 +45,7 @@
 </div>
 <div id="proteinDomainsHeader"></div>
 
-<form method="get" action="#">
+<form method="get" action="{{ request.server }}/cgi-bin/get_hits.cgi">
 	<div id="data" style="position: relative">
 		<div id="proteinDomainsBackground"></div>
 		<div id="dataHeader" class="pullout">

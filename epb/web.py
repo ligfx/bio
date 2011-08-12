@@ -16,6 +16,10 @@ class Request:
 		self.method = self.getvalue("method")
 		self.categories = self.getlist("category")
 		self.evalue = self.getvalue("evalue")
+		
+		self.server_name = os.environ['SERVER_NAME']
+		self.server_port = os.environ['SERVER_PORT']
+		self.server = "http://%s:%s" % (self.server_name, self.server_port)
 	
 	def getvalue(self, key):
 		value = self.form.getvalue(key, None)

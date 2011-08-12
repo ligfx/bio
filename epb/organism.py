@@ -82,7 +82,7 @@ class Organism:
 		
 		url = self.info.get('gene_url', '#')
 		for (k, v) in keys.items():
-			url = re.sub(r"{\s*%s\s*}" % k, v.strip(), url)
+			url = re.sub(r"\{\s*%s\s*\}" % k, v.strip(), url)
 		return url
 	
 	def get_sequence(self, alignment):

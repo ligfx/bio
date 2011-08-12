@@ -5,28 +5,28 @@
 	z-index: -1;
 }
 #outerContainer {
-	width: 900px;
+	width: 950px;
 	margin: 0 auto;
 }
 #innerContainer {
 	width: 500px;
-	margin-left: 400px;
+	margin-left: 450px;
 }
 .pullout {
-	margin-left: -400px;
+	margin-left: -450px;
 }
 .dataMeta {
-	width: 400px;
+	width: 450px;
 }
 .organismMeta {
-	width: 350px;
+	width: 400px;
 	float: left;
 }
 .organismGraphic {
-	margin-left: 350px;
+	margin-left: 400px;
 }
 .selectionColumn {
-	margin-left: 350px;
+	margin-left: 400px;
 	text-align: center;
 }
 .alignmentSelection {
@@ -39,7 +39,6 @@
 }
 
 body {
-	font-family: Arial;
 	font-family: "Helvetica Neue", Helvetica, Arial, Verdana, sans-serif;
 	color: #333;
 }

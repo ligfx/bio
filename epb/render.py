@@ -18,8 +18,9 @@ def results(opts={}):
 # === alignment ===
 
 # Renders alignment detail page
-def alignment(params):
-	return render("alignment.html.jinja2", params)
+def alignment(opts):
+	opts['input_width'] = sum(len(s) for s in opts['sequences'])
+	return render("alignment.html.jinja2", opts)
 
 # === render ===
 

@@ -66,12 +66,14 @@ class Organism:
 		self.name = info.get('name', slug)
 		self.database = OrganismDatabase(kwargs['dbdir'], slug)
 		
-	def blast(self, sequence, opts):
-		xml = Blast.get_xml(os.path.join(self.blastdir, self.slug), sequence, opts)
+		self.blast_data = None
 		
-		for datum in Blast.parse_xml(xml):
-			datum['organism'] = self
-			yield datum
+	def blast(self, sequence, opts):
+		if self.blast_data: return self.blast_data
+		
+		xml = Blast.get_xml(os.path.join(self.blastdir, self.slug), sequence, opts)
+		self.blast_data = DataSet(list(Blast.parse_xml(xml)))
+		return self.blast_data
 		
 	def url_for_gene(self, gene):
 		format = self.info.get('fasta_header_format', '')
@@ -105,24 +107,6 @@ class OrganismCollection:
 	infodir = None
 	listdir = None
 
-	def __init__(self, organisms):
-		self.organisms = organisms
-		
-	def __len__(self):
-		return len(self.organisms)
-
-	# === blast ===
-	def blast(self, sequence, **opts):		
-		callback = opts.get("callback", None)
-		
-		data = []
-		for organism in self.organisms:
-			if callback: callback(organism)
-			for datum in organism.blast(sequence, opts):
-				data.append(datum)
-		
-		return DataSet(data)
-
 	# === find_all_by_categories ===
 	@classmethod
 	def find_all_by_categories(klass, categories):
@@ -143,4 +127,4 @@ class OrganismCollection:
 					dbdir = klass.dbdir)
 				)
 
-		return OrganismCollection(organisms)
+		return organisms

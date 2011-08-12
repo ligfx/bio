@@ -9,17 +9,12 @@ class DataSet:
 	# Each item in `data` is assumed to be an object of the form
 	#
 	#     {
-	#       "organism": ...,
 	#       "record": ...,
 	#       "alignment": ...,
 	#       "hsp": ...
 	#     }
 	def __init__(self, data):
 		self.data = list(data)
-	
-	# === by_organism ===
-	def by_organism(self):
-		return self._group('organism')
 	
 	# === by_record ===
 	def by_record(self):

@@ -251,7 +251,9 @@
 		},
 		render: function() {
 			this.label.innerHTML = this.model.label;
+			this.label.htmlFor = this.model.value;
 			this.input.value = this.model.value;
+			this.input.id = this.model.value;
 			this.input.checked = this.model.checked;
 			if (this.model.children && this.model.children.length > 0) {
 				this.input.name = null;

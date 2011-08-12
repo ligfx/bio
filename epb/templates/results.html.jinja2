@@ -112,13 +112,13 @@
 			{% endfor %}
 		],
 		organisms: [
-			{% for organism, data in data.by_organism() %}
+			{% for organism in organisms %}
 			{
 				name: "{{organism.name}}",
 				phylogeny: "{{organism.info.detail_group}}",
 				url: "{{organism.info.url}}",
 				alignments: [
-					{% for alignment, data in data.by_alignment() %}
+					{% for alignment, data in organism.blast_data.by_alignment() %}
 					{
 						uid: "{{ organism.slug }}:{{ alignment.name }}",
 						url: "alignments/{{ alignment.digest }}.html",

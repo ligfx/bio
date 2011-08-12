@@ -71,15 +71,14 @@ os.close(2)
 
 try:
 
-	def callback(organism):
+	seq = Fasta.normalize(request.sequence, method=request.method)
+	for organism in organisms:
 		global status
 		status['steps'] = ["Blasting %s" % organism.name] + status['steps']
 		
 		with job.status_file() as f:
 			f.write(epb.render.status(status))
-
-	seq = Fasta.normalize(request.sequence, method=request.method)
-	data = organisms.blast(seq, callback=callback, evalue=request.evalue)
+		organism.blast(seq, {"evalue": request.evalue})
 	
 	PfamScan.pfamdir = config['pfam_dir']
 	domains = PfamScan.get_domains(seq)
@@ -87,7 +86,7 @@ try:
 	sequences = Fasta.each(request.sequence)
 
 	results = epb.render.results({
-		"data": data,
+		"organisms": organisms,
 		"domains": domains,
 		"sequences": sequences,
 		"request": request
@@ -96,12 +95,13 @@ try:
 	with job.results_file() as f:
 		f.write(results.encode('utf-8'))
 		
-	for organism, data in data.by_organism():
-		for alignment, data in data.by_alignment():
+	for organism in organisms:
+		for alignment, data in organism.blast_data.by_alignment():
 			html = epb.render.alignment({
 				"data": data,
 				"alignment": alignment,
-				"organism": organism
+				"organism": organism,
+				"sequences": sequences
 			})
 			with job.alignment_file(alignment.digest) as f:
 				f.write(html.encode('utf-8'))

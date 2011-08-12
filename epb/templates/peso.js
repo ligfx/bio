@@ -12,7 +12,7 @@
 	}
 
 	var Template = window.Template = function(id) {
-		this.template = document.getElementById(id);
+		this.template = $("#" + id);
 	}
 	Template.prototype = {
 		apply: function (element) {

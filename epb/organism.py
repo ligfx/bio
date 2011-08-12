@@ -77,13 +77,12 @@ class Organism:
 		match = re.match(self.info.get('fasta_header_format', ''), gene)
 		if match:
 			keys = match.groupdict()
-			for k in keys: keys[k] = (keys[k] or '').strip()
 		else:
 			keys = {}
 		
 		url = self.info.get('gene_url', '#')
 		for (k, v) in keys.items():
-			url = re.sub(r"{\s*%s\s*}" % k, v, url)
+			url = re.sub(r"{\s*%s\s*}" % k, v.strip(), url)
 		return url
 	
 	def get_sequence(self, alignment):

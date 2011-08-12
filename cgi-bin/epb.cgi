@@ -36,6 +36,7 @@ try:
 	OrganismCollection.blastdir = config.blast_dir
 	OrganismCollection.dbdir = config.db_dir
 	OrganismCollection.infodir = config.info_dir
+	OrganismCollection.listdir = config.organism_lists_dir
 
 	organisms = OrganismCollection.find_all_by_categories(request.categories)
 

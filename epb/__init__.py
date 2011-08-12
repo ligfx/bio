@@ -17,6 +17,7 @@ class config:
 		self.info_dir = self.absolute_directory(self.config['info_dir'])
 		self.results_output_dir = self.absolute_directory(self.config['results_output_dir'])
 		self.results_http_dir = self.config['results_http_dir']
+		self.organism_lists_dir = self.absolute_directory(self.config['organism_lists_dir'])
 	
 	def __getitem__(self, key):
 		return self.config[key]

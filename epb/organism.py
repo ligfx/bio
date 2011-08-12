@@ -93,11 +93,12 @@ class Organism:
 
 # === OrganismCollection ===
 class OrganismCollection:
-	ext = ".yaml"
+	infoext = ".yaml"
 	
 	blastdir = None
 	dbdir = None
 	infodir = None
+	listdir = None
 
 	def __init__(self, organisms):
 		self.organisms = organisms
@@ -120,21 +121,21 @@ class OrganismCollection:
 	# === find_all_by_categories ===
 	@classmethod
 	def find_all_by_categories(klass, categories):
-		categories = [c.lower() for c in categories]
-
-		info_files = [f for f in os.listdir(klass.infodir) if f.endswith(klass.ext)]
-
+		
+		organism_slugs = []
+		for category in categories:
+			with open(os.path.join(klass.listdir, category)) as f:
+				for line in f:
+					organism_slugs.append(line.strip())
+		
 		organisms = []
-
-		for fname in info_files:
-			with open(os.path.join(klass.infodir, fname)) as f:
+		for slug in organism_slugs:
+			with open(os.path.join(klass.infodir, slug) + klass.infoext) as f:
 				info = yaml.load(f) or {}
-				if True: #any((c.strip().lower() in categories) for c in info_categories):
-					slug = fname[:-len(klass.ext)]
-					o = Organism(slug, info,
-					    blastdir = klass.blastdir,
-					    dbdir = klass.dbdir
-					)
-					organisms.append(o)
+				organisms.append(
+					Organism(slug, info,
+					blastdir = klass.blastdir,
+					dbdir = klass.dbdir)
+				)
 
 		return OrganismCollection(organisms)

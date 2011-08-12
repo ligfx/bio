@@ -11,6 +11,9 @@
 <script type="text/javascript">
 	{{ render('peso.js') }}
 </script>
+<script type="text/javascript">
+	{{ render('bean.min.js') }}
+</script>
 <style type="text/css">
 	{{ render('results.css') }}
 </style>
@@ -61,14 +64,15 @@
 	<div id="dataFooter" class="pullout">
 		<div class="dataMeta">
 			<div class="selectionColumn">
-				<input type="button" value="Select all" onclick="javascript:selectAll();">
+				<input type="button" value="Select all" id="selectAll">
 				<script type="text/javascript">
-					var selectAll = function() {
+					bean.add($("#selectAll"), "click", function() {
 						_.each(document.querySelectorAll("input[type='checkbox']"), function(checkbox) {
 							checkbox.checked = true;
-						};
-					}
+						});
+					});
 				</script>
+				<br>
 				<input type="submit" value="Export sequence data">
 			</div>
 		</div>

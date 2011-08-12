@@ -80,10 +80,11 @@ class Organism:
 			for k in keys: keys[k] = (keys[k] or '').strip()
 		else:
 			keys = {}
-		try:
-			return self.info.get('gene_url','#').format(**keys)
-		except:
-			return "/gene404.html"
+		
+		url = self.info.get('gene_url', '#')
+		for (k, v) in keys.items():
+			url = re.sub(r"{\s*%s\s*}" % k, v, url)
+		return url
 	
 	def get_sequence(self, alignment):
 		return self.database.get_sequence(alignment)

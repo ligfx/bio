@@ -78,7 +78,7 @@ class Organism:
 		if match:
 			keys = match.groupdict()
 		else:
-			keys = {}
+			return "#BAD-KEY:fasta_header_format"
 		
 		url = self.info.get('gene_url', '#')
 		for (k, v) in keys.items():

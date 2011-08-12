@@ -1,14 +1,99 @@
-<section id="alignment-overlay-{{ alignment.digest }}">
-	<div class="actions">
-		<a id="alignment-overlay-close-{{ alignment.digest }}"
-		   href="#close">Close popup</a>
-	</div>
+<html>
+<head>
+<script type="text/javascript">
+	{{ render('raphael-min.js') }}
+</script>
+<script type="text/javascript">
+	{{ render('peso.js') }}
+</script>
+<script type="text/javascript">
+	{{ render('underscore.js') }}
+</script>
+</head>
+<style type="text/css">
+body {
+	font-family: "Helvetica Neue", Helvetica, Arial, Verdana, sans-serif;
+	color: #333;
+}
+#container {
+	width: 900px;
+	margin: 0 auto;
+}
+
+#info, #graphic {
+	float: left;
+	width: 48%;
+}
+
+dl {
+	width: 100%;
+	overflow: hidden;
+}
+dt {
+	width: 35%;
+	clear: left;
+	float: left;
+	font-weight: bold;
+	margin: 0;
+}
+dt:after {
+	content: ":";
+}
+dd { 
+	width: 65%;
+	float: left;
+	margin: 0;
+}
+
+#alignmentGraph {
+	width: 200px;
+	height: 200px;
+	border: 2px solid #666;
+}
+#alignmentGraph svg path.great { stroke: red; }
+#alignmentGraph svg path.good  { stroke: fuchsia; }
+#alignmentGraph svg path.okay  { stroke: lime; }
+#alignmentGraph svg path.poor  { stroke: blue; }
+#alignmentGraph svg path.bad   { stroke: black; }
+
+.hsp {
+	border-left: 3px solid transparent;
+	padding-left: 1em;
+	padding-bottom: 1em;
+}
+.hsp.great { border-color: red; }
+.hsp.good  { border-color: fuchsia; }
+.hsp.okay  { border-color: lime; }
+.hsp.poor  { border-color: blue; }
+.hsp.bad   { border-color: black; }
+
+#queryLength { text-align: right; }
+#accessionLength { vertical-align: bottom; }
+
+#sequence span {
+	word-wrap: break-word;
+	display: block;
+	font-family: monospace;
+}
+.matchChunk {
+	font-family: monospace;
+	padding-bottom: 1em;
+}
+
+.hspInfo {
+	width: 50%;
+}
+</style>
+<body>
+<div id="container">
 	
-	<header>
+<div id="header">
 	<h1 class="organismName">{{ organism.name }}</h1>
 	<h2 class="geneName">{{ alignment.name }}</h2>
-	</header>
+	<a href="../results.html">Back to results</a>
+</div>
 
+<div id="info">
 	<dl>
 		<dt>E-value</dt>
 		<dd>{{ data.minimum_evalue() }}</dd>
@@ -31,57 +116,237 @@
 		<dt>Reference</dt>
 		<dd>{{ organism.info.reference }}</dd>
 	</dl>
+</div>
 
-	<section class="alignment">
-		<header>
-			<h1>Alignment</h1>
-		</header>
-		<div id="alignment-paper-{{ alignment.digest }}"
-		     class="alignmentGraph"
-		     style="width: 200px; height: 200px"
-		></div>
-	</section>
+<div id="graphic">
+	<table>
+		<tr>
+			<th></th>
+			<th colspan="2">Query</th>
+		</tr>
+		<tr>
+			<th></th>
+			<th>0 nt</th>
+			<th id="queryLength">{{ input_width }} nt</th>
+		</tr>
+		<tr>
+			<th>Hit</th>
+			<th id="accessionLength">{{ alignment.length }} nt</th>
+			<td>
+				<div id="alignmentGraph"></div>
+			</td>
+		</tr>
+	</table>
+</div>
 
-	<section class="sequence">
-		<header>
-			<h1>Sequence</h1>
-		</header>
+<div style="clear: both"></div>
 
-		<span>{{ organism.get_sequence(alignment.name) }}</span>
-	</section>
+<div id="sequence">
+	<h3>Sequence</h3>
+	<span>>{{ alignment.name }} [{{ organism.slug }}]<br/>{{ organism.get_sequence(alignment.name) }}</span>
+</div>
 
-	<section class="hsps">
-		<header>
-			<h1>High-scoring pairs</h1>
-		</header>
-		{% for hsp, datum in data.by_hsp() %}
-			<div class="hsp">
-				<div class="info">
-					<dl>
-						<dt>E-value</dt>
-						<dd>{{ hsp.evalue }}</dd>
+<div id="hsps">
+	<h3>High-scoring pairs</h3>
+</div>
 
-						<dt>Score</dt>
-						<dd>{{ hsp.score }}</dd>
+</div>
 
-						<dt>Query</dt>
-						<dd>{{ hsp.query_start }}–{{ hsp.query_end }} out of TODO nt</dd>
+<script type="text/html" id="hspTemplate">
+	<div class="hsp">
+		<div class="hspInfo">
+			<dl>
+				<dt>E-value</dt>
+				<dd class="evalue"></dd>
+				
+				<dt>Score</dt>
+				<dd class="score"></dd>
+				
+				<dt>Query</dt>
+				<dd>
+					<span class="queryStart"></span>–<span class="queryEnd"></span>
+					out of <span class="queryLength"></span> nt
+				</dd>
+				
+				<dt>Target</dt>
+				<dd>
+					<span class="targetStart"></span>–<span class="targetEnd"></span>
+					out of <span class="targetLength"></span> nt
+				</dd>
+		</div>
+		<div class="match"></div>
+	</div>
+</script>
+<script type="text/html" id="matchChunkTemplate">
+	<div class="matchChunk">
+		<span class="subjectLine"></span><br>
+		<span class="matchLine"></span><br>
+		<span class="queryLine"></span>
+	</div>
+</script>
+<script type="text/javascript">
 
-						<dt>Target</dt>
-						<dd>{{ hsp.subject_start }}–{{ hsp.subject_end }} out of {{ alignment.length }} nt</dd>
-					</dl>
-				</div>
-				<div class="match">
-					<pre>
-						{% for query, match, sbjct in hsp.lines() %}
-<div class="line">{{ sbjct }}
-{{ match }}
-{{ query }}</div>	
-						{% endfor %}
-					</pre>
-				</div>
-			</div>
-		{% endfor %}
-	</section>
+	Raphael.fn.line = function(start, end) {
+		return this.path("M" + start.x + " " + start.y + "L" + end.x + " " + end.y);
+	}
+
+	var HSPRenderer = function(hsp) {
+		this.hsp = hsp;
+	}
+	HSPRenderer.prototype = {
+		height: function() { return 5; },
+		drawOn: function(paper) {
+			var start = {
+				x: parseInt(1.0 * this.hsp.query_start / this.hsp.alignment.input_width * paper.width),
+				y: parseInt(1.0 * this.hsp.subject_start / this.hsp.alignment.length * paper.height), };
+			var end = {
+				x: parseInt(1.0 * this.hsp.query_end / this.hsp.alignment.input_width * paper.width),
+				y: parseInt(1.0 * this.hsp.subject_end / this.hsp.alignment.length * paper.height), };
+			
+			var line = paper.line(start, end);
+			line.node.removeAttribute("style");
+			line.node.removeAttribute("stroke");
+			// className is an SVGAnimatedString, so change .baseVal
+			line.node.className.baseVal = HSPHelpers.quality(this.hsp);
+			return line;
+		}
+	}
+
+	var AlignmentCanvas = View.extend({
+		init: function(opts) {
+			this.paper = Raphael(opts.parent, 1, 1);
+			this.element = this.paper.canvas;
+			this.element.removeAttribute("style");
+		},
+		render: function() {
+			this.paper.clear();
+			this.paper.setSize(1, 1);
+			var size = $.size(this.element.parentNode);
+			this.paper.setSize(size.width, size.height);
+
+			var self = this;
+			_.each(this.model.hsps, function(hsp) {
+				hsp.alignment = self.model;
+				var renderer = new HSPRenderer(hsp);
+				renderer.drawOn(self.paper);
+			})
+		}
+	})
 	
-</section>
+	var Data = {
+		alignment: {
+			input_width: {{ input_width }},
+			length: {{ alignment.length }},
+			hsps: [
+				{% for hsp, datum in data.by_hsp() %}
+					{
+						evalue: {{ hsp.evalue }},
+						score: {{ hsp.score }},
+						query_start: {{ hsp.query_start }},
+						query_end: {{ hsp.query_start + hsp.query_width }},
+						subject_start: {{ hsp.subject_start }},
+						subject_end: {{ hsp.subject_start + hsp.subject_width }},
+						match: [
+							{% for query, match, subject in hsp.lines() %}
+								{
+									query: "{{ query }}",
+									match: "{{ match }}",
+									subject: "{{ subject }}",
+								},
+							{% endfor %}
+						],
+					},
+				{% endfor %}
+			],
+		},
+	}
+	
+	var MatchChunkView = View.extend({
+		init: function(opts) {
+			this.element = new Template("matchChunkTemplate").asElement();
+			opts.parent.appendChild(this.element);
+		},
+		render: function() {
+			this.$(".subjectLine").innerHTML = this.model.subject;
+			this.$(".matchLine").innerHTML = this.model.match;
+			this.$(".queryLine").innerHTML = this.model.query;
+		}
+	})
+	
+	var MatchView = View.extend({
+		init: function() {
+			var self = this;
+			_.each(this.model, function(chunk) {
+				new MatchChunkView({
+					parent: self.element,
+					model: chunk,
+				})
+			});
+		}
+	})
+	
+	var HSPHelpers = {
+		quality: function(hsp) {
+			// "bad, poor, okay, good, great"
+			var score = hsp.score;
+			if (score >= 200) {
+				return "great";
+			} else if (score >= 80) {
+				return "good";
+			} else if (score >= 50) {
+				return "okay";
+			} else if (score >= 40) {
+				return "poor";
+			} else {
+				return "bad";
+			}
+		},
+	}
+	
+	var HSPView = View.extend({
+		init: function(opts) {
+			this.element = new Template("hspTemplate").asElement();
+			opts.parent.appendChild(this.element);
+			
+			new MatchView({
+				element: this.$(".match"),
+				model: this.model.match,
+			})
+		},
+		render: function() {
+			this.element.className = "hsp " + HSPHelpers.quality(this.model);
+			this.$(".evalue").innerHTML = this.model.evalue;
+			this.$(".score").innerHTML = this.model.score;
+			this.$(".queryStart").innerHTML = this.model.query_start;
+			this.$(".queryEnd").innerHTML = this.model.query_end;
+			this.$(".queryLength").innerHTML = this.model.alignment.input_width;
+			this.$(".targetStart").innerHTML = this.model.subject_start;
+			this.$(".targetEnd").innerHTML = this.model.subject_end;
+			this.$(".targetLength").innerHTML = this.model.subject_width;
+		}
+	})
+	
+	var HSPCollectionView = View.extend({
+		init: function() {
+			var self = this;
+			_.each(this.model, function(hsp) {
+				new HSPView({
+					parent: self.element,
+					model: hsp
+				});
+			});
+		},
+	});
+	
+	new AlignmentCanvas({
+		parent: $("#alignmentGraph"),
+		model: Data.alignment,
+	});
+	
+	new HSPCollectionView({
+		element: $("#hsps"),
+		model: Data.alignment.hsps,
+	});
+</script>
+</body>
+</html>

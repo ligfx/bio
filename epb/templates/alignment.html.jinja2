@@ -83,6 +83,23 @@ dd {
 .hspInfo {
 	width: 50%;
 }
+
+#colorKey {
+	margin-bottom: 1em;
+}
+#colorKey > div {
+	width: 19%;
+	float: left;
+	font-weight: bold;
+	color: white;
+	text-align: center;
+}
+#colorKey .great { background-color: red; }
+#colorKey .good { background-color: fuchsia; }
+#colorKey .okay { background-color: lime; }
+#colorKey .poor { background-color: blue; }
+#colorKey .bad { background-color: black; }
+
 </style>
 <body>
 <div id="container">
@@ -119,6 +136,17 @@ dd {
 </div>
 
 <div id="graphic">
+	
+	<strong>HSP Score Color Key:</strong>
+	<div id="colorKey">
+		<div class="great">>= 200</div>
+		<div class="good">>= 80</div>
+		<div class="okay">>= 50</div>
+		<div class="poor">>= 40</div>
+		<div class="bad">< 40</div>
+		<div style="clear: both; float: none"></div>
+	</div>
+	
 	<table>
 		<tr>
 			<th></th>

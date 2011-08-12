@@ -61,6 +61,14 @@
 	<div id="dataFooter" class="pullout">
 		<div class="dataMeta">
 			<div class="selectionColumn">
+				<input type="button" value="Select all" onclick="javascript:selectAll();">
+				<script type="text/javascript">
+					var selectAll = function() {
+						_.each(document.querySelectorAll("input[type='checkbox']"), function(checkbox) {
+							checkbox.checked = true;
+						};
+					}
+				</script>
 				<input type="submit" value="Export sequence data">
 			</div>
 		</div>

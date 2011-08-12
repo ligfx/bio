@@ -101,7 +101,8 @@ try:
 				"data": data,
 				"alignment": alignment,
 				"organism": organism,
-				"sequences": sequences
+				"sequences": sequences,
+				"domains": domains
 			})
 			with job.alignment_file(alignment.digest) as f:
 				f.write(html.encode('utf-8'))

@@ -11,11 +11,11 @@ class Domain:
 	def __init__(self, row):
 		self.id = row[0]
 		self.accession = row[1]
-		self.domain_name = row[2]
+		self.name = row[2]
 		self.domain_accession = row[3]
 		self.evalue = row[4]
-		self.qstart = row[5]
-		self.qend = row[6]
+		self.query_start = row[5]
+		self.query_end = row[6]
 		self.dlength = row[7]
 		self.dstart = row[8]
 		self.dend = row[9]
@@ -54,6 +54,15 @@ class OrganismDatabase:
 		with self.cursor() as c:
 			statement = c.execute('select domains.* from domains where domains.accession = ?', (alignment,))
 			return list(map(Domain, statement.fetchall()))
+
+	def get_fullname(self, alignment):
+		with self.cursor() as c:
+			statement = c.execute('select sequences.fullname from sequences where sequences.accession = ? limit 1', (alignment,))
+			row = statement.fetchone()
+			if row:
+				return row[0]
+			else:
+				return alignment
 
 # === Organism ===
 class Organism:
@@ -97,6 +106,9 @@ class Organism:
 		
 	def get_domains(self, alignment):
 		return self.database.get_domains(alignment)
+		
+	def get_fullname(self, alignment):
+		return self.database.get_fullname(alignment)
 
 # === OrganismCollection ===
 class OrganismCollection:

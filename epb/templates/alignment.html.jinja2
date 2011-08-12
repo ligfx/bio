@@ -48,7 +48,10 @@ dd {
 #alignmentGraph {
 	width: 200px;
 	height: 200px;
-	border: 2px solid #666;
+	border: 1px solid #999;
+}
+#alignmentGraph svg path {
+	stroke-width: 3px;
 }
 #alignmentGraph svg path.great { stroke: red; }
 #alignmentGraph svg path.good  { stroke: fuchsia; }
@@ -100,13 +103,35 @@ dd {
 #colorKey .poor { background-color: blue; }
 #colorKey .bad { background-color: black; }
 
+#alignmentGraph svg rect {
+	fill: rgb(180, 224, 158);
+	stroke: none;
+}
+
+#queryDomainsHeader {
+	height: 1em;
+}
+#targetDomainsHeader {
+	width: 1em;
+}
+
+#targetDomainsHeader svg rect,
+#queryDomainsHeader svg rect {
+	fill: rgb(40, 150, 40);
+	stroke: none;
+}
+#targetDomainsHeader svg a:hover rect,
+#queryDomainsHeader svg a:hover rect {
+	fill: rgb(40, 170, 40);
+}
+
 </style>
 <body>
 <div id="container">
 	
 <div id="header">
 	<h1 class="organismName">{{ organism.name }}</h1>
-	<h2 class="geneName">{{ alignment.name }}</h2>
+	<h2 class="geneName">{{ organism.get_fullname(alignment.name) }}</h2>
 	<a href="../results.html">Back to results</a>
 </div>
 
@@ -141,16 +166,25 @@ dd {
 	<table>
 		<tr>
 			<th></th>
+			<th></th>
 			<th colspan="2">Query</th>
 		</tr>
 		<tr>
 			<th></th>
-			<th>0 nt</th>
+			<th></th>
+			<th></th>
 			<th id="queryLength">{{ input_width }} nt</th>
+		</tr>
+		<tr>
+			<th></th>
+			<th></th>
+			<th></th>
+			<th id="queryDomainsHeader"></th>
 		</tr>
 		<tr>
 			<th>Hit</th>
 			<th id="accessionLength">{{ alignment.length }} nt</th>
+			<th id="targetDomainsHeader"></th>
 			<td>
 				<div id="alignmentGraph"></div>
 			</td>
@@ -162,7 +196,7 @@ dd {
 
 <div id="sequence">
 	<h3>Sequence</h3>
-	<span>>{{ alignment.name }} [{{ organism.slug }}]<br/>{{ organism.get_sequence(alignment.name) }}</span>
+	<span>>{{ organism.get_fullname(alignment.name) }} [{{ organism.slug }}]<br/>{{ organism.get_sequence(alignment.name) }}</span>
 </div>
 
 <div id="hsps">
@@ -208,12 +242,17 @@ dd {
 	Raphael.fn.line = function(start, end) {
 		return this.path("M" + start.x + " " + start.y + "L" + end.x + " " + end.y);
 	}
+	Raphael.fn.epb = {
+		resizeToParent: function() {
+			var size = $.size(this.canvas.parentNode);
+			this.setSize(size.width, size.height);
+		}
+	}
 
 	var HSPRenderer = function(hsp) {
 		this.hsp = hsp;
 	}
 	HSPRenderer.prototype = {
-		height: function() { return 5; },
 		drawOn: function(paper) {
 			var start = {
 				x: parseInt(1.0 * this.hsp.query_start / this.hsp.alignment.input_width * paper.width),
@@ -230,6 +269,34 @@ dd {
 			return line;
 		}
 	}
+	
+	var QueryDomainRenderer = function(domain) {
+		this.domain = domain;
+	}
+	QueryDomainRenderer.prototype = {
+		drawOn: function(paper) {
+			
+			var x = parseInt(this.domain.query_start * paper.width);
+			var w = parseInt(this.domain.query_width * paper.width);
+			var rect = paper.rect(x, 0, w, paper.height);
+			rect.node.removeAttribute("fill");
+			rect.node.removeAttribute("stroke");
+		}
+	}
+	
+	var TargetDomainRenderer = function(domain) {
+		this.domain = domain;
+	}
+	TargetDomainRenderer.prototype = {
+		drawOn: function(paper) {
+			
+			var y = parseInt(this.domain.query_start * paper.height);
+			var h = parseInt(this.domain.query_width * paper.height);
+			var rect = paper.rect(0, y, paper.width, h);
+			rect.node.removeAttribute("fill");
+			rect.node.removeAttribute("stroke");
+		}
+	}
 
 	var AlignmentCanvas = View.extend({
 		init: function(opts) {
@@ -238,47 +305,21 @@ dd {
 			this.element.removeAttribute("style");
 		},
 		render: function() {
-			this.paper.clear();
-			this.paper.setSize(1, 1);
-			var size = $.size(this.element.parentNode);
-			this.paper.setSize(size.width, size.height);
+			this.paper.epb.resizeToParent();
 
 			var self = this;
-			_.each(this.model.hsps, function(hsp) {
-				hsp.alignment = self.model;
-				var renderer = new HSPRenderer(hsp);
-				renderer.drawOn(self.paper);
-			})
+			_.each(this.model.domains, function(domain) {
+				new QueryDomainRenderer(domain).drawOn(self.paper);
+			});
+			_.each(this.model.alignment.domains, function(domain) {
+				new TargetDomainRenderer(domain).drawOn(self.paper);
+			});
+			_.each(this.model.alignment.hsps, function(hsp) {
+				hsp.alignment = self.model.alignment;
+				new HSPRenderer(hsp).drawOn(self.paper);
+			});
 		}
 	})
-	
-	var Data = {
-		alignment: {
-			input_width: {{ input_width }},
-			length: {{ alignment.length }},
-			hsps: [
-				{% for hsp, datum in data.by_hsp() %}
-					{
-						evalue: {{ hsp.evalue }},
-						score: {{ hsp.score }},
-						query_start: {{ hsp.query_start }},
-						query_end: {{ hsp.query_start + hsp.query_width }},
-						subject_start: {{ hsp.subject_start }},
-						subject_end: {{ hsp.subject_start + hsp.subject_width }},
-						match: [
-							{% for query, match, subject in hsp.lines() %}
-								{
-									query: "{{ query }}",
-									match: "{{ match }}",
-									subject: "{{ subject }}",
-								},
-							{% endfor %}
-						],
-					},
-				{% endfor %}
-			],
-		},
-	}
 	
 	var MatchChunkView = View.extend({
 		init: function(opts) {
@@ -341,7 +382,7 @@ dd {
 			this.$(".queryLength").innerHTML = this.model.alignment.input_width;
 			this.$(".targetStart").innerHTML = this.model.subject_start;
 			this.$(".targetEnd").innerHTML = this.model.subject_end;
-			this.$(".targetLength").innerHTML = this.model.subject_width;
+			this.$(".targetLength").innerHTML = this.model.alignment.length;
 		}
 	})
 	
@@ -357,15 +398,114 @@ dd {
 		},
 	});
 	
+	var QueryDomainsHeaderView = View.extend({
+		init: function() {
+			this.paper = Raphael(this.element);
+		},
+		render: function() {
+			this.paper.epb.resizeToParent();
+			
+			var self = this;
+			_.each(this.model, function(domain) {
+				var x = parseInt(domain.query_start * self.paper.width);
+				var w = parseInt(domain.query_width * self.paper.width);
+
+				var rect = self.paper.rect(x, 0, w, self.paper.height);
+				rect.node.removeAttribute("fill");
+				rect.node.removeAttribute("stroke");
+				rect.attr({href: domain.url});
+			});
+		}
+	});
+	
+	var TargetDomainsHeaderView = View.extend({
+		init: function() {
+			this.paper = Raphael(this.element);
+		},
+		render: function() {
+			this.paper.epb.resizeToParent();
+			
+			var self = this;
+			_.each(this.model, function(domain) {
+				var y = parseInt(domain.query_start * self.paper.height);
+				var h = parseInt(domain.query_width * self.paper.height);
+
+				var rect = self.paper.rect(0, y, self.paper.width, h);
+				rect.node.removeAttribute("fill");
+				rect.node.removeAttribute("stroke");
+			});
+		}
+	});
+	
+	var Data = {
+		alignment: {
+			name: "{{ alignment.name }}",
+			input_width: {{ input_width }},
+			length: {{ alignment.length }},
+			domains: [
+				{% for domain in organism.get_domains(alignment.name) %}
+				{
+					query_start: {{ domain.query_start / input_width }},
+					query_width: {{ (domain.query_start + domain.query_end) / input_width }},
+					name: "{{ domain.name }}",
+				},
+				{% endfor %}
+			],
+			hsps: [
+				{% for hsp, datum in data.by_hsp() %}
+					{
+						evalue: {{ hsp.evalue }},
+						score: {{ hsp.score }},
+						query_start: {{ hsp.query_start }},
+						query_end: {{ hsp.query_start + hsp.query_width }},
+						subject_start: {{ hsp.subject_start }},
+						subject_end: {{ hsp.subject_start + hsp.subject_width }},
+						match: [
+							{% for query, match, subject in hsp.lines() %}
+								{
+									query: "{{ query }}",
+									match: "{{ match }}",
+									subject: "{{ subject }}",
+								},
+							{% endfor %}
+						],
+					},
+				{% endfor %}
+			],
+		},
+		query_domains: [
+			{% for domain in domains %}
+			{
+				query_start: {{ domain.query_start / input_width }},
+				query_width: {{ domain.query_width / input_width }},
+				name: "{{ domain.name }}",
+				url: "{{ domain.url }}",
+			},
+			{% endfor %}
+		],
+	}
+	
 	new AlignmentCanvas({
 		parent: $("#alignmentGraph"),
-		model: Data.alignment,
+		model: {
+			alignment: Data.alignment,
+			domains: Data.query_domains,
+		},
 	});
 	
 	new HSPCollectionView({
 		element: $("#hsps"),
 		model: Data.alignment.hsps,
 	});
+	
+	new QueryDomainsHeaderView({
+		element: $("#queryDomainsHeader"),
+		model: Data.query_domains,
+	})
+	new TargetDomainsHeaderView({
+		element: $("#targetDomainsHeader"),
+		model: Data.alignment.domains,
+	})
 </script>
 </body>
 </html>

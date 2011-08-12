@@ -65,10 +65,16 @@
 		<div class="dataMeta">
 			<div class="selectionColumn">
 				<input type="button" value="Select all" id="selectAll">
+				<input type="button" value="Unselect all" id="unselectAll">
 				<script type="text/javascript">
 					bean.add($("#selectAll"), "click", function() {
 						_.each(document.querySelectorAll("input[type='checkbox']"), function(checkbox) {
 							checkbox.checked = true;
+						});
+					});
+					bean.add($("#unselectAll"), "click", function() {
+						_.each(document.querySelectorAll("input[type='checkbox']"), function(checkbox) {
+							checkbox.checked = false;
 						});
 					});
 				</script>

@@ -63,7 +63,7 @@ class HSPPresenter:
 		first = count - 7
 		query = "Query: " + self.query[0:first]
 		match = "Match: " + self.match[0:first]
-		sbjct = "Sbjct: " + self.match[0:first]
+		sbjct = "Sbjct: " + self.subject[0:first]
 		yield (query, match, sbjct)
 		
 		length = len(self.query)

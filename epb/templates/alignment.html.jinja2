@@ -141,6 +141,9 @@ dd {
 		<dt>E-value</dt>
 		<dd>{{ data.minimum_evalue() }}</dd>
 
+		<dt>Length</dt>
+		<dd>{{ alignment.length }}</dd>
+
 		<dt>Source</dt>
 		<dd>{{ organism.info.source }}</dd>
 
@@ -448,7 +451,7 @@ dd {
 				{% for domain in organism.get_domains(alignment.name) %}
 				{
 					query_start: {{ domain.query_start / alignment.length }},
-					query_width: {{ (domain.query_start + domain.query_end) / alignment.length }},
+					query_width: {{ (domain.query_end - domain.query_start) / alignment.length }},
 					name: "{{ domain.name }}",
 					url: "{{ domain.url }}",
 				},

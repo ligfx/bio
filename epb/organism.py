@@ -23,48 +23,52 @@ class Domain:
 		self.url = "http://pfam.sanger.ac.uk/family/" + self.accession_name
 
 class OrganismDatabase:
-	class Guard:
-		def in_order(self, f1, f2):
-			f1(); f2()
+	class Guard: pass
 	
 	file_ext = ".db"
 	
 	def __init__(self, dbdir, slug):
 		self.path = os.path.join(dbdir, slug) + self.file_ext
+		self.conn = None
+		
+	def open(self):
+		self.conn = sqlite3.connect(self.path)
+		
+	def close(self):
+		self.conn.close()
 	
 	def cursor(self):
 		try:
-			conn = sqlite3.connect(self.path)
-			c = conn.cursor()
+			c = self.conn.cursor()
 			guard = OrganismDatabase.Guard()
 			guard.__enter__ = lambda: c
-			guard.__exit__ = lambda *args: guard.in_order(c.close, conn.close)
+			guard.__exit__ = lambda *args: c.close
 			return guard
 		except:
 			raise Exception("Problem with database {}".format(self.path))
 	
-	def get_sequence(self, alignment):
+	def get_sequence(self, accession):
 		with self.cursor() as c:
-			statement = c.execute('select sequences.sequence from sequences where sequences.accession = ? limit 1', (alignment,))
+			statement = c.execute('select sequences.sequence from sequences where sequences.accession = ? limit 1', (accession,))
 			row = statement.fetchone()
 			if not row:
-				statement = c.execute('select sequences.sequence from sequences where sequences.fullname = ? limit 1', (alignment,))
+				statement = c.execute('select sequences.sequence from sequences where sequences.fullname = ? limit 1', (accession,))
 				row = statement.fetchone()
 			return row[0]
 
-	def get_domains(self, alignment):
+	def get_domains(self, accession):
 		with self.cursor() as c:
-			statement = c.execute('select domains.* from domains where domains.accession = ?', (alignment,))
+			statement = c.execute('select domains.* from domains where domains.accession = ?', (accession,))
 			return list(map(Domain, statement.fetchall()))
 
-	def get_fullname(self, alignment):
+	def get_fullname(self, accession):
 		with self.cursor() as c:
-			statement = c.execute('select sequences.fullname from sequences where sequences.accession = ? limit 1', (alignment,))
+			statement = c.execute('select sequences.fullname from sequences where sequences.accession = ? limit 1', (accession,))
 			row = statement.fetchone()
 			if row:
 				return row[0]
 			else:
-				return alignment
+				return accession
 
 # === Organism ===
 class Organism:
@@ -85,7 +89,19 @@ class Organism:
 		xml = Blast.get_xml(os.path.join(self.blastdir, self.slug), sequence, opts)
 		self.blast_data = DataSet(list(Blast.parse_xml(xml)))
 		return self.blast_data
+	
+	def load_database(self):
+		self.sequences = {}
+		self.domains = {}
+		self.fullnames = {}
 		
+		self.database.open()
+		for (alignment, data) in self.blast_data.by_alignment():
+			self.sequences[alignment.name] = self.database.get_sequence(alignment.name)
+			self.domains[alignment.name] = self.database.get_domains(alignment.name)
+			self.fullnames[alignment.name] = self.database.get_fullname(alignment.name)
+		self.database.close()
+	
 	def url_for_gene(self, gene):
 		format = self.info.get('fasta_header_format', '')
 		url = self.info.get('gene_url', '#')
@@ -103,14 +119,14 @@ class Organism:
 			url = re.sub(r"\{\s*%s\s*\}" % k, v.strip(), url)
 		return url
 	
-	def get_sequence(self, alignment):
-		return self.database.get_sequence(alignment)
+	def get_sequence(self, alignment_name):
+		return self.sequences[alignment_name]
 		
-	def get_domains(self, alignment):
-		return self.database.get_domains(alignment)
+	def get_domains(self, alignment_name):
+		return self.domains[alignment_name]
 		
-	def get_fullname(self, alignment):
-		return self.database.get_fullname(alignment)
+	def get_fullname(self, alignment_name):
+		return self.fullnames[alignment_name]
 
 # === OrganismCollection ===
 class OrganismCollection:

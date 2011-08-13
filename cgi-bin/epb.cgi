@@ -79,6 +79,7 @@ try:
 		with job.status_file() as f:
 			f.write(epb.render.status(status))
 		organism.blast(seq, {"evalue": request.evalue})
+		organism.load_database()
 	
 	PfamScan.pfamdir = config['pfam_dir']
 	domains = PfamScan.get_domains(seq)

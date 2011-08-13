@@ -433,6 +433,7 @@ dd {
 				var rect = self.paper.rect(0, y, self.paper.width, h);
 				rect.node.removeAttribute("fill");
 				rect.node.removeAttribute("stroke");
+				rect.attr({href: domain.url});
 			});
 		}
 	});
@@ -448,6 +449,7 @@ dd {
 					query_start: {{ domain.query_start / input_width }},
 					query_width: {{ (domain.query_start + domain.query_end) / input_width }},
 					name: "{{ domain.name }}",
+					url: "{{ domain.url }}",
 				},
 				{% endfor %}
 			],

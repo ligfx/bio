@@ -12,13 +12,15 @@ class Domain:
 		self.id = row[0]
 		self.accession = row[1]
 		self.name = row[2]
-		self.domain_accession = row[3]
+		self.accession_name = row[3]
 		self.evalue = row[4]
 		self.query_start = row[5]
 		self.query_end = row[6]
 		self.dlength = row[7]
 		self.dstart = row[8]
 		self.dend = row[9]
+		
+		self.url = "http://pfam.sanger.ac.uk/family/" + self.accession_name
 
 class OrganismDatabase:
 	class Guard:
